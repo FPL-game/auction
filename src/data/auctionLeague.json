@@ -2272,7 +2272,7 @@
       "pos": "GK",
       "club": "Chelsea",
       "pts": 9,
-      "selectedByPercent": 0.1,
+      "selectedByPercent": 0,
       "expectedPoints": 0,
       "nowCost": 5,
       "draftedBy": null
@@ -2580,7 +2580,7 @@
       "pos": "DEF",
       "club": "Chelsea",
       "pts": 154,
-      "selectedByPercent": 10.6,
+      "selectedByPercent": 10.5,
       "expectedPoints": 2.8,
       "nowCost": 6,
       "draftedBy": null
@@ -2833,7 +2833,7 @@
       "pos": "MID",
       "club": "Coventry City",
       "pts": 0,
-      "selectedByPercent": 0.2,
+      "selectedByPercent": 0.1,
       "expectedPoints": 1.5,
       "nowCost": 5.5,
       "draftedBy": null
@@ -2957,6 +2957,17 @@
       "selectedByPercent": 0.1,
       "expectedPoints": 0,
       "nowCost": 4.5,
+      "draftedBy": null
+    },
+    {
+      "id": 492,
+      "name": "Taiwo Awoniyi",
+      "pos": "FWD",
+      "club": "Coventry City",
+      "pts": 43,
+      "selectedByPercent": 0.5,
+      "expectedPoints": 1.8,
+      "nowCost": 5.5,
       "draftedBy": null
     },
     {
@@ -4577,6 +4588,28 @@
       "draftedBy": null
     },
     {
+      "id": 591,
+      "name": "Julio Enciso",
+      "pos": "MID",
+      "club": "Ipswich Town",
+      "pts": 0,
+      "selectedByPercent": 0,
+      "expectedPoints": 0,
+      "nowCost": 5.5,
+      "draftedBy": null
+    },
+    {
+      "id": 592,
+      "name": "Abdoul Ouattara",
+      "pos": "DEF",
+      "club": "Ipswich Town",
+      "pts": 0,
+      "selectedByPercent": 0,
+      "expectedPoints": 0,
+      "nowCost": 4,
+      "draftedBy": null
+    },
+    {
       "id": 260,
       "name": "Harry Wilson",
       "pos": "MID",
@@ -5264,7 +5297,7 @@
       "pos": "DEF",
       "club": "Man City",
       "pts": 160,
-      "selectedByPercent": 21.6,
+      "selectedByPercent": 21.5,
       "expectedPoints": 3.1,
       "nowCost": 6.5,
       "draftedBy": null
@@ -6458,17 +6491,6 @@
       "draftedBy": null
     },
     {
-      "id": 492,
-      "name": "Taiwo Awoniyi",
-      "pos": "FWD",
-      "club": "Nott'm Forest",
-      "pts": 43,
-      "selectedByPercent": 0.5,
-      "expectedPoints": 1.8,
-      "nowCost": 5.5,
-      "draftedBy": null
-    },
-    {
       "id": 493,
       "name": "Arnaud Kalimuendo",
       "pos": "FWD",
@@ -7188,7 +7210,7 @@
     "seasonStatus": "pre-draft",
     "currentGameweek": 1,
     "lastUpdated": null,
-    "lastFplSync": "2026-08-18T13:38:51.307Z"
+    "lastFplSync": "2026-08-18T14:05:44.411Z"
   },
   "liveScores": null
 }
