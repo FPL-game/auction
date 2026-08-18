@@ -44,6 +44,9 @@ async function main() {
   const clubById = new Map(bootstrap.teams.map((t) => [t.id, t.name]));
 
   // ---- Refresh the player pool (points + drafted status), keep manual playerId links ----
+  // selectedByPercent and expectedPoints (FPL's own next-gameweek projection) let the
+  // Unpicked Players page default-sort by "likely to matter" rather than raw season
+  // points, which is near-meaningless in the first few gameweeks of a season.
   const existingByName = new Map(state.players.map((p) => [p.name, p]));
   state.players = bootstrap.elements.map((el) => {
     const name = `${el.first_name} ${el.second_name}`;
@@ -54,6 +57,9 @@ async function main() {
       pos: POSITION_BY_ELEMENT_TYPE[el.element_type] || "?",
       club: clubById.get(el.team) || "?",
       pts: el.total_points,
+      selectedByPercent: parseFloat(el.selected_by_percent) || 0,
+      expectedPoints: parseFloat(el.ep_next) || 0,
+      nowCost: el.now_cost / 10,
       draftedBy: prior?.draftedBy ?? null,
     };
   });
