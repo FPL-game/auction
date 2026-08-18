@@ -23,7 +23,7 @@ const playerOptions = players.map((p: any) => ({
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;500;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
+<style is:global>
   :root{
     --pitch: #0A1712;
     --card: #12271D;
@@ -279,7 +279,7 @@ const playerOptions = players.map((p: any) => ({
       if (snap.empty) { list.innerHTML = '<li class="meta">No picks yet.</li>'; return; }
       list.innerHTML = snap.docs.map((d) => {
         const p = d.data();
-        return `<li><span>${p.playerName} <span class="meta">&rarr; ${p.teamName}</span></span><span class="meta">${p.price}M</span></li>`;
+        return `<li><span>${p.playerName} <span class="meta">&rarr; ${p.teamName}</span></span><span class="meta">${p.price}m</span></li>`;
       }).join('');
     });
   }
