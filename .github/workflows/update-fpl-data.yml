@@ -2,9 +2,10 @@ name: Update Auction League FPL data
 
 on:
   schedule:
-    # Every 2 hours, year-round. The script is cheap to run off-season/off-gameweek —
-    # it just refreshes the player pool and no-ops on live scores.
-    - cron: "0 */2 * * *"
+    # Every 5 minutes — GitHub Actions' practical floor for scheduled workflows.
+    # The script is cheap to run off-season/off-gameweek — it just refreshes the
+    # player pool and no-ops on live scores.
+    - cron: "*/5 * * * *"
   workflow_dispatch: {}
 
 permissions:
