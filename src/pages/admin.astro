@@ -1,0 +1,386 @@
+---
+import auctionLeagueData from "../data/auctionLeague.json";
+
+const state = auctionLeagueData as any;
+const { teams, players } = state;
+
+// Slim player list for the searchable dropdown — id/name/pos/club/pts only.
+const playerOptions = players.map((p: any) => ({
+  id: p.id,
+  name: p.name,
+  pos: p.pos,
+  club: p.club,
+}));
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Draft Admin — The Auction League</title>
+<meta name="robots" content="noindex, nofollow" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;500;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pitch: #0A1712;
+    --card: #12271D;
+    --card-2: #163024;
+    --line: #24402F;
+    --turf: #37C871;
+    --amber: #FFB627;
+    --white: #F3F6F1;
+    --grey: #8AA095;
+    --red: #E8543F;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background: radial-gradient(ellipse at top, #12281D 0%, var(--pitch) 55%);
+    color: var(--white);
+    font-family: 'Work Sans', sans-serif;
+    min-height: 100vh;
+    padding: 28px 20px 60px;
+  }
+  .mono{ font-family:'JetBrains Mono', monospace; }
+  h1{
+    font-family:'Anton', sans-serif;
+    text-transform:uppercase;
+    letter-spacing:0.02em;
+    font-size: clamp(24px, 5vw, 36px);
+    margin-bottom: 4px;
+  }
+  h1 em{ font-style:normal; color: var(--turf); }
+  .sub{ color: var(--grey); font-size: 13px; font-family:'JetBrains Mono', monospace; margin-bottom: 24px; }
+  .wrap{ max-width: 720px; margin: 0 auto; }
+  .card{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card h2{
+    font-family:'Anton', sans-serif;
+    text-transform:uppercase;
+    font-size: 16px;
+    color: var(--turf);
+    letter-spacing: 0.03em;
+    margin-bottom: 14px;
+  }
+  label{
+    display:block;
+    font-size: 11px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color: var(--grey);
+    font-family:'JetBrains Mono', monospace;
+    margin-bottom: 6px;
+  }
+  input, select{
+    width:100%;
+    background: var(--card-2);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--white);
+    font-family:'Work Sans', sans-serif;
+    font-size: 14px;
+    margin-bottom: 14px;
+  }
+  button{
+    background: var(--turf);
+    color: var(--pitch);
+    border: none;
+    border-radius: 8px;
+    padding: 12px 18px;
+    font-family:'Anton', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  button.secondary{
+    background: transparent;
+    color: var(--grey);
+    border: 1px solid var(--line);
+  }
+  button.danger{
+    background: transparent;
+    color: var(--red);
+    border: 1px solid var(--red);
+  }
+  button:disabled{ opacity: 0.5; cursor: not-allowed; }
+  .row{ display:flex; gap: 10px; flex-wrap: wrap; }
+  .row > *{ flex: 1; min-width: 140px; }
+  .msg{ font-size: 13px; margin-top: 4px; margin-bottom: 10px; }
+  .msg.error{ color: var(--red); }
+  .msg.ok{ color: var(--turf); }
+  .budget-list{ list-style:none; }
+  .budget-list li{
+    display:flex; justify-content:space-between;
+    padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: 14px;
+  }
+  .budget-list .amt{ font-family:'JetBrains Mono', monospace; color: var(--turf); }
+  .pick-list{ list-style:none; }
+  .pick-list li{
+    display:flex; justify-content:space-between; align-items:center;
+    padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: 13px;
+  }
+  .pick-list .meta{ color: var(--grey); font-family:'JetBrains Mono', monospace; font-size: 11px; }
+  #app{ display:none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>DRAFT <em>ADMIN</em></h1>
+  <div class="sub">The Auction League &mdash; live pick entry</div>
+
+  <div class="card" id="loginCard">
+    <h2>Sign In</h2>
+    <label for="email">Email</label>
+    <input type="email" id="email" autocomplete="username" />
+    <label for="password">Password</label>
+    <input type="password" id="password" autocomplete="current-password" />
+    <button id="loginBtn">Sign In</button>
+    <div class="msg error" id="loginMsg"></div>
+  </div>
+
+  <div id="app">
+    <div class="card">
+      <h2>Live Budgets</h2>
+      <ul class="budget-list" id="budgetList"></ul>
+    </div>
+
+    <div class="card">
+      <h2>Add Pick</h2>
+      <label for="playerInput">Player</label>
+      <input type="text" id="playerInput" list="playerOptions" placeholder="Start typing a name..." autocomplete="off" />
+      <datalist id="playerOptions"></datalist>
+      <div class="row">
+        <div>
+          <label for="teamSelect">Team</label>
+          <select id="teamSelect"></select>
+        </div>
+        <div>
+          <label for="priceInput">Price (M)</label>
+          <input type="number" id="priceInput" min="0" step="0.5" />
+        </div>
+      </div>
+      <button id="addPickBtn">Add Pick</button>
+      <div class="msg" id="pickMsg"></div>
+    </div>
+
+    <div class="card">
+      <h2>Recent Picks</h2>
+      <ul class="pick-list" id="pickList"></ul>
+      <button class="secondary" id="undoBtn" style="margin-top:10px;">Undo Last Pick</button>
+    </div>
+
+    <div class="card">
+      <h2>Danger Zone</h2>
+      <button class="danger" id="resetBtn">Reset Entire Draft</button>
+      <div class="msg" id="resetMsg"></div>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id="teamsSeed" set:html={JSON.stringify(teams)}></script>
+<script type="application/json" id="playersSeed" set:html={JSON.stringify(playerOptions)}></script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import {
+    getFirestore, doc, getDoc, setDoc, onSnapshot, runTransaction,
+    collection, addDoc, query, orderBy, limit, getDocs, deleteDoc, serverTimestamp,
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+  import {
+    getAuth, signInWithEmailAndPassword, onAuthStateChanged,
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyApmHdW9Jj__ejTY6jKu2j-TG_KyTQYVN4",
+    authDomain: "fpl-auction.firebaseapp.com",
+    projectId: "fpl-auction",
+    storageBucket: "fpl-auction.firebasestorage.app",
+    messagingSenderId: "113884648410",
+    appId: "1:113884648410:web:ede97721bcf2c57aa3e6e3",
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  const seedTeams = JSON.parse(document.getElementById('teamsSeed').textContent);
+  const seedPlayers = JSON.parse(document.getElementById('playersSeed').textContent);
+  const DEFAULTS = { remainingBudget: 100, waiverBudget: 20, roster: [] };
+  const liveTeams = {};
+
+  const teamSelect = document.getElementById('teamSelect');
+  seedTeams.forEach((t) => {
+    const opt = document.createElement('option');
+    opt.value = String(t.id);
+    opt.textContent = t.name;
+    teamSelect.appendChild(opt);
+  });
+
+  function draftedPlayerIds() {
+    const set = new Set();
+    for (const t of seedTeams) {
+      const live = liveTeams[t.id] || DEFAULTS;
+      for (const p of live.roster) if (p.playerId != null) set.add(String(p.playerId));
+    }
+    return set;
+  }
+
+  function playerLabel(p) {
+    return `${p.name} — ${p.club} (${p.pos})`;
+  }
+
+  function refreshPlayerOptions() {
+    const drafted = draftedPlayerIds();
+    const dl = document.getElementById('playerOptions');
+    dl.innerHTML = '';
+    seedPlayers
+      .filter((p) => !drafted.has(String(p.id)))
+      .forEach((p) => {
+        const opt = document.createElement('option');
+        opt.value = playerLabel(p);
+        dl.appendChild(opt);
+      });
+  }
+
+  function renderBudgets() {
+    const list = document.getElementById('budgetList');
+    list.innerHTML = seedTeams.map((t) => {
+      const live = liveTeams[t.id] || DEFAULTS;
+      return `<li><span>${t.name}</span><span class="amt">${live.remainingBudget}M</span></li>`;
+    }).join('');
+    seedTeams.forEach((t) => {
+      const opt = teamSelect.querySelector(`option[value="${t.id}"]`);
+      const live = liveTeams[t.id] || DEFAULTS;
+      if (opt) opt.textContent = `${t.name} (${live.remainingBudget}M left)`;
+    });
+  }
+
+  seedTeams.forEach((t) => {
+    onSnapshot(doc(db, 'teams', String(t.id)), (snap) => {
+      liveTeams[t.id] = snap.exists() ? snap.data() : { ...DEFAULTS, name: t.name };
+      renderBudgets();
+      refreshPlayerOptions();
+    });
+  });
+
+  function renderPicks() {
+    getDocs(query(collection(db, 'draftLog'), orderBy('ts', 'desc'), limit(10))).then((snap) => {
+      const list = document.getElementById('pickList');
+      if (snap.empty) { list.innerHTML = '<li class="meta">No picks yet.</li>'; return; }
+      list.innerHTML = snap.docs.map((d) => {
+        const p = d.data();
+        return `<li><span>${p.playerName} <span class="meta">&rarr; ${p.teamName}</span></span><span class="meta">${p.price}M</span></li>`;
+      }).join('');
+    });
+  }
+
+  // ---- Auth ----
+  onAuthStateChanged(auth, (user) => {
+    document.getElementById('loginCard').style.display = user ? 'none' : 'block';
+    document.getElementById('app').style.display = user ? 'block' : 'none';
+    if (user) renderPicks();
+  });
+
+  document.getElementById('loginBtn').addEventListener('click', async () => {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const msg = document.getElementById('loginMsg');
+    msg.textContent = '';
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (err) {
+      msg.textContent = 'Sign-in failed: ' + err.message;
+    }
+  });
+
+  // ---- Add pick ----
+  document.getElementById('addPickBtn').addEventListener('click', async () => {
+    const pickMsg = document.getElementById('pickMsg');
+    pickMsg.className = 'msg';
+    pickMsg.textContent = '';
+
+    const label = document.getElementById('playerInput').value.trim();
+    const teamId = teamSelect.value;
+    const price = parseFloat(document.getElementById('priceInput').value);
+
+    const player = seedPlayers.find((p) => playerLabel(p) === label);
+    if (!player) { pickMsg.className = 'msg error'; pickMsg.textContent = 'Pick a player from the dropdown list.'; return; }
+    if (!teamId) { pickMsg.className = 'msg error'; pickMsg.textContent = 'Select a team.'; return; }
+    if (!(price >= 0)) { pickMsg.className = 'msg error'; pickMsg.textContent = 'Enter a valid price.'; return; }
+    if (draftedPlayerIds().has(String(player.id))) { pickMsg.className = 'msg error'; pickMsg.textContent = 'That player is already drafted.'; return; }
+
+    const team = seedTeams.find((t) => String(t.id) === teamId);
+    const teamRef = doc(db, 'teams', teamId);
+
+    try {
+      await runTransaction(db, async (tx) => {
+        const snap = await tx.get(teamRef);
+        const data = snap.exists() ? snap.data() : { name: team.name, ...DEFAULTS };
+        const newBudget = data.remainingBudget - price;
+        const newRoster = [...data.roster, { playerId: player.id, name: player.name, pos: player.pos, club: player.club, price }];
+        tx.set(teamRef, { ...data, remainingBudget: newBudget, roster: newRoster });
+      });
+      await addDoc(collection(db, 'draftLog'), {
+        teamId, teamName: team.name, playerId: player.id, playerName: player.name,
+        pos: player.pos, club: player.club, price, ts: serverTimestamp(),
+      });
+      pickMsg.className = 'msg ok';
+      pickMsg.textContent = `Added ${player.name} to ${team.name} for ${price}M.`;
+      document.getElementById('playerInput').value = '';
+      document.getElementById('priceInput').value = '';
+      renderPicks();
+    } catch (err) {
+      pickMsg.className = 'msg error';
+      pickMsg.textContent = 'Failed to save: ' + err.message;
+    }
+  });
+
+  // ---- Undo last pick ----
+  document.getElementById('undoBtn').addEventListener('click', async () => {
+    const snap = await getDocs(query(collection(db, 'draftLog'), orderBy('ts', 'desc'), limit(1)));
+    if (snap.empty) return;
+    const logDoc = snap.docs[0];
+    const log = logDoc.data();
+    if (!confirm(`Undo ${log.playerName} → ${log.teamName} for ${log.price}M?`)) return;
+
+    const teamRef = doc(db, 'teams', String(log.teamId));
+    await runTransaction(db, async (tx) => {
+      const teamSnap = await tx.get(teamRef);
+      if (!teamSnap.exists()) return;
+      const data = teamSnap.data();
+      const idx = data.roster.findIndex((p) => p.playerId === log.playerId);
+      const newRoster = [...data.roster];
+      if (idx !== -1) newRoster.splice(idx, 1);
+      tx.set(teamRef, { ...data, remainingBudget: data.remainingBudget + log.price, roster: newRoster });
+    });
+    await deleteDoc(logDoc.ref);
+    renderPicks();
+  });
+
+  // ---- Reset draft ----
+  document.getElementById('resetBtn').addEventListener('click', async () => {
+    if (!confirm('This wipes ALL rosters, budgets and pick history. Are you sure?')) return;
+    if (!confirm('Really sure? This cannot be undone.')) return;
+    const resetMsg = document.getElementById('resetMsg');
+    for (const t of seedTeams) {
+      await setDoc(doc(db, 'teams', String(t.id)), { name: t.name, remainingBudget: 100, waiverBudget: 20, roster: [] });
+    }
+    const logs = await getDocs(collection(db, 'draftLog'));
+    await Promise.all(logs.docs.map((d) => deleteDoc(d.ref)));
+    resetMsg.className = 'msg ok';
+    resetMsg.textContent = 'Draft reset.';
+    renderPicks();
+  });
+</script>
+</body>
+</html>
