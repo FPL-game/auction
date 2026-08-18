@@ -54,7 +54,7 @@ const FAQ = [
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;500;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
+<style is:global>
   :root{
     --pitch: #0A1712;
     --pitch-2: #0F1F18;
@@ -512,7 +512,7 @@ const FAQ = [
           </div>
           <ul class="roster-list" id={`roster-${t.id}`}>
             {t.roster.length ? t.roster.map((p: any) => (
-              <li><span><span class="pos">{p.pos}</span>{p.name}</span><span>{p.price}M</span></li>
+              <li><span>{p.name}</span><span>{p.price}m</span></li>
             )) : <li class="empty-note">Squad not drafted yet.</li>}
           </ul>
         </div>
@@ -718,7 +718,7 @@ const FAQ = [
     if (waiverEl) waiverEl.textContent = `${data.waiverBudget}M`;
     if (rosterEl) {
       rosterEl.innerHTML = data.roster.length
-        ? data.roster.map((p) => `<li><span><span class="pos">${p.pos}</span>${p.name}</span><span>${p.price}M</span></li>`).join('')
+        ? data.roster.map((p) => `<li><span>${p.name}</span><span>${p.price}m</span></li>`).join('')
         : '<li class="empty-note">Squad not drafted yet.</li>';
     }
   }
