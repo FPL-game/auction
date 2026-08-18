@@ -3,7 +3,7 @@ import auctionLeagueData from "../data/auctionLeague.json";
 import { computeStandings, teamName } from "../lib/auctionLeagueUtils.mjs";
 
 const state = auctionLeagueData as any;
-const { teams, fixtures, results, players, meta, liveScores } = state;
+const { teams, fixtures, results, players, meta } = state;
 
 const standings = computeStandings(teams, results);
 
@@ -366,6 +366,57 @@ const FAQ = [
     text-align:center;
   }
 
+  .score-card-wrap{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .score-card-wrap .score-card{
+    margin-bottom: 0;
+    border-radius: 0;
+    border: none;
+  }
+  .score-breakdown{
+    display:flex;
+    border-top: 1px solid var(--line);
+  }
+  .score-breakdown details{
+    flex: 1;
+    padding: 10px 16px;
+  }
+  .score-breakdown details:first-child{
+    border-right: 1px solid var(--line);
+  }
+  .score-breakdown summary{
+    cursor:pointer;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color: var(--grey);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .score-breakdown summary::-webkit-details-marker{ display:none; }
+  .score-breakdown summary .chevron{ font-family:'JetBrains Mono', monospace; }
+  .breakdown-list{
+    list-style:none;
+    padding-top: 8px;
+  }
+  .breakdown-list li{
+    display:flex;
+    justify-content:space-between;
+    padding: 4px 0;
+    font-size: 13px;
+  }
+  .breakdown-list .pts{
+    font-family:'JetBrains Mono', monospace;
+    color: var(--turf);
+  }
+
   .search-row{ margin-bottom: 16px; }
   .search-row input{
     width:100%;
@@ -490,7 +541,7 @@ const FAQ = [
   <button data-page="fixtures">Fixtures</button>
   <button data-page="standings">Standings</button>
   <button data-page="live">Live Scores</button>
-  <button data-page="players">Unpicked Players</button>
+  <button data-page="players">Players</button>
   <button data-page="faq">FAQ</button>
 </nav>
 
@@ -565,51 +616,44 @@ const FAQ = [
   <!-- LIVE -->
   <section class="page" id="page-live">
     <div class="section-eyebrow">This Gameweek</div>
-    <div class="section-title">Live Scores</div>
-    {liveScores ? (
-      <>
-        <div class="live-banner"><span class="live-dot"></span> Gameweek {liveScores.gw} is live &mdash; scores refresh automatically roughly every 2 hours.</div>
-        <div>
-          {liveScores.matches.map((m: any) => (
-            <div class="score-card">
-              <div class="team-name">{teamName(teams, m.a)}</div>
-              <div class="score">{m.scoreA} &ndash; {m.scoreB}</div>
-              <div class="team-name right">{teamName(teams, m.b)}</div>
-            </div>
-          ))}
+    <div class="section-title">Live Scores {meta.currentGameweek ? `— GW${meta.currentGameweek}` : ""}</div>
+    <div class="live-banner" id="liveScoresBanner"><span class="live-dot"></span> Computed live from each team's current roster. Click a team to see the player breakdown.</div>
+    <div>
+      {(fixtures.find((f: any) => f.gw === meta.currentGameweek) || fixtures[0]).matches.map((m: [number, number]) => (
+        <div class="score-card-wrap">
+          <div class="score-card">
+            <div class="team-name">{teamName(teams, m[0])}</div>
+            <div class="score" id={`live-score-${m[0]}-${m[1]}`}>0 &ndash; 0</div>
+            <div class="team-name right">{teamName(teams, m[1])}</div>
+          </div>
+          <div class="score-breakdown">
+            <details>
+              <summary>{teamName(teams, m[0])} players <span class="chevron">+</span></summary>
+              <ul class="breakdown-list" id={`breakdown-${m[0]}`}><li class="empty-note">Squad not drafted yet.</li></ul>
+            </details>
+            <details>
+              <summary>{teamName(teams, m[1])} players <span class="chevron">+</span></summary>
+              <ul class="breakdown-list" id={`breakdown-${m[1]}`}><li class="empty-note">Squad not drafted yet.</li></ul>
+            </details>
+          </div>
         </div>
-      </>
-    ) : (
-      <>
-        <div class="live-banner"><span class="live-dot"></span> {meta.seasonStatus === "pre-draft" ? "No live data connected yet — scores here are placeholders until the draft happens and a Gameweek kicks off." : "No Gameweek is live right now. Check Fixtures and Standings for the latest."}</div>
-        <div>
-          {fixtures[0].matches.map((m: [number, number]) => (
-            <div class="score-card">
-              <div class="team-name">{teamName(teams, m[0])}</div>
-              <div class="score">0 &ndash; 0</div>
-              <div class="team-name right">{teamName(teams, m[1])}</div>
-            </div>
-          ))}
-        </div>
-        <p class="empty-note">Showing Gameweek 1 fixtures.</p>
-      </>
-    )}
+      ))}
+    </div>
   </section>
 
   <!-- PLAYERS -->
   <section class="page" id="page-players">
     <div class="section-eyebrow">Free Agents</div>
-    <div class="section-title">Unpicked Players (<span id="unpickedCount">{unpickedCount}</span>)</div>
-    <p class="empty-note">Sorted by FPL's projected points for the next Gameweek. Drafted status updates live during the auction.</p>
+    <div class="section-title">Players (<span id="unpickedCount">{unpickedCount}</span> unpicked)</div>
+    <p class="empty-note">Sorted by ownership (Selected %). Drafted status updates live during the auction.</p>
     <div class="search-row"><input type="text" id="playerSearch" placeholder="Search a player, club or position..."></div>
     <table class="players">
       <thead>
-        <tr><th>Player</th><th>Pos</th><th>Club</th><th>Sel %</th><th>Exp Pts</th><th>FPL Pts</th><th></th></tr>
+        <tr><th>Player</th><th>Pos</th><th>Club</th><th>Sel %</th><th>FPL Pts</th><th></th></tr>
       </thead>
       <tbody id="playersBody">
         {[...players]
           .sort((a: any, b: any) =>
-            (b.expectedPoints ?? 0) - (a.expectedPoints ?? 0) ||
             (b.selectedByPercent ?? 0) - (a.selectedByPercent ?? 0) ||
             b.pts - a.pts ||
             a.name.localeCompare(b.name),
@@ -624,7 +668,6 @@ const FAQ = [
               <td><span class="pos-badge">{p.pos}</span></td>
               <td>{p.club}</td>
               <td class="mono">{(p.selectedByPercent ?? 0).toFixed(1)}%</td>
-              <td class="mono">{(p.expectedPoints ?? 0).toFixed(1)}</td>
               <td class="mono">{p.pts}</td>
               <td class="draftedCell">{p.draftedBy !== null ? <span class="drafted-badge">{teamName(teams, p.draftedBy)}</span> : ""}</td>
             </tr>
@@ -687,6 +730,7 @@ const FAQ = [
 </script>
 
 <script type="application/json" id="teamsSeed" set:html={JSON.stringify(teams)}></script>
+<script type="application/json" id="playerPointsSeed" set:html={JSON.stringify(players.map((p: any) => ({ id: p.id, eventPoints: p.eventPoints ?? 0 })))}></script>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
@@ -706,9 +750,39 @@ const FAQ = [
   const db = getFirestore(app);
 
   const seedTeams = JSON.parse(document.getElementById('teamsSeed').textContent);
+  const playerPoints = new Map(
+    JSON.parse(document.getElementById('playerPointsSeed').textContent).map((p) => [String(p.id), p.eventPoints]),
+  );
   const DEFAULTS = { remainingBudget: 100, waiverBudget: 20, roster: [] };
   const liveTeams = {}; // teamId -> {name, remainingBudget, waiverBudget, roster}
   let anyLive = false;
+
+  function renderLiveScoreFor(teamId) {
+    const live = liveTeams[teamId] || DEFAULTS;
+    const breakdownEl = document.getElementById(`breakdown-${teamId}`);
+    let total = 0;
+    if (breakdownEl) {
+      breakdownEl.innerHTML = live.roster.length
+        ? live.roster.map((p) => {
+            const pts = playerPoints.get(String(p.playerId)) ?? 0;
+            total += pts;
+            return `<li><span>${p.name}</span><span class="pts">${pts}</span></li>`;
+          }).join('')
+        : '<li class="empty-note">Squad not drafted yet.</li>';
+    } else {
+      total = live.roster.reduce((sum, p) => sum + (playerPoints.get(String(p.playerId)) ?? 0), 0);
+    }
+    return total;
+  }
+
+  function renderAllLiveScores() {
+    document.querySelectorAll('[id^="live-score-"]').forEach((scoreEl) => {
+      const [a, b] = scoreEl.id.replace('live-score-', '').split('-');
+      const scoreA = renderLiveScoreFor(a);
+      const scoreB = renderLiveScoreFor(b);
+      scoreEl.textContent = `${scoreA} – ${scoreB}`;
+    });
+  }
 
   function renderTeamCard(teamId, data) {
     const budgetEl = document.getElementById(`budget-${teamId}`);
@@ -762,6 +836,7 @@ const FAQ = [
       renderTeamCard(t.id, data);
       renderTicker();
       refreshDraftedStatus();
+      renderAllLiveScores();
       const banner = document.getElementById('draftLiveBanner');
       if (banner) banner.style.display = anyLive ? 'flex' : 'none';
     });
