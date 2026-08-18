@@ -1,0 +1,42 @@
+name: Update Auction League FPL data
+
+on:
+  schedule:
+    # Every 2 hours, year-round. The script is cheap to run off-season/off-gameweek —
+    # it just refreshes the player pool and no-ops on live scores.
+    - cron: "0 */2 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-fpl-data
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Sync FPL data
+        run: node scripts/update-fpl-data.mjs
+
+      - name: Commit and push if changed
+        run: |
+          if git diff --quiet -- src/data/auctionLeague.json; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git config user.name "auction-league-bot"
+          git config user.email "actions@github.com"
+          git add src/data/auctionLeague.json
+          git commit -m "Auto-sync FPL data [skip ci]"
+          git push
