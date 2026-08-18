@@ -1,0 +1,17 @@
+{
+  "name": "fplgame",
+  "version": "1.0.0",
+  "description": "The Auction League — a 6-manager FPL auction draft mini-league site.",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "astro": "^7.1.6"
+  }
+}
