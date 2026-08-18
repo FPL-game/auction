@@ -475,7 +475,7 @@ const FAQ = [
 <body>
 
 <div class="ticker-wrap">
-  <div class="ticker" set:html={tickerText + " &nbsp; / &nbsp; " + tickerText}></div>
+  <div class="ticker" id="tickerText" set:html={tickerText + " &nbsp; / &nbsp; " + tickerText}></div>
 </div>
 
 <header class="top">
@@ -500,16 +500,17 @@ const FAQ = [
   <section class="page active" id="page-home">
     <div class="section-eyebrow">Squads</div>
     <div class="section-title">Team Rosters &amp; Budgets</div>
+    <div class="live-banner" id="draftLiveBanner" style="display:none;"><span class="live-dot"></span> Draft is live &mdash; updating in real time.</div>
     <div class="team-grid">
       {teams.map((t: any, i: number) => (
-        <div class="team-card" data-num={String(i + 1).padStart(2, "0")}>
+        <div class="team-card" data-num={String(i + 1).padStart(2, "0")} data-team-id={t.id}>
           <span class="tag">Team {i + 1}</span>
           <h3>{t.name}</h3>
           <div class="budget-row">
-            <div class="budget-pill"><div class="num">{t.remainingBudget}M</div><div class="lbl">Squad Budget Left</div></div>
-            <div class="budget-pill"><div class="num">{t.waiverBudget}M</div><div class="lbl">Waiver Budget</div></div>
+            <div class="budget-pill"><div class="num" id={`budget-${t.id}`}>{t.remainingBudget}M</div><div class="lbl">Squad Budget Left</div></div>
+            <div class="budget-pill"><div class="num" id={`waiver-${t.id}`}>{t.waiverBudget}M</div><div class="lbl">Waiver Budget</div></div>
           </div>
-          <ul class="roster-list">
+          <ul class="roster-list" id={`roster-${t.id}`}>
             {t.roster.length ? t.roster.map((p: any) => (
               <li><span><span class="pos">{p.pos}</span>{p.name}</span><span>{p.price}M</span></li>
             )) : <li class="empty-note">Squad not drafted yet.</li>}
@@ -598,22 +599,34 @@ const FAQ = [
   <!-- PLAYERS -->
   <section class="page" id="page-players">
     <div class="section-eyebrow">Free Agents</div>
-    <div class="section-title">Unpicked Players ({unpickedCount})</div>
+    <div class="section-title">Unpicked Players (<span id="unpickedCount">{unpickedCount}</span>)</div>
+    <p class="empty-note">Sorted by FPL's projected points for the next Gameweek. Drafted status updates live during the auction.</p>
     <div class="search-row"><input type="text" id="playerSearch" placeholder="Search a player, club or position..."></div>
     <table class="players">
       <thead>
-        <tr><th>Player</th><th>Pos</th><th>Club</th><th>FPL Pts</th><th></th></tr>
+        <tr><th>Player</th><th>Pos</th><th>Club</th><th>Sel %</th><th>Exp Pts</th><th>FPL Pts</th><th></th></tr>
       </thead>
       <tbody id="playersBody">
         {[...players]
-          .sort((a: any, b: any) => b.pts - a.pts || a.name.localeCompare(b.name))
+          .sort((a: any, b: any) =>
+            (b.expectedPoints ?? 0) - (a.expectedPoints ?? 0) ||
+            (b.selectedByPercent ?? 0) - (a.selectedByPercent ?? 0) ||
+            b.pts - a.pts ||
+            a.name.localeCompare(b.name),
+          )
           .map((p: any) => (
-            <tr data-search={`${p.name} ${p.club} ${p.pos}`.toLowerCase()} data-drafted={p.draftedBy !== null ? "1" : "0"}>
+            <tr
+              data-search={`${p.name} ${p.club} ${p.pos}`.toLowerCase()}
+              data-player-id={p.id ?? ""}
+              data-drafted={p.draftedBy !== null ? "1" : "0"}
+            >
               <td>{p.name}</td>
               <td><span class="pos-badge">{p.pos}</span></td>
               <td>{p.club}</td>
+              <td class="mono">{(p.selectedByPercent ?? 0).toFixed(1)}%</td>
+              <td class="mono">{(p.expectedPoints ?? 0).toFixed(1)}</td>
               <td class="mono">{p.pts}</td>
-              <td>{p.draftedBy !== null ? <span class="drafted-badge">{teamName(teams, p.draftedBy)}</span> : ""}</td>
+              <td class="draftedCell">{p.draftedBy !== null ? <span class="drafted-badge">{teamName(teams, p.draftedBy)}</span> : ""}</td>
             </tr>
           ))}
       </tbody>
@@ -670,6 +683,88 @@ const FAQ = [
       if (match) visible++;
     });
     if (noPlayersNote) noPlayersNote.style.display = visible ? 'none' : '';
+  });
+</script>
+
+<script type="application/json" id="teamsSeed" set:html={JSON.stringify(teams)}></script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+  // Public client config — safe to expose; write access is restricted by
+  // Firestore security rules (auth required), not by hiding this object.
+  const firebaseConfig = {
+    apiKey: "AIzaSyApmHdW9Jj__ejTY6jKu2j-TG_KyTQYVN4",
+    authDomain: "fpl-auction.firebaseapp.com",
+    projectId: "fpl-auction",
+    storageBucket: "fpl-auction.firebasestorage.app",
+    messagingSenderId: "113884648410",
+    appId: "1:113884648410:web:ede97721bcf2c57aa3e6e3",
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const seedTeams = JSON.parse(document.getElementById('teamsSeed').textContent);
+  const DEFAULTS = { remainingBudget: 100, waiverBudget: 20, roster: [] };
+  const liveTeams = {}; // teamId -> {name, remainingBudget, waiverBudget, roster}
+  let anyLive = false;
+
+  function renderTeamCard(teamId, data) {
+    const budgetEl = document.getElementById(`budget-${teamId}`);
+    const waiverEl = document.getElementById(`waiver-${teamId}`);
+    const rosterEl = document.getElementById(`roster-${teamId}`);
+    if (budgetEl) budgetEl.textContent = `${data.remainingBudget}M`;
+    if (waiverEl) waiverEl.textContent = `${data.waiverBudget}M`;
+    if (rosterEl) {
+      rosterEl.innerHTML = data.roster.length
+        ? data.roster.map((p) => `<li><span><span class="pos">${p.pos}</span>${p.name}</span><span>${p.price}M</span></li>`).join('')
+        : '<li class="empty-note">Squad not drafted yet.</li>';
+    }
+  }
+
+  function renderTicker() {
+    const items = seedTeams.map((t) => {
+      const live = liveTeams[t.id] || DEFAULTS;
+      return `${t.name.toUpperCase()} &middot; ${live.remainingBudget}M LEFT`;
+    });
+    const text = items.join(' &nbsp; / &nbsp; ');
+    const el = document.getElementById('tickerText');
+    if (el) el.innerHTML = text + ' &nbsp; / &nbsp; ' + text;
+  }
+
+  function refreshDraftedStatus() {
+    const draftedMap = new Map(); // playerId (string) -> team name
+    for (const t of seedTeams) {
+      const live = liveTeams[t.id] || DEFAULTS;
+      for (const p of live.roster) {
+        if (p.playerId != null) draftedMap.set(String(p.playerId), t.name);
+      }
+    }
+    let unpicked = 0;
+    document.querySelectorAll('#playersBody tr').forEach((row) => {
+      const pid = row.dataset.playerId;
+      const cell = row.querySelector('.draftedCell');
+      const teamName = pid && draftedMap.has(pid) ? draftedMap.get(pid) : null;
+      if (cell) cell.innerHTML = teamName ? `<span class="drafted-badge">${teamName}</span>` : '';
+      row.dataset.drafted = teamName ? '1' : '0';
+      if (!teamName) unpicked++;
+    });
+    const countEl = document.getElementById('unpickedCount');
+    if (countEl) countEl.textContent = String(unpicked);
+  }
+
+  seedTeams.forEach((t) => {
+    onSnapshot(doc(db, 'teams', String(t.id)), (snap) => {
+      const data = snap.exists() ? snap.data() : { ...DEFAULTS, name: t.name };
+      liveTeams[t.id] = data;
+      if (snap.exists() && data.roster && data.roster.length) anyLive = true;
+      renderTeamCard(t.id, data);
+      renderTicker();
+      refreshDraftedStatus();
+      const banner = document.getElementById('draftLiveBanner');
+      if (banner) banner.style.display = anyLive ? 'flex' : 'none';
+    });
   });
 </script>
 </body>
