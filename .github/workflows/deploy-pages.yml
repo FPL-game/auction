@@ -1,12 +1,18 @@
 name: Deploy to GitHub Pages
 
-# Publishes the built site to https://fpl-game.github.io/auction/ via
-# the gh-pages branch. Runs on every push to main and on manual dispatch.
+# Publishes the built site to https://fpl-game.github.io/auction/ via the
+# gh-pages branch. Runs on pushes to main AND whenever the FPL data-sync
+# workflow finishes — GitHub does not let a push made by the default
+# Actions token (as update-fpl-data.yml's commit is) trigger other
+# push-based workflows, so workflow_run is required to pick those up too.
 
 on:
   push:
     branches:
       - main
+  workflow_run:
+    workflows: ["Update Auction League FPL data"]
+    types: [completed]
   workflow_dispatch: {}
 
 permissions:
@@ -19,9 +25,12 @@ concurrency:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.ref }}
 
       - name: Set up Node
         uses: actions/setup-node@v4
