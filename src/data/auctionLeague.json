@@ -699,7 +699,7 @@
       "pos": "GK",
       "club": "Arsenal",
       "pts": 162,
-      "selectedByPercent": 34.9,
+      "selectedByPercent": 35,
       "expectedPoints": 4,
       "nowCost": 6,
       "draftedBy": null
@@ -776,7 +776,7 @@
       "pos": "DEF",
       "club": "Arsenal",
       "pts": 109,
-      "selectedByPercent": 29.1,
+      "selectedByPercent": 29.4,
       "expectedPoints": 2.5,
       "nowCost": 5.5,
       "draftedBy": null
@@ -809,7 +809,7 @@
       "pos": "DEF",
       "club": "Arsenal",
       "pts": 40,
-      "selectedByPercent": 11.1,
+      "selectedByPercent": 10.9,
       "expectedPoints": 2.5,
       "nowCost": 5.5,
       "draftedBy": null
@@ -820,7 +820,7 @@
       "pos": "MID",
       "club": "Arsenal",
       "pts": 157,
-      "selectedByPercent": 9.5,
+      "selectedByPercent": 9.4,
       "expectedPoints": 3.2,
       "nowCost": 9.5,
       "draftedBy": null
@@ -831,7 +831,7 @@
       "pos": "MID",
       "club": "Arsenal",
       "pts": 184,
-      "selectedByPercent": 19.6,
+      "selectedByPercent": 19.5,
       "expectedPoints": 2.6,
       "nowCost": 7.5,
       "draftedBy": null
@@ -996,7 +996,7 @@
       "pos": "MID",
       "club": "Arsenal",
       "pts": 0,
-      "selectedByPercent": 16.9,
+      "selectedByPercent": 17.2,
       "expectedPoints": 2.3,
       "nowCost": 6.5,
       "draftedBy": null
@@ -1040,7 +1040,7 @@
       "pos": "DEF",
       "club": "Aston Villa",
       "pts": 100,
-      "selectedByPercent": 14.8,
+      "selectedByPercent": 15,
       "expectedPoints": 1.7,
       "nowCost": 4.5,
       "draftedBy": null
@@ -1129,7 +1129,7 @@
       "club": "Aston Villa",
       "pts": 0,
       "selectedByPercent": 0.8,
-      "expectedPoints": 1,
+      "expectedPoints": 0,
       "nowCost": 4,
       "draftedBy": null
     },
@@ -1249,7 +1249,7 @@
       "pos": "MID",
       "club": "Aston Villa",
       "pts": 0,
-      "selectedByPercent": 0.8,
+      "selectedByPercent": 0.7,
       "expectedPoints": 0,
       "nowCost": 6,
       "draftedBy": null
@@ -1271,7 +1271,7 @@
       "pos": "FWD",
       "club": "Aston Villa",
       "pts": 167,
-      "selectedByPercent": 12.1,
+      "selectedByPercent": 12,
       "expectedPoints": 2.5,
       "nowCost": 8,
       "draftedBy": null
@@ -1887,7 +1887,7 @@
       "pos": "MID",
       "club": "Brentford",
       "pts": 0,
-      "selectedByPercent": 2.4,
+      "selectedByPercent": 2.5,
       "expectedPoints": 2,
       "nowCost": 5.5,
       "draftedBy": null
@@ -2041,7 +2041,7 @@
       "pos": "MID",
       "club": "Brighton",
       "pts": 78,
-      "selectedByPercent": 12.6,
+      "selectedByPercent": 12.7,
       "expectedPoints": 2,
       "nowCost": 5.5,
       "draftedBy": null
@@ -2206,7 +2206,7 @@
       "pos": "DEF",
       "club": "Brighton",
       "pts": 108,
-      "selectedByPercent": 0.3,
+      "selectedByPercent": 0.2,
       "expectedPoints": 1.6,
       "nowCost": 5,
       "draftedBy": null
@@ -2220,6 +2220,17 @@
       "selectedByPercent": 2.7,
       "expectedPoints": 2.2,
       "nowCost": 5,
+      "draftedBy": null
+    },
+    {
+      "id": 594,
+      "name": "Promise David",
+      "pos": "FWD",
+      "club": "Brighton",
+      "pts": 0,
+      "selectedByPercent": 0,
+      "expectedPoints": 2,
+      "nowCost": 6,
       "draftedBy": null
     },
     {
@@ -2283,7 +2294,7 @@
       "pos": "DEF",
       "club": "Chelsea",
       "pts": 115,
-      "selectedByPercent": 9,
+      "selectedByPercent": 9.1,
       "expectedPoints": 2.5,
       "nowCost": 5.5,
       "draftedBy": null
@@ -2415,7 +2426,7 @@
       "pos": "MID",
       "club": "Chelsea",
       "pts": 114,
-      "selectedByPercent": 10.6,
+      "selectedByPercent": 10.5,
       "expectedPoints": 3.2,
       "nowCost": 9.5,
       "draftedBy": null
@@ -2514,7 +2525,7 @@
       "pos": "FWD",
       "club": "Chelsea",
       "pts": 177,
-      "selectedByPercent": 60.9,
+      "selectedByPercent": 61,
       "expectedPoints": 2.3,
       "nowCost": 7.5,
       "draftedBy": null
@@ -2965,7 +2976,7 @@
       "pos": "FWD",
       "club": "Coventry City",
       "pts": 43,
-      "selectedByPercent": 0.6,
+      "selectedByPercent": 0.7,
       "expectedPoints": 1.8,
       "nowCost": 5.5,
       "draftedBy": null
@@ -3119,7 +3130,7 @@
       "pos": "MID",
       "club": "Crystal Palace",
       "pts": 112,
-      "selectedByPercent": 0.6,
+      "selectedByPercent": 0.7,
       "expectedPoints": 2,
       "nowCost": 5.5,
       "draftedBy": null
@@ -3328,8 +3339,19 @@
       "pos": "DEF",
       "club": "Crystal Palace",
       "pts": 0,
-      "selectedByPercent": 0,
+      "selectedByPercent": 0.1,
       "expectedPoints": 2.2,
+      "nowCost": 5,
+      "draftedBy": null
+    },
+    {
+      "id": 595,
+      "name": "Zavier Gozo",
+      "pos": "MID",
+      "club": "Crystal Palace",
+      "pts": 0,
+      "selectedByPercent": 0,
+      "expectedPoints": 1.5,
       "nowCost": 5,
       "draftedBy": null
     },
@@ -3999,7 +4021,7 @@
       "pos": "MID",
       "club": "Hull City",
       "pts": 0,
-      "selectedByPercent": 0.5,
+      "selectedByPercent": 0.4,
       "expectedPoints": 1.5,
       "nowCost": 5,
       "draftedBy": null
@@ -4285,7 +4307,7 @@
       "pos": "GK",
       "club": "Ipswich Town",
       "pts": 0,
-      "selectedByPercent": 5.2,
+      "selectedByPercent": 5.1,
       "expectedPoints": 1,
       "nowCost": 4,
       "draftedBy": null
@@ -4318,7 +4340,7 @@
       "pos": "DEF",
       "club": "Ipswich Town",
       "pts": 0,
-      "selectedByPercent": 3.1,
+      "selectedByPercent": 3.2,
       "expectedPoints": 1,
       "nowCost": 4,
       "draftedBy": null
@@ -4340,7 +4362,7 @@
       "pos": "DEF",
       "club": "Ipswich Town",
       "pts": 0,
-      "selectedByPercent": 1,
+      "selectedByPercent": 1.1,
       "expectedPoints": 1,
       "nowCost": 4,
       "draftedBy": null
@@ -4693,7 +4715,7 @@
       "club": "Leeds",
       "pts": 25,
       "selectedByPercent": 0,
-      "expectedPoints": 1.7,
+      "expectedPoints": 0,
       "nowCost": 4.5,
       "draftedBy": null
     },
@@ -4824,7 +4846,7 @@
       "pos": "FWD",
       "club": "Leeds",
       "pts": 142,
-      "selectedByPercent": 28,
+      "selectedByPercent": 28.1,
       "expectedPoints": 2,
       "nowCost": 6,
       "draftedBy": null
@@ -4847,7 +4869,7 @@
       "club": "Leeds",
       "pts": 17,
       "selectedByPercent": 0.5,
-      "expectedPoints": 1.4,
+      "expectedPoints": 0,
       "nowCost": 5,
       "draftedBy": null
     },
@@ -5055,7 +5077,7 @@
       "pos": "MID",
       "club": "Liverpool",
       "pts": 125,
-      "selectedByPercent": 14.5,
+      "selectedByPercent": 14.4,
       "expectedPoints": 2.6,
       "nowCost": 7.5,
       "draftedBy": null
@@ -5275,7 +5297,7 @@
       "pos": "GK",
       "club": "Man City",
       "pts": 135,
-      "selectedByPercent": 9.4,
+      "selectedByPercent": 9.3,
       "expectedPoints": 3.3,
       "nowCost": 5.5,
       "draftedBy": null
@@ -5308,7 +5330,7 @@
       "pos": "DEF",
       "club": "Man City",
       "pts": 179,
-      "selectedByPercent": 19.6,
+      "selectedByPercent": 19.5,
       "expectedPoints": 2.8,
       "nowCost": 6,
       "draftedBy": null
@@ -5418,7 +5440,7 @@
       "pos": "MID",
       "club": "Man City",
       "pts": 131,
-      "selectedByPercent": 4.7,
+      "selectedByPercent": 4.6,
       "expectedPoints": 2.5,
       "nowCost": 7,
       "draftedBy": null
@@ -5440,7 +5462,7 @@
       "pos": "MID",
       "club": "Man City",
       "pts": 120,
-      "selectedByPercent": 5.5,
+      "selectedByPercent": 5.3,
       "expectedPoints": 2,
       "nowCost": 7.5,
       "draftedBy": null
@@ -5462,7 +5484,7 @@
       "pos": "MID",
       "club": "Man City",
       "pts": 69,
-      "selectedByPercent": 0.1,
+      "selectedByPercent": 0,
       "expectedPoints": 0,
       "nowCost": 6.5,
       "draftedBy": null
@@ -5539,7 +5561,7 @@
       "pos": "MID",
       "club": "Man City",
       "pts": 2,
-      "selectedByPercent": 0.1,
+      "selectedByPercent": 0.2,
       "expectedPoints": 1,
       "nowCost": 4.5,
       "draftedBy": null
@@ -5561,7 +5583,7 @@
       "pos": "FWD",
       "club": "Man City",
       "pts": 239,
-      "selectedByPercent": 70,
+      "selectedByPercent": 69.9,
       "expectedPoints": 4,
       "nowCost": 15.5,
       "draftedBy": null
@@ -5572,7 +5594,7 @@
       "pos": "MID",
       "club": "Man City",
       "pts": 180,
-      "selectedByPercent": 9.3,
+      "selectedByPercent": 9.2,
       "expectedPoints": 2.3,
       "nowCost": 6.5,
       "draftedBy": null
@@ -5627,7 +5649,7 @@
       "pos": "GK",
       "club": "Man Utd",
       "pts": 109,
-      "selectedByPercent": 18.2,
+      "selectedByPercent": 18.1,
       "expectedPoints": 2.6,
       "nowCost": 5,
       "draftedBy": null
@@ -5660,7 +5682,7 @@
       "pos": "MID",
       "club": "Man Utd",
       "pts": 95,
-      "selectedByPercent": 1.6,
+      "selectedByPercent": 1.5,
       "expectedPoints": 2.1,
       "nowCost": 6,
       "draftedBy": null
@@ -5693,7 +5715,7 @@
       "pos": "DEF",
       "club": "Man Utd",
       "pts": 90,
-      "selectedByPercent": 13.7,
+      "selectedByPercent": 13.8,
       "expectedPoints": 2.2,
       "nowCost": 5,
       "draftedBy": null
@@ -5792,7 +5814,7 @@
       "pos": "MID",
       "club": "Man Utd",
       "pts": 148,
-      "selectedByPercent": 32.1,
+      "selectedByPercent": 32.3,
       "expectedPoints": 2.8,
       "nowCost": 8,
       "draftedBy": null
@@ -5803,7 +5825,7 @@
       "pos": "MID",
       "club": "Man Utd",
       "pts": 143,
-      "selectedByPercent": 11.1,
+      "selectedByPercent": 11,
       "expectedPoints": 2.8,
       "nowCost": 8,
       "draftedBy": null
@@ -6034,7 +6056,7 @@
       "pos": "DEF",
       "club": "Newcastle",
       "pts": 79,
-      "selectedByPercent": 3.7,
+      "selectedByPercent": 3.6,
       "expectedPoints": 2.2,
       "nowCost": 5,
       "draftedBy": null
@@ -6224,6 +6246,17 @@
       "selectedByPercent": 0.6,
       "expectedPoints": 2.6,
       "nowCost": 5,
+      "draftedBy": null
+    },
+    {
+      "id": 593,
+      "name": "Amar Dedic",
+      "pos": "DEF",
+      "club": "Newcastle",
+      "pts": 0,
+      "selectedByPercent": 0,
+      "expectedPoints": 1.7,
+      "nowCost": 4.5,
       "draftedBy": null
     },
     {
@@ -6463,7 +6496,7 @@
       "pos": "MID",
       "club": "Nott'm Forest",
       "pts": 30,
-      "selectedByPercent": 5,
+      "selectedByPercent": 4.9,
       "expectedPoints": 0.8,
       "nowCost": 4.5,
       "draftedBy": null
@@ -6563,7 +6596,7 @@
       "club": "Spurs",
       "pts": 90,
       "selectedByPercent": 1.1,
-      "expectedPoints": 1.9,
+      "expectedPoints": 0,
       "nowCost": 4.5,
       "draftedBy": null
     },
@@ -6628,7 +6661,7 @@
       "pos": "DEF",
       "club": "Spurs",
       "pts": 91,
-      "selectedByPercent": 0.7,
+      "selectedByPercent": 0.6,
       "expectedPoints": 0,
       "nowCost": 5,
       "draftedBy": null
@@ -6672,7 +6705,7 @@
       "pos": "DEF",
       "club": "Spurs",
       "pts": 78,
-      "selectedByPercent": 3.2,
+      "selectedByPercent": 3.1,
       "expectedPoints": 0,
       "nowCost": 4.5,
       "draftedBy": null
@@ -6903,7 +6936,7 @@
       "pos": "FWD",
       "club": "Spurs",
       "pts": 40,
-      "selectedByPercent": 1.7,
+      "selectedByPercent": 1.6,
       "expectedPoints": 2,
       "nowCost": 6,
       "draftedBy": null
@@ -7002,7 +7035,7 @@
       "pos": "DEF",
       "club": "Sunderland",
       "pts": 125,
-      "selectedByPercent": 0.4,
+      "selectedByPercent": 0.3,
       "expectedPoints": 1.6,
       "nowCost": 5,
       "draftedBy": null
@@ -7210,7 +7243,7 @@
     "seasonStatus": "pre-draft",
     "currentGameweek": 1,
     "lastUpdated": null,
-    "lastFplSync": "2026-08-19T11:57:34.995Z"
+    "lastFplSync": "2026-08-19T14:07:42.829Z"
   },
   "liveScores": null
 }
