@@ -343,7 +343,8 @@ const playerOptions = players.map((p: any) => ({
       if (snap.empty) { list.innerHTML = '<li class="meta">No picks yet.</li>'; return; }
       list.innerHTML = snap.docs.map((d) => {
         const p = d.data();
-        return `<li><span>${p.playerName} <span class="meta">&rarr; ${p.teamName}</span></span><span class="meta">${p.price}m</span></li>`;
+        const verb = p.type === 'remove' ? '&larr; released by' : '&rarr;';
+        return `<li><span>${p.playerName} <span class="meta">${verb} ${p.teamName}</span></span><span class="meta">${p.price}m</span></li>`;
       }).join('');
     });
   }
@@ -395,6 +396,7 @@ const playerOptions = players.map((p: any) => ({
         tx.set(teamRef, { ...data, remainingBudget: newBudget, roster: newRoster });
       });
       await addDoc(collection(db, 'draftLog'), {
+        type: 'add',
         teamId, teamName: team.name, playerId: player.id, playerName: player.name,
         pos: player.pos, club: player.club, price, ts: serverTimestamp(),
       });
@@ -409,23 +411,32 @@ const playerOptions = players.map((p: any) => ({
     }
   });
 
-  // ---- Undo last pick ----
+  // ---- Undo last action (add or remove) ----
   document.getElementById('undoBtn').addEventListener('click', async () => {
     const snap = await getDocs(query(collection(db, 'draftLog'), orderBy('ts', 'desc'), limit(1)));
     if (snap.empty) return;
     const logDoc = snap.docs[0];
     const log = logDoc.data();
-    if (!confirm(`Undo ${log.playerName} → ${log.teamName} for ${log.price}M?`)) return;
+    const isRemove = log.type === 'remove';
+    const verb = isRemove ? 'un-remove (add back)' : 'undo';
+    if (!confirm(`${isRemove ? 'Re-add' : 'Undo'} ${log.playerName} ${isRemove ? 'to' : '→'} ${log.teamName} (${log.price}M)?`)) return;
 
     const teamRef = doc(db, 'teams', String(log.teamId));
     await runTransaction(db, async (tx) => {
       const teamSnap = await tx.get(teamRef);
       if (!teamSnap.exists()) return;
       const data = teamSnap.data();
-      const idx = data.roster.findIndex((p) => p.playerId === log.playerId);
-      const newRoster = [...data.roster];
-      if (idx !== -1) newRoster.splice(idx, 1);
-      tx.set(teamRef, { ...data, remainingBudget: data.remainingBudget + log.price, roster: newRoster });
+      if (isRemove) {
+        // Reverse a removal: add the player back and re-deduct their price.
+        const newRoster = [...data.roster, { playerId: log.playerId, name: log.playerName, pos: log.pos, club: log.club, price: log.price }];
+        tx.set(teamRef, { ...data, remainingBudget: data.remainingBudget - log.price, roster: newRoster });
+      } else {
+        // Reverse an add: remove the player and refund their price.
+        const idx = data.roster.findIndex((p) => p.playerId === log.playerId);
+        const newRoster = [...data.roster];
+        if (idx !== -1) newRoster.splice(idx, 1);
+        tx.set(teamRef, { ...data, remainingBudget: data.remainingBudget + log.price, roster: newRoster });
+      }
     });
     await deleteDoc(logDoc.ref);
     renderPicks();
@@ -456,6 +467,11 @@ const playerOptions = players.map((p: any) => ({
         const data = snap.exists() ? snap.data() : { name: team.name, ...DEFAULTS };
         const newRoster = data.roster.filter((p) => String(p.playerId) !== playerId);
         tx.set(teamRef, { ...data, remainingBudget: data.remainingBudget + player.price, roster: newRoster });
+      });
+      await addDoc(collection(db, 'draftLog'), {
+        type: 'remove',
+        teamId, teamName: team.name, playerId: player.playerId, playerName: player.name,
+        pos: player.pos, club: player.club, price: player.price, ts: serverTimestamp(),
       });
       removeMsg.className = 'msg ok';
       removeMsg.textContent = `Removed ${player.name} from ${team.name}, refunded ${player.price}m.`;
