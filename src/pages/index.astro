@@ -1,10 +1,13 @@
 ---
 import auctionLeagueData from "../data/auctionLeague.json";
-import rumours from "../data/rumours.json";
 import { computeStandings, teamName } from "../lib/auctionLeagueUtils.mjs";
 
 const state = auctionLeagueData as any;
 const { teams, fixtures, results, players, meta } = state;
+// Generated fresh every sync run (scripts/update-fpl-data.mjs) from real current
+// data — unpicked players, budgets, rosters. Empty until the first sync after this
+// feature ships.
+const rumours = state.rumours || [];
 
 const standings = computeStandings(teams, results);
 
@@ -953,6 +956,10 @@ const FAQ = [
   function renderRumours() {
     const feed = document.getElementById('rumoursFeed');
     if (!feed) return;
+    if (!rumours.length) {
+      feed.innerHTML = '<p class="empty-note">Nothing doing right now — check back after the next sync.</p>';
+      return;
+    }
     const picks = shuffled(rumours).slice(0, 7);
     feed.innerHTML = picks.map((r) => `
       <div class="tweet-card">
