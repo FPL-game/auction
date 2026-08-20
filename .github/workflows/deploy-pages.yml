@@ -20,7 +20,11 @@ permissions:
 
 concurrency:
   group: deploy-pages
-  cancel-in-progress: true
+  # false, not true: with push + workflow_run both able to fire close together
+  # (e.g. a manual sync run finishing right after a normal push), cancelling
+  # an in-flight deploy risked losing a legitimate rebuild entirely rather
+  # than just queueing a quick follow-up one.
+  cancel-in-progress: false
 
 jobs:
   build-and-deploy:
