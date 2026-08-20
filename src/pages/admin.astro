@@ -181,6 +181,17 @@ const playerOptions = players.map((p: any) => ({
     </div>
 
     <div class="card">
+      <h2>Remove Player</h2>
+      <p class="sub" style="margin-bottom:14px;">Releases a player and refunds their price to the team's budget. To swap someone in, remove first, then use Add Pick above.</p>
+      <label for="removeTeamSelect">Team</label>
+      <select id="removeTeamSelect"></select>
+      <label for="removePlayerSelect">Player</label>
+      <select id="removePlayerSelect"></select>
+      <button class="danger" id="removePlayerBtn">Remove Player</button>
+      <div class="msg" id="removeMsg"></div>
+    </div>
+
+    <div class="card">
       <h2>Danger Zone</h2>
       <button class="danger" id="resetBtn">Reset Entire Draft</button>
       <div class="msg" id="resetMsg"></div>
@@ -219,11 +230,14 @@ const playerOptions = players.map((p: any) => ({
   const liveTeams = {};
 
   const teamSelect = document.getElementById('teamSelect');
-  seedTeams.forEach((t) => {
-    const opt = document.createElement('option');
-    opt.value = String(t.id);
-    opt.textContent = t.name;
-    teamSelect.appendChild(opt);
+  const removeTeamSelect = document.getElementById('removeTeamSelect');
+  [teamSelect, removeTeamSelect].forEach((sel) => {
+    seedTeams.forEach((t) => {
+      const opt = document.createElement('option');
+      opt.value = String(t.id);
+      opt.textContent = t.name;
+      sel.appendChild(opt);
+    });
   });
 
   function draftedPlayerIds() {
@@ -259,17 +273,33 @@ const playerOptions = players.map((p: any) => ({
       return `<li><span>${t.name}</span><span class="amt">${live.remainingBudget}M</span></li>`;
     }).join('');
     seedTeams.forEach((t) => {
-      const opt = teamSelect.querySelector(`option[value="${t.id}"]`);
       const live = liveTeams[t.id] || DEFAULTS;
-      if (opt) opt.textContent = `${t.name} (${live.remainingBudget}M left)`;
+      const label = `${t.name} (${live.remainingBudget}M left)`;
+      const opt1 = teamSelect.querySelector(`option[value="${t.id}"]`);
+      if (opt1) opt1.textContent = label;
+      const opt2 = removeTeamSelect.querySelector(`option[value="${t.id}"]`);
+      if (opt2) opt2.textContent = label;
     });
   }
+
+  function renderRemovablePlayers() {
+    const removePlayerSelect = document.getElementById('removePlayerSelect');
+    const teamId = removeTeamSelect.value;
+    const live = liveTeams[teamId] || DEFAULTS;
+    const current = removePlayerSelect.value;
+    removePlayerSelect.innerHTML = live.roster.length
+      ? live.roster.map((p) => `<option value="${p.playerId}">${p.name} — ${p.club} (${p.pos}), ${p.price}m</option>`).join('')
+      : '<option value="">No players on this roster</option>';
+    if (current && live.roster.some((p) => String(p.playerId) === current)) removePlayerSelect.value = current;
+  }
+  removeTeamSelect.addEventListener('change', renderRemovablePlayers);
 
   seedTeams.forEach((t) => {
     onSnapshot(doc(db, 'teams', String(t.id)), (snap) => {
       liveTeams[t.id] = snap.exists() ? snap.data() : { ...DEFAULTS, name: t.name };
       renderBudgets();
       refreshPlayerOptions();
+      if (String(t.id) === removeTeamSelect.value) renderRemovablePlayers();
     });
   });
 
@@ -365,6 +395,40 @@ const playerOptions = players.map((p: any) => ({
     });
     await deleteDoc(logDoc.ref);
     renderPicks();
+  });
+
+  // ---- Remove player ----
+  document.getElementById('removePlayerBtn').addEventListener('click', async () => {
+    const removeMsg = document.getElementById('removeMsg');
+    removeMsg.className = 'msg';
+    removeMsg.textContent = '';
+
+    const teamId = removeTeamSelect.value;
+    const removePlayerSelect = document.getElementById('removePlayerSelect');
+    const playerId = removePlayerSelect.value;
+    const team = seedTeams.find((t) => String(t.id) === teamId);
+
+    if (!playerId) { removeMsg.className = 'msg error'; removeMsg.textContent = 'No player selected.'; return; }
+
+    const live = liveTeams[teamId] || DEFAULTS;
+    const player = live.roster.find((p) => String(p.playerId) === playerId);
+    if (!player) { removeMsg.className = 'msg error'; removeMsg.textContent = 'Player not found on that roster.'; return; }
+    if (!confirm(`Remove ${player.name} from ${team.name} and refund ${player.price}m?`)) return;
+
+    const teamRef = doc(db, 'teams', teamId);
+    try {
+      await runTransaction(db, async (tx) => {
+        const snap = await tx.get(teamRef);
+        const data = snap.exists() ? snap.data() : { name: team.name, ...DEFAULTS };
+        const newRoster = data.roster.filter((p) => String(p.playerId) !== playerId);
+        tx.set(teamRef, { ...data, remainingBudget: data.remainingBudget + player.price, roster: newRoster });
+      });
+      removeMsg.className = 'msg ok';
+      removeMsg.textContent = `Removed ${player.name} from ${team.name}, refunded ${player.price}m.`;
+    } catch (err) {
+      removeMsg.className = 'msg error';
+      removeMsg.textContent = 'Failed: ' + err.message;
+    }
   });
 
   // ---- Reset draft ----
