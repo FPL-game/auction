@@ -3,44 +3,512 @@
     {
       "id": 1,
       "name": "Lash",
-      "remainingBudget": 100,
+      "remainingBudget": 2,
       "waiverBudget": 20,
-      "roster": []
+      "roster": [
+        {
+          "playerId": 379,
+          "club": "Liverpool",
+          "name": "Alexander Isak",
+          "price": 20,
+          "pos": "FWD"
+        },
+        {
+          "club": "Arsenal",
+          "price": 20,
+          "playerId": 4,
+          "pos": "DEF",
+          "name": "Gabriel dos Santos Magalhães"
+        },
+        {
+          "price": 13,
+          "club": "Arsenal",
+          "name": "David Raya Martín",
+          "pos": "GK",
+          "playerId": 1
+        },
+        {
+          "name": "Florian Wirtz",
+          "price": 16,
+          "playerId": 366,
+          "pos": "MID",
+          "club": "Liverpool"
+        },
+        {
+          "name": "Justin Kluivert",
+          "price": 5,
+          "pos": "MID",
+          "club": "Bournemouth",
+          "playerId": 70
+        },
+        {
+          "playerId": 155,
+          "name": "Enzo Fernández",
+          "pos": "MID",
+          "price": 8,
+          "club": "Chelsea"
+        },
+        {
+          "pos": "MID",
+          "club": "Everton",
+          "price": 6,
+          "playerId": 237,
+          "name": "Iliman Ndiaye"
+        },
+        {
+          "pos": "FWD",
+          "club": "Newcastle",
+          "price": 6,
+          "playerId": 463,
+          "name": "Nick Woltemade"
+        },
+        {
+          "pos": "MID",
+          "club": "Bournemouth",
+          "price": 1,
+          "playerId": 68,
+          "name": "Marcus Tavernier"
+        },
+        {
+          "pos": "MID",
+          "club": "Liverpool",
+          "playerId": 371,
+          "price": 2,
+          "name": "Ryan Gravenberch"
+        },
+        {
+          "club": "Everton",
+          "price": 1,
+          "name": "Norberto Bercique Gomes Betuncal",
+          "playerId": 248,
+          "pos": "FWD"
+        }
+      ]
     },
     {
       "id": 2,
       "name": "Adi",
-      "remainingBudget": 100,
+      "remainingBudget": 14,
       "waiverBudget": 20,
-      "roster": []
+      "roster": [
+        {
+          "club": "Chelsea",
+          "pos": "MID",
+          "price": 11,
+          "name": "Morgan Rogers",
+          "playerId": 40
+        },
+        {
+          "price": 13,
+          "club": "Liverpool",
+          "name": "Virgil van Dijk",
+          "pos": "DEF",
+          "playerId": 356
+        },
+        {
+          "pos": "MID",
+          "price": 15,
+          "name": "Bryan Mbeumo",
+          "club": "Man Utd",
+          "playerId": 427
+        },
+        {
+          "club": "Spurs",
+          "pos": "DEF",
+          "playerId": 499,
+          "price": 8,
+          "name": "Pedro Porro Sauceda"
+        },
+        {
+          "club": "Brentford",
+          "price": 6,
+          "pos": "MID",
+          "playerId": 94,
+          "name": "Kevin Schade"
+        },
+        {
+          "name": "Dominik Szoboszlai",
+          "pos": "MID",
+          "playerId": 368,
+          "club": "Liverpool",
+          "price": 7
+        },
+        {
+          "playerId": 346,
+          "price": 12,
+          "pos": "FWD",
+          "club": "Leeds",
+          "name": "Dominic Calvert-Lewin"
+        },
+        {
+          "pos": "FWD",
+          "price": 6,
+          "club": "Nott'm Forest",
+          "playerId": 491,
+          "name": "Igor Jesus Maciel da Cruz"
+        },
+        {
+          "price": 4,
+          "club": "Man Utd",
+          "pos": "FWD",
+          "playerId": 439,
+          "name": "Benjamin Sesko"
+        },
+        {
+          "name": "Viktor Gyökeres",
+          "price": 3,
+          "pos": "FWD",
+          "playerId": 25,
+          "club": "Arsenal"
+        },
+        {
+          "playerId": 496,
+          "club": "Spurs",
+          "pos": "GK",
+          "price": 1,
+          "name": "Antonín Kinský"
+        }
+      ]
     },
     {
       "id": 3,
       "name": "Chase",
-      "remainingBudget": 100,
+      "remainingBudget": 21,
       "waiverBudget": 20,
-      "roster": []
+      "roster": [
+        {
+          "name": "Bruno Borges Fernandes",
+          "price": 18,
+          "pos": "MID",
+          "playerId": 426,
+          "club": "Man Utd"
+        },
+        {
+          "playerId": 399,
+          "pos": "MID",
+          "price": 8,
+          "name": "Rayan Cherki",
+          "club": "Man City"
+        },
+        {
+          "club": "Nott'm Forest",
+          "price": 13,
+          "playerId": 480,
+          "pos": "MID",
+          "name": "Morgan Gibbs-White"
+        },
+        {
+          "pos": "DEF",
+          "playerId": 388,
+          "name": "Marc Guéhi",
+          "club": "Man City",
+          "price": 8
+        },
+        {
+          "price": 4,
+          "playerId": 498,
+          "club": "Spurs",
+          "name": "Marcos Senesi Barón",
+          "pos": "DEF"
+        },
+        {
+          "name": "Senne Lammens",
+          "playerId": 412,
+          "pos": "GK",
+          "price": 6,
+          "club": "Man Utd"
+        },
+        {
+          "name": "Daniel Muñoz Mejía",
+          "price": 3,
+          "pos": "DEF",
+          "playerId": 201,
+          "club": "Crystal Palace"
+        },
+        {
+          "name": "Bruno Guimarães Rodriguez Moura",
+          "playerId": 452,
+          "pos": "MID",
+          "price": 7,
+          "club": "Arsenal"
+        },
+        {
+          "club": "Brentford",
+          "price": 7,
+          "playerId": 95,
+          "name": "Dango Ouattara",
+          "pos": "MID"
+        },
+        {
+          "club": "Crystal Palace",
+          "price": 3,
+          "pos": "FWD",
+          "playerId": 223,
+          "name": "Jean-Philippe Mateta"
+        },
+        {
+          "price": 2,
+          "playerId": 8,
+          "club": "Arsenal",
+          "pos": "DEF",
+          "name": "Riccardo Calafiori"
+        }
+      ]
     },
     {
       "id": 4,
       "name": "Malhar",
-      "remainingBudget": 100,
+      "remainingBudget": 32,
       "waiverBudget": 20,
-      "roster": []
+      "roster": [
+        {
+          "name": "Cole Palmer",
+          "pos": "MID",
+          "price": 14,
+          "playerId": 154,
+          "club": "Chelsea"
+        },
+        {
+          "club": "Aston Villa",
+          "playerId": 55,
+          "price": 6,
+          "name": "Ollie Watkins",
+          "pos": "FWD"
+        },
+        {
+          "name": "Bukayo Saka",
+          "pos": "MID",
+          "price": 10,
+          "playerId": 12,
+          "club": "Arsenal"
+        },
+        {
+          "name": "Igor Thiago Nascimento Rodrigues",
+          "price": 13,
+          "pos": "FWD",
+          "club": "Brentford",
+          "playerId": 106
+        },
+        {
+          "name": "Cody Gakpo",
+          "price": 5,
+          "pos": "MID",
+          "club": "Liverpool",
+          "playerId": 367
+        },
+        {
+          "price": 4,
+          "club": "Chelsea",
+          "playerId": 152,
+          "name": "Marco Palestra",
+          "pos": "DEF"
+        },
+        {
+          "club": "Man City",
+          "pos": "MID",
+          "playerId": 481,
+          "price": 4,
+          "name": "Elliot Anderson"
+        },
+        {
+          "pos": "GK",
+          "playerId": 384,
+          "price": 4,
+          "club": "Man City",
+          "name": "Gianluigi Donnarumma"
+        },
+        {
+          "club": "Spurs",
+          "price": 3,
+          "pos": "DEF",
+          "name": "Jan Paul van Hecke",
+          "playerId": 112
+        },
+        {
+          "pos": "DEF",
+          "club": "Chelsea",
+          "price": 2,
+          "name": "Maxence Lacroix",
+          "playerId": 200
+        },
+        {
+          "club": "Sunderland",
+          "name": "Brian Brobbey",
+          "price": 3,
+          "playerId": 552,
+          "pos": "FWD"
+        }
+      ]
     },
     {
       "id": 5,
       "name": "Nikhil",
-      "remainingBudget": 100,
+      "remainingBudget": 29,
       "waiverBudget": 20,
-      "roster": []
+      "roster": [
+        {
+          "pos": "DEF",
+          "name": "Jeremie Frimpong",
+          "club": "Liverpool",
+          "playerId": 357,
+          "price": 5
+        },
+        {
+          "name": "Antoine Semenyo",
+          "playerId": 397,
+          "club": "Man City",
+          "price": 16,
+          "pos": "MID"
+        },
+        {
+          "name": "Brian Madjo",
+          "price": 2,
+          "playerId": 582,
+          "pos": "FWD",
+          "club": "Aston Villa"
+        },
+        {
+          "name": "Gonzalo García",
+          "pos": "FWD",
+          "playerId": 569,
+          "club": "Fulham",
+          "price": 3
+        },
+        {
+          "pos": "MID",
+          "club": "Leeds",
+          "price": 8,
+          "playerId": 260,
+          "name": "Harry Wilson"
+        },
+        {
+          "pos": "FWD",
+          "name": "Richarlison de Andrade",
+          "playerId": 527,
+          "club": "Spurs",
+          "price": 5
+        },
+        {
+          "name": "Phil Foden",
+          "pos": "MID",
+          "playerId": 398,
+          "price": 14,
+          "club": "Man City"
+        },
+        {
+          "name": "Alisson Becker",
+          "pos": "GK",
+          "price": 3,
+          "club": "Liverpool",
+          "playerId": 350
+        },
+        {
+          "name": "James Tarkowski",
+          "playerId": 229,
+          "pos": "DEF",
+          "club": "Everton",
+          "price": 8
+        },
+        {
+          "name": "Adrien Truffert",
+          "price": 5,
+          "pos": "DEF",
+          "playerId": 61,
+          "club": "Bournemouth"
+        },
+        {
+          "pos": "MID",
+          "name": "Jérémy Doku",
+          "playerId": 400,
+          "club": "Man City",
+          "price": 2
+        }
+      ]
     },
     {
       "id": 6,
       "name": "Varun",
-      "remainingBudget": 100,
+      "remainingBudget": 1,
       "waiverBudget": 20,
-      "roster": []
+      "roster": [
+        {
+          "price": 20,
+          "playerId": 165,
+          "club": "Chelsea",
+          "name": "João Pedro Junqueira de Jesus",
+          "pos": "FWD"
+        },
+        {
+          "name": "Erling Haaland",
+          "price": 37,
+          "pos": "FWD",
+          "club": "Man City",
+          "playerId": 411
+        },
+        {
+          "pos": "MID",
+          "playerId": 13,
+          "price": 9,
+          "name": "Declan Rice",
+          "club": "Arsenal"
+        },
+        {
+          "price": 13,
+          "playerId": 428,
+          "club": "Man Utd",
+          "pos": "MID",
+          "name": "Matheus Santos Carneiro da Cunha"
+        },
+        {
+          "pos": "DEF",
+          "name": "Nico O'Reilly",
+          "club": "Man City",
+          "playerId": 387,
+          "price": 6
+        },
+        {
+          "name": "Rayan Vitor Simplício Rocha",
+          "price": 5,
+          "playerId": 67,
+          "club": "Bournemouth",
+          "pos": "MID"
+        },
+        {
+          "club": "Crystal Palace",
+          "playerId": 208,
+          "pos": "MID",
+          "price": 5,
+          "name": "Ismaïla Sarr"
+        },
+        {
+          "pos": "DEF",
+          "price": 1,
+          "club": "Chelsea",
+          "playerId": 149,
+          "name": "Levi Samuels Colwill"
+        },
+        {
+          "price": 1,
+          "club": "Brighton",
+          "name": "Jack Hinshelwood",
+          "playerId": 123,
+          "pos": "MID"
+        },
+        {
+          "price": 1,
+          "club": "Sunderland",
+          "playerId": 532,
+          "name": "Daniel Ballard",
+          "pos": "DEF"
+        },
+        {
+          "pos": "GK",
+          "name": "Caoimhín Kelleher",
+          "club": "Brentford",
+          "playerId": 82,
+          "price": 1
+        }
+      ]
     }
   ],
   "fixtures": [
@@ -706,7 +1174,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 1
     },
     {
       "id": 2,
@@ -751,7 +1219,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 1
     },
     {
       "id": 5,
@@ -811,7 +1279,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 3
     },
     {
       "id": 9,
@@ -871,7 +1339,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 4
     },
     {
       "id": 13,
@@ -886,7 +1354,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 6
     },
     {
       "id": 14,
@@ -1051,7 +1519,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 2
     },
     {
       "id": 26,
@@ -1096,7 +1564,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 3
     },
     {
       "id": 557,
@@ -1105,7 +1573,7 @@
       "club": "Arsenal",
       "pts": 0,
       "eventPoints": 0,
-      "selectedByPercent": 18.3,
+      "selectedByPercent": 18.4,
       "expectedPoints": 2.3,
       "nowCost": 6.5,
       "news": "",
@@ -1165,7 +1633,7 @@
       "club": "Aston Villa",
       "pts": 100,
       "eventPoints": 0,
-      "selectedByPercent": 16,
+      "selectedByPercent": 16.1,
       "expectedPoints": 1.7,
       "nowCost": 4.5,
       "news": "",
@@ -1486,7 +1954,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 4
     },
     {
       "id": 56,
@@ -1531,7 +1999,7 @@
       "news": "Unspecified injury - Unknown return date",
       "newsAdded": "2026-08-15T16:00:07.974271Z",
       "chanceOfPlaying": 0,
-      "draftedBy": null
+      "draftedBy": 5
     },
     {
       "id": 57,
@@ -1606,7 +2074,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 5
     },
     {
       "id": 62,
@@ -1696,7 +2164,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 6
     },
     {
       "id": 68,
@@ -1711,7 +2179,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 1
     },
     {
       "id": 69,
@@ -1741,7 +2209,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 1
     },
     {
       "id": 71,
@@ -1951,7 +2419,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 6
     },
     {
       "id": 83,
@@ -2131,7 +2599,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 2
     },
     {
       "id": 95,
@@ -2146,7 +2614,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 3
     },
     {
       "id": 96,
@@ -2281,7 +2749,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 4
     },
     {
       "id": 107,
@@ -2521,7 +2989,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 6
     },
     {
       "id": 124,
@@ -2806,7 +3274,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 2
     },
     {
       "id": 101,
@@ -2986,7 +3454,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 6
     },
     {
       "id": 150,
@@ -3031,7 +3499,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 4
     },
     {
       "id": 153,
@@ -3061,7 +3529,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 4
     },
     {
       "id": 155,
@@ -3076,7 +3544,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 1
     },
     {
       "id": 156,
@@ -3196,7 +3664,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 6
     },
     {
       "id": 166,
@@ -3286,7 +3754,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 4
     },
     {
       "id": 560,
@@ -3901,7 +4369,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 3
     },
     {
       "id": 202,
@@ -4006,7 +4474,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 6
     },
     {
       "id": 210,
@@ -4216,7 +4684,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 3
     },
     {
       "id": 224,
@@ -4411,7 +4879,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 5
     },
     {
       "id": 230,
@@ -4531,7 +4999,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 1
     },
     {
       "id": 239,
@@ -4666,7 +5134,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 1
     },
     {
       "id": 249,
@@ -4996,7 +5464,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 5
     },
     {
       "id": 570,
@@ -6076,7 +6544,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 5
     },
     {
       "id": 326,
@@ -6361,7 +6829,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 2
     },
     {
       "id": 347,
@@ -6436,7 +6904,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 5
     },
     {
       "id": 351,
@@ -6526,7 +6994,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 2
     },
     {
       "id": 357,
@@ -6541,7 +7009,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 5
     },
     {
       "id": 358,
@@ -6676,7 +7144,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 1
     },
     {
       "id": 367,
@@ -6691,7 +7159,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 4
     },
     {
       "id": 368,
@@ -6706,7 +7174,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 2
     },
     {
       "id": 369,
@@ -6751,7 +7219,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 1
     },
     {
       "id": 372,
@@ -6871,7 +7339,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 1
     },
     {
       "id": 380,
@@ -6976,7 +7444,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 4
     },
     {
       "id": 386,
@@ -7006,7 +7474,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 6
     },
     {
       "id": 388,
@@ -7021,7 +7489,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 3
     },
     {
       "id": 389,
@@ -7156,7 +7624,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 5
     },
     {
       "id": 398,
@@ -7171,7 +7639,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 5
     },
     {
       "id": 399,
@@ -7186,7 +7654,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 3
     },
     {
       "id": 400,
@@ -7195,13 +7663,13 @@
       "club": "Man City",
       "pts": 120,
       "eventPoints": 0,
-      "selectedByPercent": 4.7,
+      "selectedByPercent": 4.6,
       "expectedPoints": 2,
       "nowCost": 7.5,
       "news": "Calf injury - 75% chance of playing",
       "newsAdded": "2026-08-18T17:00:08.385597Z",
       "chanceOfPlaying": 75,
-      "draftedBy": null
+      "draftedBy": 5
     },
     {
       "id": 401,
@@ -7366,7 +7834,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 6
     },
     {
       "id": 481,
@@ -7381,7 +7849,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 4
     },
     {
       "id": 587,
@@ -7456,7 +7924,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 3
     },
     {
       "id": 413,
@@ -7666,7 +8134,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 3
     },
     {
       "id": 427,
@@ -7681,7 +8149,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 2
     },
     {
       "id": 428,
@@ -7696,7 +8164,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 6
     },
     {
       "id": 429,
@@ -7861,7 +8329,7 @@
       "news": "Shin injury - 75% chance of playing",
       "newsAdded": "2026-07-23T12:01:23.722029Z",
       "chanceOfPlaying": 75,
-      "draftedBy": null
+      "draftedBy": 2
     },
     {
       "id": 440,
@@ -8191,7 +8659,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 1
     },
     {
       "id": 464,
@@ -8491,7 +8959,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 3
     },
     {
       "id": 482,
@@ -8641,7 +9109,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 2
     },
     {
       "id": 493,
@@ -8716,7 +9184,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 4
     },
     {
       "id": 455,
@@ -8776,7 +9244,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 2
     },
     {
       "id": 497,
@@ -8806,7 +9274,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 3
     },
     {
       "id": 499,
@@ -8821,7 +9289,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 2
     },
     {
       "id": 500,
@@ -9226,7 +9694,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 5
     },
     {
       "id": 528,
@@ -9301,7 +9769,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 6
     },
     {
       "id": 533,
@@ -9601,7 +10069,7 @@
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
-      "draftedBy": null
+      "draftedBy": 4
     },
     {
       "id": 553,
@@ -9620,10 +10088,168 @@
     }
   ],
   "meta": {
-    "seasonStatus": "pre-draft",
+    "seasonStatus": "in-season",
     "currentGameweek": 1,
-    "lastUpdated": null,
-    "lastFplSync": "2026-08-20T06:03:48.099Z"
+    "lastUpdated": "2026-08-20T06:28:53.541Z",
+    "lastFplSync": "2026-08-20T06:28:53.540Z"
   },
-  "liveScores": null
+  "liveScores": null,
+  "rumours": [
+    {
+      "handle": "@TripleCaptainTom",
+      "name": "Tom",
+      "color": "#37C871",
+      "text": "genuinely cannot wait for gameweek 1. who's actually winning this thing"
+    },
+    {
+      "handle": "@FPLGrapevine",
+      "name": "FPL Grapevine",
+      "color": "#FFB627",
+      "text": "Adi rolling with a 11-player squad right now. Fully stocked, for now."
+    },
+    {
+      "handle": "@FPLGrapevine",
+      "name": "FPL Grapevine",
+      "color": "#FFB627",
+      "text": "Biggest outlay of the draft remains Erling Haaland — Varun paid 37m and there's no going back now."
+    },
+    {
+      "handle": "@SquadShuffleHQ",
+      "name": "Squad Shuffle HQ",
+      "color": "#E8543F",
+      "text": "Don't sleep on Marcus Tavernier (1m, Lash) — smallest fee of the whole draft, still on the books."
+    },
+    {
+      "handle": "@ArmchairGaffer",
+      "name": "The Armchair Gaffer",
+      "color": "#FFB627",
+      "text": "genuinely cannot wait for gameweek 1. who's actually winning this thing"
+    },
+    {
+      "handle": "@WaiverWireWatch",
+      "name": "Waiver Wire Watch",
+      "color": "#E8543F",
+      "text": "Sources close to the league suggest Alex Iwobi could be a shrewd pickup at this point in the season. Genuinely surprised no one's moved yet."
+    },
+    {
+      "handle": "@BudgetBuzzUK",
+      "name": "Budget Buzz",
+      "color": "#FFB627",
+      "text": "501m spent across the league so far out of a possible 600m. Still plenty of business to be done."
+    },
+    {
+      "handle": "@WaiverWireWatch",
+      "name": "Waiver Wire Watch",
+      "color": "#E8543F",
+      "text": "Varun down to just 21m combined — running very thin on room to manoeuvre."
+    },
+    {
+      "handle": "@ProbablyWrongTakes",
+      "name": "Probably Wrong Takes",
+      "color": "#37C871",
+      "text": "the trash talk in the group chat has already started and the season hasn't even kicked off 💀"
+    },
+    {
+      "handle": "@SquadShuffleHQ",
+      "name": "Squad Shuffle HQ",
+      "color": "#E8543F",
+      "text": "Malhar remain the biggest spenders left in the league with 52m still in the bank."
+    },
+    {
+      "handle": "@BudgetBuzzUK",
+      "name": "Budget Buzz",
+      "color": "#FFB627",
+      "text": "420 players still up for grabs on the waiver wire. Somewhere in there is next month's best signing."
+    },
+    {
+      "handle": "@TripleCaptainTom",
+      "name": "Tom",
+      "color": "#37C871",
+      "text": "not ready for this season man, this league is going to be absolute carnage 😭"
+    },
+    {
+      "handle": "@ShoutyFromTheSofa",
+      "name": "Shouty From The Sofa",
+      "color": "#E8543F",
+      "text": "just realised how much thought everyone put into their squad and I'm slightly concerned"
+    },
+    {
+      "handle": "@LeagueOfItsOwn",
+      "name": "A League Of Its Own",
+      "color": "#FFB627",
+      "text": "the trash talk in the group chat has already started and the season hasn't even kicked off 💀"
+    },
+    {
+      "handle": "@LastPickLarry",
+      "name": "Last Pick Larry",
+      "color": "#8AA095",
+      "text": "Whispers from the waiver wire: Thimothée Lo-Tutala (0.1% selected, still unpicked) is reportedly being monitored by at least one manager."
+    },
+    {
+      "handle": "@ArmchairGaffer",
+      "name": "The Armchair Gaffer",
+      "color": "#FFB627",
+      "text": "some of these squads are... interesting choices. said with love"
+    },
+    {
+      "handle": "@BudgetBuzzUK",
+      "name": "Budget Buzz",
+      "color": "#FFB627",
+      "text": "Don't sleep on Marcus Tavernier (1m, Lash) — smallest fee of the whole draft, still on the books."
+    },
+    {
+      "handle": "@FPL_Degenerate",
+      "name": "FPL Degenerate",
+      "color": "#E8543F",
+      "text": "genuinely cannot wait for gameweek 1. who's actually winning this thing"
+    },
+    {
+      "handle": "@TripleCaptainTom",
+      "name": "Tom",
+      "color": "#37C871",
+      "text": "not ready for this season man, this league is going to be absolute carnage 😭"
+    },
+    {
+      "handle": "@TripleCaptainTom",
+      "name": "Tom",
+      "color": "#37C871",
+      "text": "the trash talk in the group chat has already started and the season hasn't even kicked off 💀"
+    },
+    {
+      "handle": "@SquadShuffleHQ",
+      "name": "Squad Shuffle HQ",
+      "color": "#E8543F",
+      "text": "Sources close to the league suggest Mason Burstow could be a shrewd pickup at this point in the season. Genuinely surprised no one's moved yet."
+    },
+    {
+      "handle": "@BenchWarmerBrian",
+      "name": "Brian",
+      "color": "#8AA095",
+      "text": "some of these squads are... interesting choices. said with love"
+    },
+    {
+      "handle": "@ClipboardGossip",
+      "name": "Clipboard Gossip",
+      "color": "#37C871",
+      "text": "Lash rolling with a 11-player squad right now. Fully stocked, for now."
+    },
+    {
+      "handle": "@BenchWarmerBrian",
+      "name": "Brian",
+      "color": "#8AA095",
+      "text": "some of these squads are... interesting choices. said with love"
+    },
+    {
+      "handle": "@WaiverWireWatch",
+      "name": "Waiver Wire Watch",
+      "color": "#E8543F",
+      "text": "Don't sleep on Marcus Tavernier (1m, Lash) — smallest fee of the whole draft, still on the books."
+    },
+    {
+      "handle": "@BigManBants",
+      "name": "Big Man Bants",
+      "color": "#8AA095",
+      "text": "reminder that whoever finishes last has to admit it publicly. no exceptions"
+    }
+  ]
 }
