@@ -192,6 +192,25 @@ const playerOptions = players.map((p: any) => ({
     </div>
 
     <div class="card">
+      <h2>Edit Budget</h2>
+      <p class="sub" style="margin-bottom:14px;">Directly sets a team's budget — for corrections, not for normal picks (those adjust budget automatically).</p>
+      <label for="budgetTeamSelect">Team</label>
+      <select id="budgetTeamSelect"></select>
+      <div class="row">
+        <div>
+          <label for="squadBudgetInput">Squad Budget (M)</label>
+          <input type="number" id="squadBudgetInput" step="0.5" />
+        </div>
+        <div>
+          <label for="waiverBudgetInput">Waiver Budget (M)</label>
+          <input type="number" id="waiverBudgetInput" step="0.5" />
+        </div>
+      </div>
+      <button id="saveBudgetBtn">Save Budget</button>
+      <div class="msg" id="budgetMsg"></div>
+    </div>
+
+    <div class="card">
       <h2>Danger Zone</h2>
       <button class="danger" id="resetBtn">Reset Entire Draft</button>
       <div class="msg" id="resetMsg"></div>
@@ -231,7 +250,8 @@ const playerOptions = players.map((p: any) => ({
 
   const teamSelect = document.getElementById('teamSelect');
   const removeTeamSelect = document.getElementById('removeTeamSelect');
-  [teamSelect, removeTeamSelect].forEach((sel) => {
+  const budgetTeamSelect = document.getElementById('budgetTeamSelect');
+  [teamSelect, removeTeamSelect, budgetTeamSelect].forEach((sel) => {
     seedTeams.forEach((t) => {
       const opt = document.createElement('option');
       opt.value = String(t.id);
@@ -279,8 +299,21 @@ const playerOptions = players.map((p: any) => ({
       if (opt1) opt1.textContent = label;
       const opt2 = removeTeamSelect.querySelector(`option[value="${t.id}"]`);
       if (opt2) opt2.textContent = label;
+      const opt3 = budgetTeamSelect.querySelector(`option[value="${t.id}"]`);
+      if (opt3) opt3.textContent = label;
     });
   }
+
+  const squadBudgetInput = document.getElementById('squadBudgetInput');
+  const waiverBudgetInput = document.getElementById('waiverBudgetInput');
+  function renderBudgetInputs() {
+    // Don't clobber the field while the admin is actively typing in it.
+    if (document.activeElement === squadBudgetInput || document.activeElement === waiverBudgetInput) return;
+    const live = liveTeams[budgetTeamSelect.value] || DEFAULTS;
+    squadBudgetInput.value = live.remainingBudget;
+    waiverBudgetInput.value = live.waiverBudget;
+  }
+  budgetTeamSelect.addEventListener('change', renderBudgetInputs);
 
   function renderRemovablePlayers() {
     const removePlayerSelect = document.getElementById('removePlayerSelect');
@@ -300,6 +333,7 @@ const playerOptions = players.map((p: any) => ({
       renderBudgets();
       refreshPlayerOptions();
       if (String(t.id) === removeTeamSelect.value) renderRemovablePlayers();
+      if (String(t.id) === budgetTeamSelect.value) renderBudgetInputs();
     });
   });
 
@@ -428,6 +462,34 @@ const playerOptions = players.map((p: any) => ({
     } catch (err) {
       removeMsg.className = 'msg error';
       removeMsg.textContent = 'Failed: ' + err.message;
+    }
+  });
+
+  // ---- Edit budget ----
+  document.getElementById('saveBudgetBtn').addEventListener('click', async () => {
+    const budgetMsg = document.getElementById('budgetMsg');
+    budgetMsg.className = 'msg';
+    budgetMsg.textContent = '';
+
+    const teamId = budgetTeamSelect.value;
+    const team = seedTeams.find((t) => String(t.id) === teamId);
+    const squadBudget = parseFloat(squadBudgetInput.value);
+    const waiverBudget = parseFloat(waiverBudgetInput.value);
+
+    if (!(squadBudget >= 0) || !(waiverBudget >= 0)) {
+      budgetMsg.className = 'msg error';
+      budgetMsg.textContent = 'Enter valid, non-negative numbers for both fields.';
+      return;
+    }
+    if (!confirm(`Set ${team.name}'s budget to ${squadBudget}m squad / ${waiverBudget}m waiver?`)) return;
+
+    try {
+      await setDoc(doc(db, 'teams', teamId), { remainingBudget: squadBudget, waiverBudget: waiverBudget }, { merge: true });
+      budgetMsg.className = 'msg ok';
+      budgetMsg.textContent = `${team.name}'s budget updated.`;
+    } catch (err) {
+      budgetMsg.className = 'msg error';
+      budgetMsg.textContent = 'Failed: ' + err.message;
     }
   });
 
