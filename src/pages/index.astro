@@ -1,5 +1,6 @@
 ---
 import auctionLeagueData from "../data/auctionLeague.json";
+import rumours from "../data/rumours.json";
 import { computeStandings, teamName } from "../lib/auctionLeagueUtils.mjs";
 
 const state = auctionLeagueData as any;
@@ -13,6 +14,35 @@ const tickerItems = teams.map(
 const tickerText = tickerItems.join(" &nbsp; / &nbsp; ");
 
 const unpickedCount = players.filter((p: any) => p.draftedBy === null).length;
+
+// ---- Match Day Recap: most recently completed gameweek, from real results ----
+const playedGws = Object.keys(results).map((k: string) => Number(k.split("-")[0]));
+const latestGw = playedGws.length ? Math.max(...playedGws) : null;
+const latestGwFixture = latestGw ? fixtures.find((f: any) => f.gw === latestGw) : null;
+const latestRecaps = (latestGwFixture?.matches || [])
+  .map(([a, b]: [number, number]) => {
+    const res = results[`${latestGw}-${a}-${b}`];
+    if (!res) return null;
+    const winner = res.scoreA > res.scoreB ? a : res.scoreB > res.scoreA ? b : null;
+    const margin = Math.abs(res.scoreA - res.scoreB);
+    return { a, b, scoreA: res.scoreA, scoreB: res.scoreB, winner, margin };
+  })
+  .filter((r: any) => r !== null);
+
+function recapFlavor(r: any) {
+  if (r.winner === null) return "Honours even — both sides walk away with a point.";
+  const winnerName = teamName(teams, r.winner);
+  const loserName = teamName(teams, r.winner === r.a ? r.b : r.a);
+  if (r.margin >= 40) return `${winnerName} put on an absolute clinic against ${loserName}. Not much to say here.`;
+  if (r.margin >= 20) return `${winnerName} take a comfortable win over ${loserName}.`;
+  if (r.margin <= 5) return `${winnerName} edge out ${loserName} in a nail-biter. Margins don't get much finer.`;
+  return `${winnerName} get the better of ${loserName} in a solid week.`;
+}
+
+// ---- Injury Wire source data (players with real FPL news, for owned-player cross-reference client-side) ----
+const playersWithNews = players
+  .filter((p: any) => p.news && p.news.trim().length > 0)
+  .map((p: any) => ({ id: p.id, name: p.name, pos: p.pos, club: p.club, news: p.news }));
 
 const FAQ = [
   { cat: "The Basics", items: [
@@ -254,6 +284,115 @@ const FAQ = [
     font-size: 13px;
     font-style: italic;
     padding: 10px 0;
+  }
+
+  .news-block{
+    margin-bottom: 32px;
+  }
+  .news-block-head{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .news-block-title{
+    font-family:'Anton', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    font-size: 18px;
+    color: var(--white);
+  }
+  .news-block-tag{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--grey);
+    background: var(--card-2);
+    border: 1px solid var(--line);
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+  .news-block-tag.live-tag{ color: var(--turf); border-color: var(--turf); }
+  .recap-card{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 10px;
+  }
+  .recap-teams{
+    font-family:'JetBrains Mono', monospace;
+    font-weight:700;
+    font-size: 15px;
+    color: var(--white);
+    margin-bottom: 6px;
+  }
+  .recap-winner{ color: var(--turf); }
+  .recap-vs{ color: var(--grey); margin: 0 8px; }
+  .recap-flavor{ color: var(--grey); font-size: 13px; }
+
+  .rumours-section{
+    margin-top: 32px;
+  }
+  .rumours-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom: 14px;
+  }
+  .rumours-refresh{
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--grey);
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .rumours-refresh:hover{ color: var(--white); border-color: var(--turf); }
+  .tweet-card{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    display:flex;
+    gap: 12px;
+  }
+  .tweet-avatar{
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Anton', sans-serif;
+    font-size: 15px;
+    color: var(--pitch);
+    flex-shrink: 0;
+  }
+  .tweet-body{ flex: 1; min-width: 0; }
+  .tweet-meta{
+    display:flex;
+    align-items:baseline;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 3px;
+  }
+  .tweet-name{ font-weight:700; font-size: 13px; color: var(--white); }
+  .tweet-check{ color: var(--turf); font-size: 12px; }
+  .tweet-handle{ color: var(--grey); font-size: 12px; font-family:'JetBrains Mono', monospace; }
+  .tweet-time{ color: var(--grey); font-size: 11px; font-family:'JetBrains Mono', monospace; margin-left: auto; }
+  .tweet-text{ font-size: 13px; line-height: 1.5; color: var(--white); }
+  .rumours-disclaimer{
+    color: var(--grey);
+    font-size: 11px;
+    font-style: italic;
+    margin-top: 10px;
   }
 
   .gw-block{
@@ -538,6 +677,7 @@ const FAQ = [
 
 <nav class="tabs" id="tabs">
   <button data-page="home" class="active">Home</button>
+  <button data-page="squads">Squads</button>
   <button data-page="fixtures">Fixtures</button>
   <button data-page="standings">Standings</button>
   <button data-page="live">Live Scores</button>
@@ -547,8 +687,64 @@ const FAQ = [
 
 <main>
 
-  <!-- HOME -->
+  <!-- HOME: NEWS WIRE -->
   <section class="page active" id="page-home">
+    <div class="section-eyebrow">The Auction League</div>
+    <div class="section-title">What's Happening</div>
+
+    <div class="news-block">
+      <div class="news-block-head">
+        <span class="news-block-title">&#128260; Squad Moves</span>
+        <span class="news-block-tag live-tag">Live</span>
+      </div>
+      <div id="squadMovesFeed"><p class="empty-note">No moves logged yet — they'll appear here the moment the admin makes one.</p></div>
+    </div>
+
+    <div class="news-block">
+      <div class="news-block-head">
+        <span class="news-block-title">&#129719; Injury Wire</span>
+        <span class="news-block-tag">Real FPL data</span>
+      </div>
+      <div id="injuryWireFeed"><p class="empty-note">No injury concerns for owned players right now.</p></div>
+    </div>
+
+    <div class="news-block">
+      <div class="news-block-head">
+        <span class="news-block-title">&#128202; Match Day Recap</span>
+        <span class="news-block-tag">{latestGw ? `Gameweek ${latestGw}` : "Season not underway"}</span>
+      </div>
+      {latestRecaps.length ? (
+        <div>
+          {latestRecaps.map((r: any) => (
+            <div class="recap-card">
+              <div class="recap-teams">
+                <span class={r.winner === r.a ? "recap-winner" : ""}>{teamName(teams, r.a)} {r.scoreA}</span>
+                <span class="recap-vs">&ndash;</span>
+                <span class={r.winner === r.b ? "recap-winner" : ""}>{r.scoreB} {teamName(teams, r.b)}</span>
+              </div>
+              <p class="recap-flavor">{recapFlavor(r)}</p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p class="empty-note">Recaps land here automatically once a Gameweek finishes — nothing to show yet.</p>
+      )}
+    </div>
+
+    <div class="rumours-section">
+      <div class="rumours-head">
+        <div>
+          <span class="news-block-title">&#128064; Transfer Whispers</span>
+        </div>
+        <button class="rumours-refresh" id="rumoursRefresh">&#8635; Refresh</button>
+      </div>
+      <div id="rumoursFeed"></div>
+      <p class="rumours-disclaimer">Entirely made up for fun — not real news, not real people, not real transfers.</p>
+    </div>
+  </section>
+
+  <!-- SQUADS -->
+  <section class="page" id="page-squads">
     <div class="section-eyebrow">Squads</div>
     <div class="section-title">Team Rosters &amp; Budgets</div>
     <div class="live-banner" id="draftLiveBanner" style="display:none;"><span class="live-dot"></span> Draft is live &mdash; updating in real time.</div>
@@ -643,12 +839,12 @@ const FAQ = [
   <!-- PLAYERS -->
   <section class="page" id="page-players">
     <div class="section-eyebrow">Free Agents</div>
-    <div class="section-title">Players (<span id="unpickedCount">{unpickedCount}</span> unpicked)</div>
-    <p class="empty-note">Sorted by ownership (Selected %). Drafted status updates live during the auction.</p>
+    <div class="section-title">Unpicked Players (<span id="unpickedCount">{unpickedCount}</span>)</div>
+    <p class="empty-note">Sorted by ownership (Selected %). Updates live the instant a player's drafted during the auction.</p>
     <div class="search-row"><input type="text" id="playerSearch" placeholder="Search a player, club or position..."></div>
     <table class="players">
       <thead>
-        <tr><th>Player</th><th>Pos</th><th>Club</th><th>Sel %</th><th>FPL Pts</th><th></th></tr>
+        <tr><th>Player</th><th>Pos</th><th>Club</th><th>Sel %</th><th>FPL Pts</th></tr>
       </thead>
       <tbody id="playersBody">
         {[...players]
@@ -661,14 +857,13 @@ const FAQ = [
             <tr
               data-search={`${p.name} ${p.club} ${p.pos}`.toLowerCase()}
               data-player-id={p.id ?? ""}
-              data-drafted={p.draftedBy !== null ? "1" : "0"}
+              data-drafted="0"
             >
               <td>{p.name}</td>
               <td><span class="pos-badge">{p.pos}</span></td>
               <td>{p.club}</td>
               <td class="mono">{(p.selectedByPercent ?? 0).toFixed(1)}%</td>
               <td class="mono">{p.pts}</td>
-              <td class="draftedCell">{p.draftedBy !== null ? <span class="drafted-badge">{teamName(teams, p.draftedBy)}</span> : ""}</td>
             </tr>
           ))}
       </tbody>
@@ -716,24 +911,72 @@ const FAQ = [
   const searchInput = document.getElementById('playerSearch') as HTMLInputElement | null;
   const rows = Array.from(document.querySelectorAll<HTMLTableRowElement>('#playersBody tr'));
   const noPlayersNote = document.getElementById('noPlayersNote');
-  searchInput?.addEventListener('input', () => {
-    const f = searchInput.value.trim().toLowerCase();
+
+  function updateRowVisibility() {
+    const f = (searchInput?.value || '').trim().toLowerCase();
     let visible = 0;
     rows.forEach((row) => {
-      const match = !f || (row.dataset.search || '').includes(f);
-      row.style.display = match ? '' : 'none';
-      if (match) visible++;
+      const matchesSearch = !f || (row.dataset.search || '').includes(f);
+      const isUnpicked = row.dataset.drafted !== '1';
+      const show = matchesSearch && isUnpicked;
+      row.style.display = show ? '' : 'none';
+      if (show) visible++;
     });
     if (noPlayersNote) noPlayersNote.style.display = visible ? 'none' : '';
-  });
+  }
+  (window as any).updateRowVisibility = updateRowVisibility;
+  searchInput?.addEventListener('input', updateRowVisibility);
 </script>
 
 <script type="application/json" id="teamsSeed" set:html={JSON.stringify(teams)}></script>
+<script type="application/json" id="playersNewsSeed" set:html={JSON.stringify(playersWithNews)}></script>
 <script type="application/json" id="playerPointsSeed" set:html={JSON.stringify(players.map((p: any) => ({ id: p.id, eventPoints: p.eventPoints ?? 0 })))}></script>
+<script type="application/json" id="rumoursSeed" set:html={JSON.stringify(rumours)}></script>
+
+<script>
+  const rumours = JSON.parse(document.getElementById('rumoursSeed').textContent);
+  const TIMES = ['now', '2m', '5m', '11m', '23m', '38m', '1h', '2h', '4h', '6h', 'yesterday'];
+
+  function initials(name) {
+    return name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase();
+  }
+
+  function shuffled(arr) {
+    const copy = [...arr];
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  }
+
+  function renderRumours() {
+    const feed = document.getElementById('rumoursFeed');
+    if (!feed) return;
+    const picks = shuffled(rumours).slice(0, 7);
+    feed.innerHTML = picks.map((r) => `
+      <div class="tweet-card">
+        <div class="tweet-avatar" style="background:${r.color}">${initials(r.name)}</div>
+        <div class="tweet-body">
+          <div class="tweet-meta">
+            <span class="tweet-name">${r.name}</span>
+            <span class="tweet-check">&#10003;</span>
+            <span class="tweet-handle">${r.handle}</span>
+            <span class="tweet-time">${TIMES[Math.floor(Math.random() * TIMES.length)]}</span>
+          </div>
+          <div class="tweet-text">${r.text}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  renderRumours();
+  document.getElementById('rumoursRefresh')?.addEventListener('click', renderRumours);
+</script>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-  import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+  import { getFirestore, doc, onSnapshot, collection, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
   // Public client config — safe to expose; write access is restricted by
   // Firestore security rules (auth required), not by hiding this object.
@@ -752,9 +995,77 @@ const FAQ = [
   const playerPoints = new Map(
     JSON.parse(document.getElementById('playerPointsSeed').textContent).map((p) => [String(p.id), p.eventPoints]),
   );
+  const playersNews = new Map(
+    JSON.parse(document.getElementById('playersNewsSeed').textContent).map((p) => [String(p.id), p]),
+  );
   const DEFAULTS = { remainingBudget: 100, waiverBudget: 20, roster: [] };
   const liveTeams = {}; // teamId -> {name, remainingBudget, waiverBudget, roster}
   let anyLive = false;
+
+  function renderInjuryWire() {
+    const feed = document.getElementById('injuryWireFeed');
+    if (!feed) return;
+    const items = [];
+    for (const t of seedTeams) {
+      const live = liveTeams[t.id] || DEFAULTS;
+      for (const p of live.roster) {
+        const news = playersNews.get(String(p.playerId));
+        if (news) items.push({ team: t.name, ...news });
+      }
+    }
+    feed.innerHTML = items.length
+      ? items.map((n) => `
+          <div class="tweet-card">
+            <div class="tweet-avatar" style="background:#E8543F">${n.pos}</div>
+            <div class="tweet-body">
+              <div class="tweet-meta"><span class="tweet-name">${n.name}</span><span class="tweet-handle">${n.club} &middot; owned by ${n.team}</span></div>
+              <div class="tweet-text">${n.news}</div>
+            </div>
+          </div>
+        `).join('')
+      : '<p class="empty-note">No injury concerns for owned players right now.</p>';
+  }
+
+  function timeAgo(date) {
+    const secs = Math.max(0, Math.floor((Date.now() - date.getTime()) / 1000));
+    if (secs < 60) return 'just now';
+    if (secs < 3600) return `${Math.floor(secs / 60)}m ago`;
+    if (secs < 86400) return `${Math.floor(secs / 3600)}h ago`;
+    return `${Math.floor(secs / 86400)}d ago`;
+  }
+
+  function renderSquadMoves(docs) {
+    const feed = document.getElementById('squadMovesFeed');
+    if (!feed) return;
+    if (!docs.length) {
+      feed.innerHTML = '<p class="empty-note">No moves logged yet — they\'ll appear here the moment the admin makes one.</p>';
+      return;
+    }
+    feed.innerHTML = docs.map((d) => {
+      const isRemove = d.type === 'remove';
+      const verb = isRemove ? 'release' : 'sign';
+      const color = isRemove ? '#E8543F' : '#37C871';
+      const when = d.ts ? timeAgo(d.ts.toDate()) : 'just now';
+      return `
+        <div class="tweet-card">
+          <div class="tweet-avatar" style="background:${color}">${d.teamName.slice(0, 2).toUpperCase()}</div>
+          <div class="tweet-body">
+            <div class="tweet-meta">
+              <span class="tweet-name">${d.teamName}</span>
+              <span class="tweet-check">&#10003;</span>
+              <span class="tweet-handle">Squad News</span>
+              <span class="tweet-time">${when}</span>
+            </div>
+            <div class="tweet-text">${d.teamName} ${verb} ${d.playerName}${isRemove ? '' : ` for ${d.price}m`}.</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  onSnapshot(query(collection(db, 'draftLog'), orderBy('ts', 'desc'), limit(8)), (snap) => {
+    renderSquadMoves(snap.docs.map((d) => d.data()));
+  });
 
   function renderLiveScoreFor(teamId) {
     const live = liveTeams[teamId] || DEFAULTS;
@@ -805,24 +1116,23 @@ const FAQ = [
   }
 
   function refreshDraftedStatus() {
-    const draftedMap = new Map(); // playerId (string) -> team name
+    const draftedIds = new Set();
     for (const t of seedTeams) {
       const live = liveTeams[t.id] || DEFAULTS;
       for (const p of live.roster) {
-        if (p.playerId != null) draftedMap.set(String(p.playerId), t.name);
+        if (p.playerId != null) draftedIds.add(String(p.playerId));
       }
     }
     let unpicked = 0;
     document.querySelectorAll('#playersBody tr').forEach((row) => {
       const pid = row.dataset.playerId;
-      const cell = row.querySelector('.draftedCell');
-      const teamName = pid && draftedMap.has(pid) ? draftedMap.get(pid) : null;
-      if (cell) cell.innerHTML = teamName ? `<span class="drafted-badge">${teamName}</span>` : '';
-      row.dataset.drafted = teamName ? '1' : '0';
-      if (!teamName) unpicked++;
+      const isDrafted = pid && draftedIds.has(pid);
+      row.dataset.drafted = isDrafted ? '1' : '0';
+      if (!isDrafted) unpicked++;
     });
     const countEl = document.getElementById('unpickedCount');
     if (countEl) countEl.textContent = String(unpicked);
+    (window as any).updateRowVisibility?.();
   }
 
   seedTeams.forEach((t) => {
@@ -834,6 +1144,7 @@ const FAQ = [
       renderTicker();
       refreshDraftedStatus();
       renderAllLiveScores();
+      renderInjuryWire();
       const banner = document.getElementById('draftLiveBanner');
       if (banner) banner.style.display = anyLive ? 'flex' : 'none';
     });
