@@ -47,6 +47,10 @@ const playersWithNews = players
   .filter((p: any) => p.news && p.news.trim().length > 0)
   .map((p: any) => ({ id: p.id, name: p.name, pos: p.pos, club: p.club, news: p.news }));
 
+// Until the first Gameweek result exists, Squad Moves/Injury Wire/Match Recap are thin —
+// lead with the Social Media feed instead. Reverts automatically once real results land.
+const preSeasonMode = Object.keys(results).length === 0;
+
 const FAQ = [
   { cat: "The Basics", items: [
     ["How does the draft work?", "Everyone bids live on players, one at a time, until all 6 squads are full. It's a real auction — whoever bids highest gets the player, no snake-draft turns."],
@@ -289,6 +293,10 @@ const FAQ = [
     padding: 10px 0;
   }
 
+  .news-wire-stack{
+    display: flex;
+    flex-direction: column;
+  }
   .news-block{
     margin-bottom: 32px;
   }
@@ -336,7 +344,7 @@ const FAQ = [
   .recap-flavor{ color: var(--grey); font-size: 13px; }
 
   .rumours-section{
-    margin-top: 32px;
+    margin-bottom: 32px;
   }
   .rumours-head{
     display:flex;
@@ -695,54 +703,56 @@ const FAQ = [
     <div class="section-eyebrow">The Auction League</div>
     <div class="section-title">What's Happening</div>
 
-    <div class="news-block">
-      <div class="news-block-head">
-        <span class="news-block-title">&#128260; Squad Moves</span>
-        <span class="news-block-tag live-tag">Live</span>
+    <div class="news-wire-stack">
+      <div class="news-block" style={`order:${preSeasonMode ? 2 : 1}`}>
+        <div class="news-block-head">
+          <span class="news-block-title">&#128260; Squad Moves</span>
+          <span class="news-block-tag live-tag">Live</span>
+        </div>
+        <div id="squadMovesFeed"><p class="empty-note">No moves logged yet — they'll appear here the moment the admin makes one.</p></div>
       </div>
-      <div id="squadMovesFeed"><p class="empty-note">No moves logged yet — they'll appear here the moment the admin makes one.</p></div>
-    </div>
 
-    <div class="news-block">
-      <div class="news-block-head">
-        <span class="news-block-title">&#129719; Injury Wire</span>
-        <span class="news-block-tag">Real FPL data</span>
+      <div class="news-block" style={`order:${preSeasonMode ? 3 : 2}`}>
+        <div class="news-block-head">
+          <span class="news-block-title">&#129719; Injury Wire</span>
+          <span class="news-block-tag">Real FPL data</span>
+        </div>
+        <div id="injuryWireFeed"><p class="empty-note">No injury concerns for owned players right now.</p></div>
       </div>
-      <div id="injuryWireFeed"><p class="empty-note">No injury concerns for owned players right now.</p></div>
-    </div>
 
-    <div class="news-block">
-      <div class="news-block-head">
-        <span class="news-block-title">&#128202; Match Day Recap</span>
-        <span class="news-block-tag">{latestGw ? `Gameweek ${latestGw}` : "Season not underway"}</span>
-      </div>
-      {latestRecaps.length ? (
-        <div>
-          {latestRecaps.map((r: any) => (
-            <div class="recap-card">
-              <div class="recap-teams">
-                <span class={r.winner === r.a ? "recap-winner" : ""}>{teamName(teams, r.a)} {r.scoreA}</span>
-                <span class="recap-vs">&ndash;</span>
-                <span class={r.winner === r.b ? "recap-winner" : ""}>{r.scoreB} {teamName(teams, r.b)}</span>
+      <div class="news-block" style={`order:${preSeasonMode ? 4 : 3}`}>
+        <div class="news-block-head">
+          <span class="news-block-title">&#128202; Match Day Recap</span>
+          <span class="news-block-tag">{latestGw ? `Gameweek ${latestGw}` : "Season not underway"}</span>
+        </div>
+        {latestRecaps.length ? (
+          <div>
+            {latestRecaps.map((r: any) => (
+              <div class="recap-card">
+                <div class="recap-teams">
+                  <span class={r.winner === r.a ? "recap-winner" : ""}>{teamName(teams, r.a)} {r.scoreA}</span>
+                  <span class="recap-vs">&ndash;</span>
+                  <span class={r.winner === r.b ? "recap-winner" : ""}>{r.scoreB} {teamName(teams, r.b)}</span>
+                </div>
+                <p class="recap-flavor">{recapFlavor(r)}</p>
               </div>
-              <p class="recap-flavor">{recapFlavor(r)}</p>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p class="empty-note">Recaps land here automatically once a Gameweek finishes — nothing to show yet.</p>
-      )}
-    </div>
-
-    <div class="rumours-section">
-      <div class="rumours-head">
-        <div>
-          <span class="news-block-title">&#128064; Transfer Whispers</span>
-        </div>
-        <button class="rumours-refresh" id="rumoursRefresh">&#8635; Refresh</button>
+            ))}
+          </div>
+        ) : (
+          <p class="empty-note">Recaps land here automatically once a Gameweek finishes — nothing to show yet.</p>
+        )}
       </div>
-      <div id="rumoursFeed"></div>
-      <p class="rumours-disclaimer">Entirely made up for fun — not real news, not real people, not real transfers.</p>
+
+      <div class="rumours-section" style={`order:${preSeasonMode ? 1 : 4}`}>
+        <div class="rumours-head">
+          <div>
+            <span class="news-block-title">&#128241; Social Media</span>
+          </div>
+          <button class="rumours-refresh" id="rumoursRefresh">&#8635; Refresh</button>
+        </div>
+        <div id="rumoursFeed"></div>
+        <p class="rumours-disclaimer">Entirely made up for fun — not real posts, not real people, not real accounts.</p>
+      </div>
     </div>
   </section>
 
@@ -960,7 +970,7 @@ const FAQ = [
       feed.innerHTML = '<p class="empty-note">Nothing doing right now — check back after the next sync.</p>';
       return;
     }
-    const picks = shuffled(rumours).slice(0, 7);
+    const picks = shuffled(rumours).slice(0, 9);
     feed.innerHTML = picks.map((r) => `
       <div class="tweet-card">
         <div class="tweet-avatar" style="background:${r.color}">${initials(r.name)}</div>
@@ -1021,7 +1031,7 @@ const FAQ = [
       }
     }
     feed.innerHTML = items.length
-      ? items.map((n) => `
+      ? items.slice(0, 5).map((n) => `
           <div class="tweet-card">
             <div class="tweet-avatar" style="background:#E8543F">${n.pos}</div>
             <div class="tweet-body">
@@ -1070,7 +1080,7 @@ const FAQ = [
     }).join('');
   }
 
-  onSnapshot(query(collection(db, 'draftLog'), orderBy('ts', 'desc'), limit(8)), (snap) => {
+  onSnapshot(query(collection(db, 'draftLog'), orderBy('ts', 'desc'), limit(3)), (snap) => {
     renderSquadMoves(snap.docs.map((d) => d.data()));
   });
 
