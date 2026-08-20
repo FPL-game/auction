@@ -8,7 +8,7 @@ const { teams, fixtures, results, players, meta } = state;
 const standings = computeStandings(teams, results);
 
 const tickerItems = teams.map(
-  (t: any) => `${t.name.toUpperCase()} &middot; ${t.remainingBudget}M LEFT`,
+  (t: any) => `${t.name.toUpperCase()} &middot; ${t.remainingBudget + t.waiverBudget}M LEFT`,
 );
 const tickerText = tickerItems.join(" &nbsp; / &nbsp; ");
 
@@ -558,8 +558,7 @@ const FAQ = [
           <span class="tag">Team {i + 1}</span>
           <h3>{t.name}</h3>
           <div class="budget-row">
-            <div class="budget-pill"><div class="num" id={`budget-${t.id}`}>{t.remainingBudget}M</div><div class="lbl">Squad Budget Left</div></div>
-            <div class="budget-pill"><div class="num" id={`waiver-${t.id}`}>{t.waiverBudget}M</div><div class="lbl">Waiver Budget</div></div>
+            <div class="budget-pill"><div class="num" id={`budget-${t.id}`}>{t.remainingBudget + t.waiverBudget}M</div><div class="lbl">Budget Remaining</div></div>
           </div>
           <ul class="roster-list" id={`roster-${t.id}`}>
             {t.roster.length ? t.roster.map((p: any) => (
@@ -786,10 +785,8 @@ const FAQ = [
 
   function renderTeamCard(teamId, data) {
     const budgetEl = document.getElementById(`budget-${teamId}`);
-    const waiverEl = document.getElementById(`waiver-${teamId}`);
     const rosterEl = document.getElementById(`roster-${teamId}`);
-    if (budgetEl) budgetEl.textContent = `${data.remainingBudget}M`;
-    if (waiverEl) waiverEl.textContent = `${data.waiverBudget}M`;
+    if (budgetEl) budgetEl.textContent = `${data.remainingBudget + data.waiverBudget}M`;
     if (rosterEl) {
       rosterEl.innerHTML = data.roster.length
         ? data.roster.map((p) => `<li><span>${p.name}</span><span>${p.price}m</span></li>`).join('')
@@ -800,7 +797,7 @@ const FAQ = [
   function renderTicker() {
     const items = seedTeams.map((t) => {
       const live = liveTeams[t.id] || DEFAULTS;
-      return `${t.name.toUpperCase()} &middot; ${live.remainingBudget}M LEFT`;
+      return `${t.name.toUpperCase()} &middot; ${live.remainingBudget + live.waiverBudget}M LEFT`;
     });
     const text = items.join(' &nbsp; / &nbsp; ');
     const el = document.getElementById('tickerText');
