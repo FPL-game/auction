@@ -57,9 +57,13 @@ async function main() {
       pos: POSITION_BY_ELEMENT_TYPE[el.element_type] || "?",
       club: clubById.get(el.team) || "?",
       pts: el.total_points,
+      eventPoints: el.event_points ?? 0,
       selectedByPercent: parseFloat(el.selected_by_percent) || 0,
       expectedPoints: parseFloat(el.ep_next) || 0,
       nowCost: el.now_cost / 10,
+      news: el.news || "",
+      newsAdded: el.news_added || null,
+      chanceOfPlaying: el.chance_of_playing_next_round,
       draftedBy: prior?.draftedBy ?? null,
     };
   });
