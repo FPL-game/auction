@@ -62,15 +62,15 @@ async function fetchLiveTeams() {
   return byId;
 }
 
-// Recent add/release moves, for fan-reaction posts in the Social Media feed.
+// Recent add/trade moves, for fan-reaction posts in the Social Media feed.
 async function fetchRecentDraftLog() {
   const res = await fetch(`${FIRESTORE_BASE}/draftLog`);
   if (!res.ok) return [];
   const body = await res.json();
   return (body.documents || [])
     .map((doc) => decodeFirestoreMap(doc))
-    .filter((d) => d.type === "add")
-    .slice(-10);
+    .filter((d) => d.type === "add" || d.type === "trade")
+    .slice(-15);
 }
 
 function gwScoreForRoster(roster, liveById) {
@@ -255,74 +255,107 @@ function generateRumours(state, recentMoves = []) {
   if (unpicked.length) {
     templates.push(() => {
       const p = pick(unpicked);
-      return { fan: false, text: `Whispers from the waiver wire: ${p.name} (${p.selectedByPercent.toFixed(1)}% selected, still unpicked) is reportedly being monitored by at least one manager.` };
+      return { fan: false, text: `EXCLUSIVE: ${p.name} has been sitting on the waiver wire at ${p.selectedByPercent.toFixed(1)}% selected while every manager in this league pretends not to notice. Someone's about to look very smart.` };
     });
     templates.push(() => {
       const p = pick(unpicked);
       const t = pick(state.teams);
-      return { fan: false, text: `Hearing ${t.name} could make a move for ${p.name} (${p.club}) before the next deadline. Nothing imminent.` };
+      return { fan: false, text: `Told ${t.name} have been "circling" ${p.name} (${p.club}) for two straight weeks now. At what point does circling just become cowardice.` };
     });
     templates.push(() => {
       const p = pick(unpicked);
-      return { fan: false, text: `Sources close to the league suggest ${p.name} could be a shrewd pickup at this point in the season. Genuinely surprised no one's moved yet.` };
+      return { fan: false, text: `A source close to the situation (me, staring at the waiver list) confirms ${p.name} is a free hit sitting right there in plain sight. Baffling nobody's pulled the trigger.` };
     });
   }
 
   if (richest && poorest && richest.id !== poorest.id) {
-    templates.push(() => ({ fan: false, text: `${richest.name} remain the biggest spenders left in the league with ${richest.remainingBudget + richest.waiverBudget}m still in the bank.` }));
-    templates.push(() => ({ fan: false, text: `${poorest.name} down to just ${poorest.remainingBudget + poorest.waiverBudget}m combined — running very thin on room to manoeuvre.` }));
+    templates.push(() => ({ fan: false, text: `${richest.name} sitting on ${richest.remainingBudget + richest.waiverBudget}m like a dragon guarding gold it has no plan for. Do something with it.` }));
+    templates.push(() => ({ fan: false, text: `${poorest.name} down to ${poorest.remainingBudget + poorest.waiverBudget}m combined. Financially, this is a crime scene.` }));
   }
 
   templates.push(() => {
     const t = pick(state.teams);
     const total = t.remainingBudget + t.waiverBudget;
-    return { fan: false, text: `${t.name} sitting on ${total}m combined budget right now. ${total > 30 ? "Plenty of firepower left if they want to use it." : "Not a lot of wiggle room from here."}` };
+    return { fan: false, text: `${t.name} sitting on ${total}m right now. ${total > 30 ? "Enough firepower to change this league and they're just... not." : "Basically down to loose change and vibes at this point."}` };
   });
 
   if (ownedPlayers.length) {
     const priciest = [...ownedPlayers].sort((a, b) => b.price - a.price)[0];
     const cheapest = [...ownedPlayers].sort((a, b) => a.price - b.price)[0];
-    templates.push(() => ({ fan: false, text: `Biggest outlay of the draft remains ${priciest.name} — ${priciest.teamName} paid ${priciest.price}m and there's no going back now.` }));
-    templates.push(() => ({ fan: false, text: `Don't sleep on ${cheapest.name} (${cheapest.price}m, ${cheapest.teamName}) — smallest fee of the whole draft, still on the books.` }));
+    templates.push(() => ({ fan: false, text: `${priciest.teamName} dropped ${priciest.price}m on ${priciest.name} and there is no refund policy in this league. Committed now, for better or worse.` }));
+    templates.push(() => ({ fan: false, text: `${cheapest.name} cost ${cheapest.teamName} just ${cheapest.price}m. Absolute daylight robbery and everyone's too polite to say it out loud.` }));
   }
 
   const totalSpent = state.teams.reduce((sum, t) => sum + (100 - t.remainingBudget), 0);
-  templates.push(() => ({ fan: false, text: `${totalSpent}m spent across the league so far out of a possible 600m. ${totalSpent >= 550 ? "Nearly every pound accounted for." : "Still plenty of business to be done."}` }));
+  templates.push(() => ({ fan: false, text: `${totalSpent}m of a possible 600m spent league-wide. ${totalSpent >= 550 ? "Every pound accounted for — nobody has anything left to hide behind." : "Still real money on the table and somebody is sitting on it out of pure stubbornness."}` }));
 
   if (unpicked.length > 1) {
-    templates.push(() => ({ fan: false, text: `${unpicked.length} players still up for grabs on the waiver wire. Somewhere in there is next month's best signing.` }));
+    templates.push(() => ({ fan: false, text: `${unpicked.length} players still unclaimed on the waiver wire. One of them wins somebody a title and this whole league is too busy scrolling to notice.` }));
   }
 
   templates.push(() => {
     const t = pick(state.teams);
     const n = t.roster.length;
-    return { fan: false, text: `${t.name} rolling with a ${n}-player squad right now. ${n < 11 ? "A gap still needs filling before things get serious." : "Fully stocked, for now."}` };
+    return { fan: false, text: `${t.name} currently running ${n} players deep. ${n < 11 ? "There is a hole in this squad you could drive a bus through." : "Fully loaded — for now. Ask again after the next waiver deadline."}` };
   });
 
   // ---- Fan banter: generic hype, no data required ----
   const hypeLines = [
-    "not ready for this season man, this league is going to be absolute carnage 😭",
-    "the trash talk in the group chat has already started and the season hasn't even kicked off 💀",
-    "genuinely cannot wait for gameweek 1. who's actually winning this thing",
-    "some of these squads are... interesting choices. said with love",
-    "reminder that whoever finishes last has to admit it publicly. no exceptions",
-    "just realised how much thought everyone put into their squad and I'm slightly concerned",
+    "not emotionally prepared for gameweek 1, my heart genuinely cannot take this league 😭",
+    "the group chat is already 400 messages deep and literally NOTHING has happened yet. imagine week 12",
+    "someone's captain pick is about to end a real friendship. calling it now",
+    "watched three squads get announced back to back and I need to lie down",
+    "the confidence some of you are showing after the picks you made is genuinely inspiring behaviour",
+    "reminder: whoever finishes bottom has to change their profile picture to the trophy for a month. no exceptions, no appeals",
+    "I've decided who I'm rooting against and it's whoever's having the most fun doing well. sorry",
+    "just did the maths on somebody's spending and I have never seen anyone go all in like that. reckless. iconic. reckless",
+    "everyone in this league thinks they drafted the smart squad. statistically most of you are just wrong 💀",
+    "the gap between how confident people sound in the group chat and how their squads actually look is not adding up 🔥",
+    "genuinely losing sleep over gameweek 1 and I don't think that counts as normal behaviour anymore",
+    "somebody in this league is about to get bullied for a full calendar year over one decision. build a bridge",
   ];
   for (const line of hypeLines) templates.push(() => ({ fan: true, text: line }));
 
   // ---- Fan reactions to real recent squad moves ----
-  if (recentMoves.length) {
+  const recentAdds = recentMoves.filter((m) => m.type === "add");
+  const recentTrades = recentMoves.filter((m) => m.type === "trade");
+
+  if (recentAdds.length) {
     templates.push(() => {
-      const m = pick(recentMoves);
-      return { fan: true, text: `${m.teamName} really paid ${m.price}m for ${m.playerName}?? bold strategy 👀` };
+      const m = pick(recentAdds);
+      return { fan: true, text: `${m.teamName} spent ${m.price}m on ${m.playerName} and I need everyone to just sit with that number for a second 👀` };
     });
     templates.push(() => {
-      const m = pick(recentMoves);
-      return { fan: true, text: `ngl ${m.playerName} to ${m.teamName} is actually a solid pickup. respect` };
+      const m = pick(recentAdds);
+      return { fan: true, text: `${m.teamName} picking up ${m.playerName} is either genius or a cry for help. genuinely could be both` };
     });
     templates.push(() => {
-      const m = pick(recentMoves);
-      return { fan: true, text: `still thinking about ${m.teamName} grabbing ${m.playerName} for ${m.price}m. huge if it pays off` };
+      const m = pick(recentAdds);
+      return { fan: true, text: `can't stop thinking about ${m.teamName} dropping ${m.price}m on ${m.playerName}. that's not a signing, that's a personality trait now` };
+    });
+    templates.push(() => {
+      const m = pick(recentAdds);
+      return { fan: true, text: `${m.playerName} to ${m.teamName} for ${m.price}m. bold. unhinged. slightly evil. I respect it 🔥` };
+    });
+  }
+
+  // ---- Fan and insider reactions to real recent trades ----
+  if (recentTrades.length) {
+    templates.push(() => {
+      const t = pick(recentTrades);
+      const aCount = (t.playersAToB || []).length;
+      const bCount = (t.playersBToA || []).length;
+      return { fan: true, text: `${t.teamAName} and ${t.teamBName} just pulled off a ${aCount}-for-${bCount} trade and I have several questions 👀` };
+    });
+    templates.push(() => {
+      const t = pick(recentTrades);
+      const names = (t.playersAToB || []).map((p) => p.name).join(" and ");
+      if (!names) return { fan: true, text: `${t.teamAName} and ${t.teamBName} just completed a trade and nobody in the group chat can stop talking about it` };
+      return { fan: true, text: `${t.teamAName} straight up gave away ${names} in that trade. brave or insane, genuinely no in-between` };
+    });
+    templates.push(() => {
+      const t = pick(recentTrades);
+      return { fan: false, text: `Confirmed: ${t.teamAName} and ${t.teamBName} completed a trade this week. Full details still filtering through the league — sources say both sides are already calling it a win.` };
     });
   }
 
@@ -347,10 +380,10 @@ function generateRumours(state, recentMoves = []) {
         const [winner, loser, ws, ls] = r.scoreA >= r.scoreB
           ? [r.teamA, r.teamB, r.scoreA, r.scoreB]
           : [r.teamB, r.teamA, r.scoreB, r.scoreA];
-        if (ws === ls) return { fan: true, text: `${r.teamA.name} ${r.scoreA} - ${r.scoreB} ${r.teamB.name}. a draw?? nobody's happy with that one` };
-        if (ws - ls >= 30) return { fan: true, text: `somebody check on ${loser.name} after that gameweek 😭 ${winner.name} showed no mercy` };
-        if (ws - ls <= 5) return { fan: true, text: `${winner.name} scrape past ${loser.name} by the smallest of margins. heart rate through the roof watching that one` };
-        return { fan: true, text: `${winner.name} get the win over ${loser.name} this gameweek. solid, no fireworks` };
+        if (ws === ls) return { fan: true, text: `${r.teamA.name} ${r.scoreA} - ${r.scoreB} ${r.teamB.name}. a draw. the most cowardly result in football and both sides should be a little embarrassed` };
+        if (ws - ls >= 30) return { fan: true, text: `${winner.name} ${ws} - ${ls} ${loser.name}. that's not a scoreline, that's a hostage situation 😭 somebody check on ${loser.name}` };
+        if (ws - ls <= 5) return { fan: true, text: `${winner.name} edge ${loser.name} by the width of a single point. someone's heart genuinely stopped watching that live` };
+        return { fan: true, text: `${winner.name} beat ${loser.name} this gameweek. professional, unbothered, mildly boring. respect the process` };
       });
     }
   }
