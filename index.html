@@ -11,4 +11,15 @@
           <div class="tweet-text">${e.text}</div>
         </div>
       </div>
-    `).join(``)}}i(),document.getElementById(`rumoursRefresh`)?.addEventListener(`click`,i);</script><script type="module" src="/auction/_astro/index.astro_astro_type_script_index_2_lang.xCVv_fTc.js"></script></body></html>
+    `).join(``)}}i(),document.getElementById(`rumoursRefresh`)?.addEventListener(`click`,i);var a=[{handle:`@BenchWarmerBrian`,name:`Brian`,color:`#8AA095`},{handle:`@ArmchairGaffer`,name:`The Armchair Gaffer`,color:`#FFB627`},{handle:`@TripleCaptainTom`,name:`Tom`,color:`#37C871`},{handle:`@FPL_Degenerate`,name:`FPL Degenerate`,color:`#E8543F`},{handle:`@BigManBants`,name:`Big Man Bants`,color:`#8AA095`},{handle:`@ShoutyFromTheSofa`,name:`Shouty From The Sofa`,color:`#E8543F`}];function o(e){if(e.type===`trade`){let t=(e.playersAToB||[]).map(e=>e.name).join(` and `)||`nothing`,n=(e.playersBToA||[]).map(e=>e.name).join(` and `)||`nothing`,r=[`wait ${e.teamAName} actually traded ${t} to ${e.teamBName} for ${n}?? need a minute to process this 👀`,`${e.teamAName} and ${e.teamBName} just made a trade and the group chat has not recovered`,`trade alert: ${t} to ${e.teamBName}, ${n} to ${e.teamAName}. somebody's going to win this and somebody's going to lose this`];return r[Math.floor(Math.random()*r.length)]}if(e.type===`remove`)return`${e.teamName} just cut ${e.playerName} loose. brutal, but somebody had to do it`;let t=[`${e.teamName} just added ${e.playerName} for ${e.price}m and I need everyone to just sit with that for a second 👀`,`${e.teamName} picking up ${e.playerName} live right now. genius or cry for help, genuinely could be both`,`breaking: ${e.playerName} to ${e.teamName} for ${e.price}m. bold. unhinged. slightly evil. I respect it 🔥`];return t[Math.floor(Math.random()*t.length)]}function s(e){let t=document.getElementById(`rumoursFeed`);if(!t)return;let r=t.querySelector(`.empty-note`);r&&r.remove();let i=a[Math.floor(Math.random()*a.length)],s=document.createElement(`div`);for(s.className=`tweet-card`,s.innerHTML=`
+      <div class="tweet-avatar" style="background:${i.color}">${n(i.name)}</div>
+      <div class="tweet-body">
+        <div class="tweet-meta">
+          <span class="tweet-name">${i.name}</span>
+          <span class="tweet-check">&#10003;</span>
+          <span class="tweet-handle">${i.handle}</span>
+          <span class="tweet-time">now</span>
+        </div>
+        <div class="tweet-text">${o(e)}</div>
+      </div>
+    `,t.prepend(s);t.children.length>12;)t.removeChild(t.lastChild)}window.reactToMove=s;</script><script type="module" src="/auction/_astro/index.astro_astro_type_script_index_2_lang.B-T1qwCx.js"></script></body></html>
