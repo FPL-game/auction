@@ -190,11 +190,13 @@ const playerOptions = players.map((p: any) => ({
 
     <div class="card">
       <h2>Remove Player</h2>
-      <p class="sub" style="margin-bottom:14px;">Releases a player and refunds their price to the team's budget. To swap someone in, remove first, then use Add Pick above.</p>
+      <p class="sub" style="margin-bottom:14px;">Releases a player and refunds whatever amount you set below to the team's budget (defaults to 0). To swap someone in, remove first, then use Add Pick above.</p>
       <label for="removeTeamSelect">Team</label>
       <select id="removeTeamSelect"></select>
       <label for="removePlayerSelect">Player</label>
       <select id="removePlayerSelect"></select>
+      <label for="refundInput">Refund (M)</label>
+      <input type="number" id="refundInput" min="0" step="0.5" value="0" />
       <button class="danger" id="removePlayerBtn">Remove Player</button>
       <div class="msg" id="removeMsg"></div>
     </div>
@@ -412,8 +414,12 @@ const playerOptions = players.map((p: any) => ({
           const budgetNote = budgetBits.length ? ` (${budgetBits.join(', ')})` : '';
           return `<li><span>Trade: ${p.teamAName} &harr; ${p.teamBName} <span class="meta">${aNames} for ${bNames}${budgetNote}</span></span></li>`;
         }
-        const verb = p.type === 'remove' ? '&larr; released by' : '&rarr;';
-        return `<li><span>${p.playerName} <span class="meta">${verb} ${p.teamName}</span></span><span class="meta">${p.price}m</span></li>`;
+        const isRemove = p.type === 'remove';
+        const verb = isRemove ? '&larr; released by' : '&rarr;';
+        // Removals show the refund actually given, not the player's original price
+        // (older entries never had a separate `refund`, so fall back to `price`).
+        const amount = isRemove ? (p.refund ?? p.price) : p.price;
+        return `<li><span>${p.playerName} <span class="meta">${verb} ${p.teamName}</span></span><span class="meta">${amount}m</span></li>`;
       }).join('');
     });
   }
@@ -513,8 +519,12 @@ const playerOptions = players.map((p: any) => ({
     }
 
     const isRemove = log.type === 'remove';
-    const verb = isRemove ? 'un-remove (add back)' : 'undo';
-    if (!confirm(`${isRemove ? 'Re-add' : 'Undo'} ${log.playerName} ${isRemove ? 'to' : '→'} ${log.teamName} (${log.price}M)?`)) return;
+    // Old log entries (before per-removal refund amounts existed) never had `refund` —
+    // for those, `price` doubled as the refund since removals always refunded in full.
+    const removeRefund = log.refund ?? log.price;
+    if (!confirm(isRemove
+      ? `Re-add ${log.playerName} to ${log.teamName} and claw back the ${removeRefund}m refund?`
+      : `Undo ${log.playerName} → ${log.teamName} (${log.price}M)?`)) return;
 
     const teamRef = doc(db, 'teams', String(log.teamId));
     await runTransaction(db, async (tx) => {
@@ -522,9 +532,10 @@ const playerOptions = players.map((p: any) => ({
       if (!teamSnap.exists()) return;
       const data = teamSnap.data();
       if (isRemove) {
-        // Reverse a removal: add the player back and re-deduct their price.
+        // Reverse a removal: add the player back at their original price, and
+        // claw back whatever refund they were actually given (not the price).
         const newRoster = [...data.roster, { playerId: log.playerId, name: log.playerName, pos: log.pos, club: log.club, price: log.price }];
-        tx.set(teamRef, { ...data, remainingBudget: data.remainingBudget - log.price, roster: newRoster });
+        tx.set(teamRef, { ...data, remainingBudget: data.remainingBudget - removeRefund, roster: newRoster });
       } else {
         // Reverse an add: remove the player and refund their price.
         const idx = data.roster.findIndex((p) => p.playerId === log.playerId);
@@ -547,13 +558,16 @@ const playerOptions = players.map((p: any) => ({
     const removePlayerSelect = document.getElementById('removePlayerSelect');
     const playerId = removePlayerSelect.value;
     const team = seedTeams.find((t) => String(t.id) === teamId);
+    const refundInput = document.getElementById('refundInput');
+    const refund = parseFloat(refundInput.value);
 
     if (!playerId) { removeMsg.className = 'msg error'; removeMsg.textContent = 'No player selected.'; return; }
+    if (!(refund >= 0)) { removeMsg.className = 'msg error'; removeMsg.textContent = 'Enter a valid, non-negative refund amount.'; return; }
 
     const live = liveTeams[teamId] || DEFAULTS;
     const player = live.roster.find((p) => String(p.playerId) === playerId);
     if (!player) { removeMsg.className = 'msg error'; removeMsg.textContent = 'Player not found on that roster.'; return; }
-    if (!confirm(`Remove ${player.name} from ${team.name} and refund ${player.price}m?`)) return;
+    if (!confirm(`Remove ${player.name} from ${team.name} and refund ${refund}m?`)) return;
 
     const teamRef = doc(db, 'teams', teamId);
     try {
@@ -561,15 +575,16 @@ const playerOptions = players.map((p: any) => ({
         const snap = await tx.get(teamRef);
         const data = snap.exists() ? snap.data() : { name: team.name, ...DEFAULTS };
         const newRoster = data.roster.filter((p) => String(p.playerId) !== playerId);
-        tx.set(teamRef, { ...data, remainingBudget: data.remainingBudget + player.price, roster: newRoster });
+        tx.set(teamRef, { ...data, remainingBudget: data.remainingBudget + refund, roster: newRoster });
       });
       await addDoc(collection(db, 'draftLog'), {
         type: 'remove',
         teamId, teamName: team.name, playerId: player.playerId, playerName: player.name,
-        pos: player.pos, club: player.club, price: player.price, ts: serverTimestamp(),
+        pos: player.pos, club: player.club, price: player.price, refund, ts: serverTimestamp(),
       });
       removeMsg.className = 'msg ok';
-      removeMsg.textContent = `Removed ${player.name} from ${team.name}, refunded ${player.price}m.`;
+      removeMsg.textContent = `Removed ${player.name} from ${team.name}, refunded ${refund}m.`;
+      refundInput.value = '0';
     } catch (err) {
       removeMsg.className = 'msg error';
       removeMsg.textContent = 'Failed: ' + err.message;
