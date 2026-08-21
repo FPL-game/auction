@@ -989,6 +989,63 @@ const FAQ = [
 
   renderRumours();
   document.getElementById('rumoursRefresh')?.addEventListener('click', renderRumours);
+
+  // ---- Live reactions: as soon as the admin logs a real move, the crowd starts talking ----
+  const LIVE_FAN_PERSONAS = [
+    { handle: '@BenchWarmerBrian', name: 'Brian', color: '#8AA095' },
+    { handle: '@ArmchairGaffer', name: 'The Armchair Gaffer', color: '#FFB627' },
+    { handle: '@TripleCaptainTom', name: 'Tom', color: '#37C871' },
+    { handle: '@FPL_Degenerate', name: 'FPL Degenerate', color: '#E8543F' },
+    { handle: '@BigManBants', name: 'Big Man Bants', color: '#8AA095' },
+    { handle: '@ShoutyFromTheSofa', name: 'Shouty From The Sofa', color: '#E8543F' },
+  ];
+
+  function liveMoveText(d) {
+    if (d.type === 'trade') {
+      const aNames = (d.playersAToB || []).map((p) => p.name).join(' and ') || 'nothing';
+      const bNames = (d.playersBToA || []).map((p) => p.name).join(' and ') || 'nothing';
+      const lines = [
+        `wait ${d.teamAName} actually traded ${aNames} to ${d.teamBName} for ${bNames}?? need a minute to process this 👀`,
+        `${d.teamAName} and ${d.teamBName} just made a trade and the group chat has not recovered`,
+        `trade alert: ${aNames} to ${d.teamBName}, ${bNames} to ${d.teamAName}. somebody's going to win this and somebody's going to lose this`,
+      ];
+      return lines[Math.floor(Math.random() * lines.length)];
+    }
+    if (d.type === 'remove') {
+      return `${d.teamName} just cut ${d.playerName} loose. brutal, but somebody had to do it`;
+    }
+    const lines = [
+      `${d.teamName} just added ${d.playerName} for ${d.price}m and I need everyone to just sit with that for a second 👀`,
+      `${d.teamName} picking up ${d.playerName} live right now. genius or cry for help, genuinely could be both`,
+      `breaking: ${d.playerName} to ${d.teamName} for ${d.price}m. bold. unhinged. slightly evil. I respect it 🔥`,
+    ];
+    return lines[Math.floor(Math.random() * lines.length)];
+  }
+
+  function reactToMove(d) {
+    const feed = document.getElementById('rumoursFeed');
+    if (!feed) return;
+    const emptyNote = feed.querySelector('.empty-note');
+    if (emptyNote) emptyNote.remove();
+    const persona = LIVE_FAN_PERSONAS[Math.floor(Math.random() * LIVE_FAN_PERSONAS.length)];
+    const card = document.createElement('div');
+    card.className = 'tweet-card';
+    card.innerHTML = `
+      <div class="tweet-avatar" style="background:${persona.color}">${initials(persona.name)}</div>
+      <div class="tweet-body">
+        <div class="tweet-meta">
+          <span class="tweet-name">${persona.name}</span>
+          <span class="tweet-check">&#10003;</span>
+          <span class="tweet-handle">${persona.handle}</span>
+          <span class="tweet-time">now</span>
+        </div>
+        <div class="tweet-text">${liveMoveText(d)}</div>
+      </div>
+    `;
+    feed.prepend(card);
+    while (feed.children.length > 12) feed.removeChild(feed.lastChild);
+  }
+  (window as any).reactToMove = reactToMove;
 </script>
 
 <script type="module">
@@ -1059,6 +1116,29 @@ const FAQ = [
       return;
     }
     feed.innerHTML = docs.map((d) => {
+      if (d.type === 'trade') {
+        const aNames = (d.playersAToB || []).map((p) => p.name).join(', ') || 'nothing';
+        const bNames = (d.playersBToA || []).map((p) => p.name).join(', ') || 'nothing';
+        const budgetBits = [];
+        if (d.budgetAToB) budgetBits.push(`${d.budgetAToB}m to ${d.teamBName}`);
+        if (d.budgetBToA) budgetBits.push(`${d.budgetBToA}m to ${d.teamAName}`);
+        const budgetNote = budgetBits.length ? ` Plus ${budgetBits.join(' and ')}.` : '';
+        const when = d.ts ? timeAgo(d.ts.toDate()) : 'just now';
+        return `
+          <div class="tweet-card">
+            <div class="tweet-avatar" style="background:#FFB627">${d.teamAName.slice(0, 2).toUpperCase()}</div>
+            <div class="tweet-body">
+              <div class="tweet-meta">
+                <span class="tweet-name">Trade Confirmed</span>
+                <span class="tweet-check">&#10003;</span>
+                <span class="tweet-handle">Squad News</span>
+                <span class="tweet-time">${when}</span>
+              </div>
+              <div class="tweet-text">${d.teamAName} send ${aNames} to ${d.teamBName} in exchange for ${bNames}.${budgetNote}</div>
+            </div>
+          </div>
+        `;
+      }
       const isRemove = d.type === 'remove';
       const verb = isRemove ? 'release' : 'sign';
       const color = isRemove ? '#E8543F' : '#37C871';
@@ -1080,8 +1160,18 @@ const FAQ = [
     }).join('');
   }
 
+  let draftLogInitialized = false;
   onSnapshot(query(collection(db, 'draftLog'), orderBy('ts', 'desc'), limit(3)), (snap) => {
     renderSquadMoves(snap.docs.map((d) => d.data()));
+    if (!draftLogInitialized) {
+      // Skip reacting to the batch of moves that already existed on page load —
+      // only genuinely new ones (added after this point) should trigger a live post.
+      draftLogInitialized = true;
+      return;
+    }
+    snap.docChanges().forEach((change) => {
+      if (change.type === 'added') (window as any).reactToMove?.(change.doc.data());
+    });
   });
 
   function renderLiveScoreFor(teamId) {
