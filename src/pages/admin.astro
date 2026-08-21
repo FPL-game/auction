@@ -131,6 +131,14 @@ const playerOptions = players.map((p: any) => ({
     font-size: 13px;
   }
   .pick-list .meta{ color: var(--grey); font-family:'JetBrains Mono', monospace; font-size: 11px; }
+  .check-list{ margin-bottom: 14px; max-height: 220px; overflow-y: auto; }
+  .check-list label.check-row{
+    display:flex; align-items:center; gap:8px;
+    padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: 13px; text-transform:none; letter-spacing:normal;
+    color: var(--white); font-family:'Work Sans', sans-serif; margin-bottom: 0;
+  }
+  .check-list input[type="checkbox"]{ width:auto; margin:0; }
   #app{ display:none; }
 </style>
 </head>
@@ -189,6 +197,37 @@ const playerOptions = players.map((p: any) => ({
       <select id="removePlayerSelect"></select>
       <button class="danger" id="removePlayerBtn">Remove Player</button>
       <div class="msg" id="removeMsg"></div>
+    </div>
+
+    <div class="card">
+      <h2>Execute Trade</h2>
+      <p class="sub" style="margin-bottom:14px;">Swap players (and optionally budget) between two teams in a single atomic move. Logged as one Trade event and announced live on the homepage.</p>
+      <div class="row">
+        <div>
+          <label for="tradeTeamASelect">Team A</label>
+          <select id="tradeTeamASelect"></select>
+        </div>
+        <div>
+          <label for="tradeTeamBSelect">Team B</label>
+          <select id="tradeTeamBSelect"></select>
+        </div>
+      </div>
+      <label>Players Team A sends to Team B</label>
+      <div class="check-list" id="tradeAPlayers"></div>
+      <label>Players Team B sends to Team A</label>
+      <div class="check-list" id="tradeBPlayers"></div>
+      <div class="row">
+        <div>
+          <label for="tradeBudgetAtoB">Budget A &rarr; B (M)</label>
+          <input type="number" id="tradeBudgetAtoB" min="0" step="0.5" value="0" />
+        </div>
+        <div>
+          <label for="tradeBudgetBtoA">Budget B &rarr; A (M)</label>
+          <input type="number" id="tradeBudgetBtoA" min="0" step="0.5" value="0" />
+        </div>
+      </div>
+      <button id="executeTradeBtn">Execute Trade</button>
+      <div class="msg" id="tradeMsg"></div>
     </div>
 
     <div class="card">
@@ -251,7 +290,9 @@ const playerOptions = players.map((p: any) => ({
   const teamSelect = document.getElementById('teamSelect');
   const removeTeamSelect = document.getElementById('removeTeamSelect');
   const budgetTeamSelect = document.getElementById('budgetTeamSelect');
-  [teamSelect, removeTeamSelect, budgetTeamSelect].forEach((sel) => {
+  const tradeTeamASelect = document.getElementById('tradeTeamASelect');
+  const tradeTeamBSelect = document.getElementById('tradeTeamBSelect');
+  [teamSelect, removeTeamSelect, budgetTeamSelect, tradeTeamASelect, tradeTeamBSelect].forEach((sel) => {
     seedTeams.forEach((t) => {
       const opt = document.createElement('option');
       opt.value = String(t.id);
@@ -259,6 +300,7 @@ const playerOptions = players.map((p: any) => ({
       sel.appendChild(opt);
     });
   });
+  if (seedTeams.length > 1) tradeTeamBSelect.selectedIndex = 1;
 
   function draftedPlayerIds() {
     const set = new Set();
@@ -327,6 +369,23 @@ const playerOptions = players.map((p: any) => ({
   }
   removeTeamSelect.addEventListener('change', renderRemovablePlayers);
 
+  function renderTradeCheckboxes() {
+    const aId = tradeTeamASelect.value;
+    const bId = tradeTeamBSelect.value;
+    const aLive = liveTeams[aId] || DEFAULTS;
+    const bLive = liveTeams[bId] || DEFAULTS;
+    const aBox = document.getElementById('tradeAPlayers');
+    const bBox = document.getElementById('tradeBPlayers');
+    aBox.innerHTML = aLive.roster.length
+      ? aLive.roster.map((p) => `<label class="check-row"><input type="checkbox" value="${p.playerId}" /> ${p.name} — ${p.club} (${p.pos}), ${p.price}m</label>`).join('')
+      : '<p class="sub" style="margin-bottom:0;">No players on this roster.</p>';
+    bBox.innerHTML = bLive.roster.length
+      ? bLive.roster.map((p) => `<label class="check-row"><input type="checkbox" value="${p.playerId}" /> ${p.name} — ${p.club} (${p.pos}), ${p.price}m</label>`).join('')
+      : '<p class="sub" style="margin-bottom:0;">No players on this roster.</p>';
+  }
+  tradeTeamASelect.addEventListener('change', renderTradeCheckboxes);
+  tradeTeamBSelect.addEventListener('change', renderTradeCheckboxes);
+
   seedTeams.forEach((t) => {
     onSnapshot(doc(db, 'teams', String(t.id)), (snap) => {
       liveTeams[t.id] = snap.exists() ? snap.data() : { ...DEFAULTS, name: t.name };
@@ -334,6 +393,7 @@ const playerOptions = players.map((p: any) => ({
       refreshPlayerOptions();
       if (String(t.id) === removeTeamSelect.value) renderRemovablePlayers();
       if (String(t.id) === budgetTeamSelect.value) renderBudgetInputs();
+      if (String(t.id) === tradeTeamASelect.value || String(t.id) === tradeTeamBSelect.value) renderTradeCheckboxes();
     });
   });
 
@@ -343,6 +403,15 @@ const playerOptions = players.map((p: any) => ({
       if (snap.empty) { list.innerHTML = '<li class="meta">No picks yet.</li>'; return; }
       list.innerHTML = snap.docs.map((d) => {
         const p = d.data();
+        if (p.type === 'trade') {
+          const aNames = (p.playersAToB || []).map((x) => x.name).join(', ') || 'nothing';
+          const bNames = (p.playersBToA || []).map((x) => x.name).join(', ') || 'nothing';
+          const budgetBits = [];
+          if (p.budgetAToB) budgetBits.push(`${p.budgetAToB}m&rarr;${p.teamBName}`);
+          if (p.budgetBToA) budgetBits.push(`${p.budgetBToA}m&rarr;${p.teamAName}`);
+          const budgetNote = budgetBits.length ? ` (${budgetBits.join(', ')})` : '';
+          return `<li><span>Trade: ${p.teamAName} &harr; ${p.teamBName} <span class="meta">${aNames} for ${bNames}${budgetNote}</span></span></li>`;
+        }
         const verb = p.type === 'remove' ? '&larr; released by' : '&rarr;';
         return `<li><span>${p.playerName} <span class="meta">${verb} ${p.teamName}</span></span><span class="meta">${p.price}m</span></li>`;
       }).join('');
@@ -411,12 +480,38 @@ const playerOptions = players.map((p: any) => ({
     }
   });
 
-  // ---- Undo last action (add or remove) ----
+  // ---- Undo last action (add, remove, or trade) ----
   document.getElementById('undoBtn').addEventListener('click', async () => {
     const snap = await getDocs(query(collection(db, 'draftLog'), orderBy('ts', 'desc'), limit(1)));
     if (snap.empty) return;
     const logDoc = snap.docs[0];
     const log = logDoc.data();
+
+    if (log.type === 'trade') {
+      if (!confirm(`Reverse the trade between ${log.teamAName} and ${log.teamBName}?`)) return;
+      const teamARef = doc(db, 'teams', String(log.teamAId));
+      const teamBRef = doc(db, 'teams', String(log.teamBId));
+      await runTransaction(db, async (tx) => {
+        const aSnap = await tx.get(teamARef);
+        const bSnap = await tx.get(teamBRef);
+        if (!aSnap.exists() || !bSnap.exists()) return;
+        const aData = aSnap.data();
+        const bData = bSnap.data();
+        const aToBIds = (log.playersAToB || []).map((p) => String(p.playerId));
+        const bToAIds = (log.playersBToA || []).map((p) => String(p.playerId));
+        // Reverse: strip out whatever crossed over, hand each side back what it originally had.
+        const newARoster = [...aData.roster.filter((p) => !bToAIds.includes(String(p.playerId))), ...(log.playersAToB || [])];
+        const newBRoster = [...bData.roster.filter((p) => !aToBIds.includes(String(p.playerId))), ...(log.playersBToA || [])];
+        const newABudget = aData.remainingBudget + (log.budgetAToB || 0) - (log.budgetBToA || 0);
+        const newBBudget = bData.remainingBudget + (log.budgetBToA || 0) - (log.budgetAToB || 0);
+        tx.set(teamARef, { ...aData, remainingBudget: newABudget, roster: newARoster });
+        tx.set(teamBRef, { ...bData, remainingBudget: newBBudget, roster: newBRoster });
+      });
+      await deleteDoc(logDoc.ref);
+      renderPicks();
+      return;
+    }
+
     const isRemove = log.type === 'remove';
     const verb = isRemove ? 'un-remove (add back)' : 'undo';
     if (!confirm(`${isRemove ? 'Re-add' : 'Undo'} ${log.playerName} ${isRemove ? 'to' : '→'} ${log.teamName} (${log.price}M)?`)) return;
@@ -478,6 +573,83 @@ const playerOptions = players.map((p: any) => ({
     } catch (err) {
       removeMsg.className = 'msg error';
       removeMsg.textContent = 'Failed: ' + err.message;
+    }
+  });
+
+  // ---- Execute trade ----
+  document.getElementById('executeTradeBtn').addEventListener('click', async () => {
+    const tradeMsg = document.getElementById('tradeMsg');
+    tradeMsg.className = 'msg';
+    tradeMsg.textContent = '';
+
+    const aId = tradeTeamASelect.value;
+    const bId = tradeTeamBSelect.value;
+    if (!aId || !bId || aId === bId) { tradeMsg.className = 'msg error'; tradeMsg.textContent = 'Pick two different teams.'; return; }
+
+    const teamA = seedTeams.find((t) => String(t.id) === aId);
+    const teamB = seedTeams.find((t) => String(t.id) === bId);
+    const aLive = liveTeams[aId] || DEFAULTS;
+    const bLive = liveTeams[bId] || DEFAULTS;
+
+    const aToBIds = Array.from(document.querySelectorAll('#tradeAPlayers input:checked')).map((el) => el.value);
+    const bToAIds = Array.from(document.querySelectorAll('#tradeBPlayers input:checked')).map((el) => el.value);
+    const budgetAtoB = parseFloat(document.getElementById('tradeBudgetAtoB').value) || 0;
+    const budgetBtoA = parseFloat(document.getElementById('tradeBudgetBtoA').value) || 0;
+
+    if (!aToBIds.length && !bToAIds.length && !budgetAtoB && !budgetBtoA) {
+      tradeMsg.className = 'msg error';
+      tradeMsg.textContent = 'Select at least one player or a budget amount to trade.';
+      return;
+    }
+
+    const playersAToB = aLive.roster.filter((p) => aToBIds.includes(String(p.playerId)));
+    const playersBToA = bLive.roster.filter((p) => bToAIds.includes(String(p.playerId)));
+
+    const summary = [
+      playersAToB.length ? `${teamA.name} sends ${playersAToB.map((p) => p.name).join(', ')} to ${teamB.name}` : null,
+      playersBToA.length ? `${teamB.name} sends ${playersBToA.map((p) => p.name).join(', ')} to ${teamA.name}` : null,
+      budgetAtoB ? `${teamA.name} sends ${budgetAtoB}m to ${teamB.name}` : null,
+      budgetBtoA ? `${teamB.name} sends ${budgetBtoA}m to ${teamA.name}` : null,
+    ].filter(Boolean).join('. ');
+    if (!confirm(`Confirm trade: ${summary}?`)) return;
+
+    const teamARef = doc(db, 'teams', aId);
+    const teamBRef = doc(db, 'teams', bId);
+
+    try {
+      await runTransaction(db, async (tx) => {
+        const aSnap = await tx.get(teamARef);
+        const bSnap = await tx.get(teamBRef);
+        const aData = aSnap.exists() ? aSnap.data() : { name: teamA.name, ...DEFAULTS };
+        const bData = bSnap.exists() ? bSnap.data() : { name: teamB.name, ...DEFAULTS };
+
+        const newARoster = [...aData.roster.filter((p) => !aToBIds.includes(String(p.playerId))), ...playersBToA];
+        const newBRoster = [...bData.roster.filter((p) => !bToAIds.includes(String(p.playerId))), ...playersAToB];
+        const newABudget = aData.remainingBudget - budgetAtoB + budgetBtoA;
+        const newBBudget = bData.remainingBudget - budgetBtoA + budgetAtoB;
+
+        tx.set(teamARef, { ...aData, remainingBudget: newABudget, roster: newARoster });
+        tx.set(teamBRef, { ...bData, remainingBudget: newBBudget, roster: newBRoster });
+      });
+
+      await addDoc(collection(db, 'draftLog'), {
+        type: 'trade',
+        teamAId: aId, teamAName: teamA.name,
+        teamBId: bId, teamBName: teamB.name,
+        playersAToB: playersAToB.map((p) => ({ playerId: p.playerId, name: p.name, pos: p.pos, club: p.club, price: p.price })),
+        playersBToA: playersBToA.map((p) => ({ playerId: p.playerId, name: p.name, pos: p.pos, club: p.club, price: p.price })),
+        budgetAToB: budgetAtoB, budgetBToA: budgetBtoA,
+        ts: serverTimestamp(),
+      });
+
+      tradeMsg.className = 'msg ok';
+      tradeMsg.textContent = 'Trade completed.';
+      document.getElementById('tradeBudgetAtoB').value = '0';
+      document.getElementById('tradeBudgetBtoA').value = '0';
+      renderPicks();
+    } catch (err) {
+      tradeMsg.className = 'msg error';
+      tradeMsg.textContent = 'Trade failed: ' + err.message;
     }
   });
 
