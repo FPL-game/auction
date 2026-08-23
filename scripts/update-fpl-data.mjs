@@ -150,16 +150,18 @@ async function main() {
   const rostersInPlay = state.teams.some((t) => t.roster.length > 0);
   state.meta.seasonStatus = rostersInPlay ? "in-season" : "pre-draft";
 
-  state.rumours = generateRumours(state, recentMoves);
-
   if (!rostersInPlay) {
     state.liveScores = null;
+    state.rumours = generateRumours(state, recentMoves);
     await writeFile(DATA_PATH, JSON.stringify(state, null, 2) + "\n");
     console.log("No rosters drafted yet — refreshed player pool only.");
     return;
   }
 
   // ---- Live, in-progress scores for the current gameweek ----
+  // Computed before the Social Media feed below, so live-gameweek rumours can
+  // reference these same real, current scores and standout player performances.
+  let livePerformers = [];
   if (liveEvent && !liveEvent.finished) {
     const live = await fetchJson(`${API_BASE}/event/${liveEvent.id}/live/`);
     const liveById = new Map(live.elements.map((e) => [e.id, e]));
@@ -175,9 +177,20 @@ async function main() {
         return { a, b, scoreA: sa.score, scoreB: sb.score };
       }),
     };
+
+    livePerformers = state.teams
+      .flatMap((t) => t.roster.map((p) => ({ ...p, teamName: t.name })))
+      .map((p) => ({
+        ...p,
+        livePoints: p.playerId != null ? (liveById.get(p.playerId)?.stats.total_points ?? 0) : 0,
+      }))
+      .filter((p) => p.livePoints > 0)
+      .sort((a, b) => b.livePoints - a.livePoints);
   } else {
     state.liveScores = null;
   }
+
+  state.rumours = generateRumours(state, recentMoves, state.liveScores, livePerformers);
 
   // ---- Finalize results for any completed gameweek not yet recorded ----
   const finishedEvents = events.filter((e) => e.finished);
@@ -238,7 +251,32 @@ function pick(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-function generateRumours(state, recentMoves = []) {
+function pickTwoDistinct(arr) {
+  const a = pick(arr);
+  let b = pick(arr);
+  let guard = 0;
+  while (b.id === a.id && arr.length > 1 && guard < 10) {
+    b = pick(arr);
+    guard++;
+  }
+  return [a, b];
+}
+
+// Every league team gets its own fictional "FC" fanbase persona for rivalry banter —
+// club-in-real-life flavor over a team name that's otherwise just a spreadsheet row.
+const RIVAL_FAN_COLORS = ["#37C871", "#FFB627", "#E8543F", "#8AA095"];
+function teamFanPersona(team) {
+  const clean = team.name.replace(/[^a-zA-Z0-9]/g, "") || "Team";
+  const variants = [
+    { handle: `@${clean}FCFaithful`, name: `${team.name} FC Faithful` },
+    { handle: `@${clean}Ultras`, name: `${team.name} FC Ultras` },
+    { handle: `@${clean}FCDiehard`, name: `${team.name} FC Diehard` },
+  ];
+  const v = pick(variants);
+  return { handle: v.handle, name: v.name, color: pick(RIVAL_FAN_COLORS) };
+}
+
+function generateRumours(state, recentMoves = [], liveScores = null, livePerformers = []) {
   const unpicked = state.players.filter((p) => p.draftedBy === null && p.selectedByPercent > 0);
   const ownedPlayers = state.teams.flatMap((t) =>
     t.roster.map((p) => ({ ...p, teamName: t.name })),
@@ -316,6 +354,47 @@ function generateRumours(state, recentMoves = []) {
   ];
   for (const line of hypeLines) templates.push(() => ({ fan: true, text: line }));
 
+  // ---- Club rivalry banter: every team gets a fictional fanbase trash-talking another ----
+  // Real-football-style rivalry, not just spreadsheet comparisons — team-name permutations
+  // alone give this section a lot of range even when the underlying numbers are flat (e.g.
+  // pre-season, when every team's budget and roster look identical).
+  if (state.teams.length > 1) {
+    const rivalryLines = [
+      (us, rival) => `${us.name} FC fans have zero respect for ${rival.name} FC and it shows every single week`,
+      (us, rival) => `not to be dramatic but ${rival.name} FC still owes us an apology for last season. still waiting`,
+      (us, rival) => `${rival.name} FC really thought they could just exist near ${us.name} FC. adorable`,
+      (us, rival) => `every ${rival.name} FC supporter in this league needs to sit down and think about their choices`,
+      (us, rival) => `${us.name} FC ultras would like to formally remind ${rival.name} FC that we exist, and we remember everything`,
+      (us, rival) => `imagine supporting ${rival.name} FC. couldn't be us. genuinely could never be us`,
+      (us, rival) => `${rival.name} FC fans keep talking. ${us.name} FC keeps winning arguments in the group chat, which is the only stat that matters`,
+      (us, rival) => `nothing personal to ${rival.name} FC but also, respectfully, everything personal to ${rival.name} FC`,
+      (us, rival) => `${rival.name} FC fans have been quiet lately. we've noticed. we're keeping notes`,
+      (us, rival) => `${us.name} FC did not ask to be better than ${rival.name} FC, it just sort of happened, repeatedly, on purpose`,
+      (us, rival) => `sending this on behalf of every ${us.name} FC supporter: ${rival.name} FC, this is not the callout you think it is, please stop`,
+      (us, rival) => `${rival.name} FC fans in shambles again. some things never change, and honestly we hope they never do`,
+    ];
+    templates.push(() => {
+      const [us, rival] = pickTwoDistinct(state.teams);
+      return { fan: true, text: pick(rivalryLines)(us, rival), persona: teamFanPersona(us) };
+    });
+
+    // Only worth citing when there's an actual gap to point at — "we have 120m, you have
+    // 120m" undercuts the trash talk instead of landing it.
+    const dataRivalryLines = [
+      (us, rival) => (us.remainingBudget + us.waiverBudget) - (rival.remainingBudget + rival.waiverBudget) > 0
+        ? `${us.name} FC sitting on ${us.remainingBudget + us.waiverBudget}m, ${rival.name} FC scraping by on ${rival.remainingBudget + rival.waiverBudget}m. we said what we said`
+        : null,
+      (us, rival) => us.roster.length - rival.roster.length > 0
+        ? `${us.name} FC currently ${us.roster.length} players deep, ${rival.name} FC at ${rival.roster.length}. numbers don't lie, ${rival.name} FC`
+        : null,
+    ];
+    templates.push(() => {
+      const [us, rival] = pickTwoDistinct(state.teams);
+      const line = pick(dataRivalryLines)(us, rival);
+      return { fan: true, text: line || pick(rivalryLines)(us, rival), persona: teamFanPersona(us) };
+    });
+  }
+
   // ---- Fan reactions to real recent squad moves ----
   const recentAdds = recentMoves.filter((m) => m.type === "add");
   const recentTrades = recentMoves.filter((m) => m.type === "trade");
@@ -359,6 +438,59 @@ function generateRumours(state, recentMoves = []) {
     });
   }
 
+  // ---- Live-gameweek reactions: real, currently in-progress scores and standout player performances ----
+  // Only fires while a Gameweek is actually underway (liveScores is null otherwise) — the same
+  // score data as the Live Scores tab, so what's posted here always matches what's shown there.
+  if (liveScores && liveScores.matches.length) {
+    const liveMatches = liveScores.matches.map((m) => ({
+      ...m,
+      teamA: state.teams.find((t) => t.id === m.a),
+      teamB: state.teams.find((t) => t.id === m.b),
+    }));
+
+    templates.push(() => {
+      const m = pick(liveMatches);
+      if (m.scoreA === m.scoreB) return { fan: true, text: `${m.teamA.name} ${m.scoreA} - ${m.scoreB} ${m.teamB.name} right now, dead level with the gameweek still live. I physically cannot handle this` };
+      const [leader, chaser, ls, cs] = m.scoreA > m.scoreB
+        ? [m.teamA, m.teamB, m.scoreA, m.scoreB]
+        : [m.teamB, m.teamA, m.scoreB, m.scoreA];
+      return { fan: true, text: `LIVE: ${leader.name} up ${ls}-${cs} on ${chaser.name} and it's not over yet. Nothing's safe till the whistle` };
+    });
+    templates.push(() => {
+      const m = pick(liveMatches);
+      return { fan: false, text: `Gameweek ${liveScores.gw} in progress: ${m.teamA.name} ${m.scoreA} - ${m.scoreB} ${m.teamB.name}. Numbers still moving as the rest of the fixtures play out.` };
+    });
+
+    // Rivalry banter for matches with a clear live leader — the leading side's fictional
+    // fanbase gloating over the trailing side's, by name, mid-match.
+    const decidedLiveMatches = liveMatches.filter((m) => m.scoreA !== m.scoreB);
+    if (decidedLiveMatches.length) {
+      templates.push(() => {
+        const m = pick(decidedLiveMatches);
+        const [leader, trailer, ls, ts] = m.scoreA > m.scoreB
+          ? [m.teamA, m.teamB, m.scoreA, m.scoreB]
+          : [m.teamB, m.teamA, m.scoreB, m.scoreA];
+        return {
+          fan: true,
+          text: `${trailer.name} FC fans going very quiet watching us put up ${ls}-${ts} live. take your time replying to this one`,
+          persona: teamFanPersona(leader),
+        };
+      });
+    }
+
+    if (livePerformers.length) {
+      const topPerformers = livePerformers.slice(0, 5);
+      templates.push(() => {
+        const p = pick(topPerformers);
+        return { fan: true, text: `${p.name} sitting on ${p.livePoints} points already for ${p.teamName} this gameweek. That's ${p.price}m well spent, live and in real time 🔥` };
+      });
+      templates.push(() => {
+        const p = pick(topPerformers);
+        return { fan: false, text: `${p.name} (${p.teamName}) leads all rostered players with ${p.livePoints} points so far in Gameweek ${liveScores.gw}. Worth watching as the rest of today's fixtures wrap up.` };
+      });
+    }
+  }
+
   // ---- Fan post-match reactions to real, finished Gameweeks ----
   const playedGws = Object.keys(state.results || {}).map((k) => Number(k.split("-")[0]));
   if (playedGws.length) {
@@ -388,12 +520,20 @@ function generateRumours(state, recentMoves = []) {
     }
   }
 
-  const count = Math.min(26, templates.length * 3);
+  // Dedup by exact text within this batch — without it, a small pool of applicable
+  // templates (e.g. pre-season, when every team's numbers look identical) can pick the
+  // same generated line twice and the feed reads as repeating itself immediately.
+  const count = Math.min(50, templates.length * 3);
   const rumours = [];
-  for (let i = 0; i < count; i++) {
-    const { fan, text } = pick(templates)();
-    const persona = pick(fan ? FAN_PERSONAS : PERSONAS);
-    rumours.push({ handle: persona.handle, name: persona.name, color: persona.color, text });
+  const seenTexts = new Set();
+  let attempts = 0;
+  while (rumours.length < count && attempts < count * 6) {
+    attempts++;
+    const entry = pick(templates)();
+    if (seenTexts.has(entry.text)) continue;
+    seenTexts.add(entry.text);
+    const persona = entry.persona || pick(entry.fan ? FAN_PERSONAS : PERSONAS);
+    rumours.push({ handle: persona.handle, name: persona.name, color: persona.color, text: entry.text });
   }
   return rumours;
 }
