@@ -1,0 +1,35 @@
+import{initializeApp as e}from"https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";import{collection as t,doc as n,getFirestore as r,limit as i,onSnapshot as a,orderBy as o,query as s}from"https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";var c=e({apiKey:`AIzaSyApmHdW9Jj__ejTY6jKu2j-TG_KyTQYVN4`,authDomain:`fpl-auction.firebaseapp.com`,projectId:`fpl-auction`,storageBucket:`fpl-auction.firebasestorage.app`,messagingSenderId:`113884648410`,appId:`1:113884648410:web:ede97721bcf2c57aa3e6e3`}),l=r(c),u=JSON.parse(document.getElementById(`teamsSeed`).textContent),d=new Map(JSON.parse(document.getElementById(`playerPointsSeed`).textContent).map(e=>[String(e.id),e.eventPoints])),f=new Map(JSON.parse(document.getElementById(`playersNewsSeed`).textContent).map(e=>[String(e.id),e])),p=JSON.parse(document.getElementById(`liveScoresSeed`).textContent),m=p.liveScores,h=new Map(Object.entries(p.livePlayerPoints||{})),g={remainingBudget:100,waiverBudget:20,roster:[]},_={},v=!1;function y(e){let t=String(e);return h.has(t)?h.get(t):d.get(t)??0}function b(){let e=document.getElementById(`injuryWireFeed`);if(!e)return;let t=[];for(let e of u){let n=_[e.id]||g;for(let r of n.roster){let n=f.get(String(r.playerId));n&&t.push({team:e.name,...n})}}e.innerHTML=t.length?t.slice(0,5).map(e=>`
+          <div class="tweet-card">
+            <div class="tweet-avatar" style="background:#E8543F">${e.pos}</div>
+            <div class="tweet-body">
+              <div class="tweet-meta"><span class="tweet-name">${e.name}</span><span class="tweet-handle">${e.club} &middot; owned by ${e.team}</span></div>
+              <div class="tweet-text">${e.news}</div>
+            </div>
+          </div>
+        `).join(``):`<p class="empty-note">No injury concerns for owned players right now.</p>`}function x(e){let t=Math.max(0,Math.floor((Date.now()-e.getTime())/1e3));return t<60?`just now`:t<3600?`${Math.floor(t/60)}m ago`:t<86400?`${Math.floor(t/3600)}h ago`:`${Math.floor(t/86400)}d ago`}function S(e){let t=document.getElementById(`squadMovesFeed`);if(t){if(!e.length){t.innerHTML=`<p class="empty-note">No moves logged yet — they'll appear here the moment the admin makes one.</p>`;return}t.innerHTML=e.map(e=>{if(e.type===`trade`){let t=(e.playersAToB||[]).map(e=>e.name).join(`, `)||`nothing`,n=(e.playersBToA||[]).map(e=>e.name).join(`, `)||`nothing`,r=[];e.budgetAToB&&r.push(`${e.budgetAToB}m to ${e.teamBName}`),e.budgetBToA&&r.push(`${e.budgetBToA}m to ${e.teamAName}`);let i=r.length?` Plus ${r.join(` and `)}.`:``,a=e.ts?x(e.ts.toDate()):`just now`;return`
+          <div class="tweet-card">
+            <div class="tweet-avatar" style="background:#FFB627">${e.teamAName.slice(0,2).toUpperCase()}</div>
+            <div class="tweet-body">
+              <div class="tweet-meta">
+                <span class="tweet-name">Trade Confirmed</span>
+                <span class="tweet-check">&#10003;</span>
+                <span class="tweet-handle">Squad News</span>
+                <span class="tweet-time">${a}</span>
+              </div>
+              <div class="tweet-text">${e.teamAName} send ${t} to ${e.teamBName} in exchange for ${n}.${i}</div>
+            </div>
+          </div>
+        `}let t=e.type===`remove`,n=t?`release`:`sign`,r=t?`#E8543F`:`#37C871`,i=e.ts?x(e.ts.toDate()):`just now`;return`
+        <div class="tweet-card">
+          <div class="tweet-avatar" style="background:${r}">${e.teamName.slice(0,2).toUpperCase()}</div>
+          <div class="tweet-body">
+            <div class="tweet-meta">
+              <span class="tweet-name">${e.teamName}</span>
+              <span class="tweet-check">&#10003;</span>
+              <span class="tweet-handle">Squad News</span>
+              <span class="tweet-time">${i}</span>
+            </div>
+            <div class="tweet-text">${e.teamName} ${n} ${e.playerName}${t?``:` for ${e.price}m`}.</div>
+          </div>
+        </div>
+      `}).join(``)}}var C=!1;a(s(t(l,`draftLog`),o(`ts`,`desc`),i(3)),e=>{if(S(e.docs.map(e=>e.data())),!C){C=!0;return}e.docChanges().forEach(e=>{e.type===`added`&&window.reactToMove?.(e.doc.data())})});function w(e){let t=_[e]||g,n=document.getElementById(`breakdown-${e}`),r=0;return n?n.innerHTML=t.roster.length?t.roster.map(e=>{let t=y(e.playerId);return r+=t,`<li><span>${e.name}</span><span class="pts">${t}</span></li>`}).join(``):`<li class="empty-note">Squad not drafted yet.</li>`:r=t.roster.reduce((e,t)=>e+y(t.playerId),0),r}function T(){document.querySelectorAll(`[id^="live-score-"]`).forEach(e=>{let[t,n]=e.id.replace(`live-score-`,``).split(`-`),r=w(t),i=w(n),a=m?.matches?.find(e=>String(e.a)===t&&String(e.b)===n);e.textContent=`${a?a.scoreA:r} – ${a?a.scoreB:i}`})}async function E(){try{let e=await fetch(location.pathname,{cache:`no-store`});if(!e.ok)return;let t=await e.text(),n=new DOMParser().parseFromString(t,`text/html`).getElementById(`liveScoresSeed`);if(!n)return;let r=JSON.parse(n.textContent);m=r.liveScores,h=new Map(Object.entries(r.livePlayerPoints||{})),T()}catch{}}setInterval(E,6e4);function D(e,t){let n=document.getElementById(`budget-${e}`),r=document.getElementById(`roster-${e}`);n&&(n.textContent=`${t.remainingBudget+t.waiverBudget}M`),r&&(r.innerHTML=t.roster.length?t.roster.map(e=>`<li><span>${e.name}</span><span>${e.price}m</span></li>`).join(``):`<li class="empty-note">Squad not drafted yet.</li>`)}function O(){let e=u.map(e=>{let t=_[e.id]||g;return`${e.name.toUpperCase()} &middot; ${t.remainingBudget+t.waiverBudget}M LEFT`}).join(` &nbsp; / &nbsp; `),t=document.getElementById(`tickerText`);t&&(t.innerHTML=e+` &nbsp; / &nbsp; `+e)}function k(){let e=new Set;for(let t of u){let n=_[t.id]||g;for(let t of n.roster)t.playerId!=null&&e.add(String(t.playerId))}let t=0;document.querySelectorAll(`#playersBody tr`).forEach(n=>{let r=n.dataset.playerId,i=r&&e.has(r);n.dataset.drafted=i?`1`:`0`,i||t++});let n=document.getElementById(`unpickedCount`);n&&(n.textContent=String(t)),window.updateRowVisibility?.()}u.forEach(e=>{a(n(l,`teams`,String(e.id)),t=>{let n=t.exists()?t.data():{...g,name:e.name};_[e.id]=n,t.exists()&&n.roster&&n.roster.length&&(v=!0),D(e.id,n),O(),k(),T(),b();let r=document.getElementById(`draftLiveBanner`);r&&(r.style.display=v?`flex`:`none`)})});
