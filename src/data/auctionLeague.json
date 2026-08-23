@@ -10,77 +10,77 @@
           "price": 20,
           "pos": "DEF",
           "name": "Gabriel dos Santos Magalhães",
-          "playerId": 4,
-          "club": "Arsenal"
+          "club": "Arsenal",
+          "playerId": 4
         },
         {
-          "price": 13,
+          "club": "Arsenal",
           "pos": "GK",
           "playerId": 1,
-          "name": "David Raya Martín",
-          "club": "Arsenal"
+          "price": 13,
+          "name": "David Raya Martín"
         },
         {
-          "price": 16,
           "club": "Liverpool",
           "pos": "MID",
           "name": "Florian Wirtz",
+          "price": 16,
           "playerId": 366
         },
         {
-          "playerId": 70,
           "club": "Bournemouth",
-          "name": "Justin Kluivert",
           "pos": "MID",
-          "price": 5
+          "price": 5,
+          "playerId": 70,
+          "name": "Justin Kluivert"
         },
         {
-          "playerId": 155,
           "pos": "MID",
           "club": "Chelsea",
+          "name": "Enzo Fernández",
           "price": 8,
-          "name": "Enzo Fernández"
+          "playerId": 155
         },
         {
+          "club": "Newcastle",
           "price": 6,
           "playerId": 463,
-          "pos": "FWD",
-          "club": "Newcastle",
-          "name": "Nick Woltemade"
+          "name": "Nick Woltemade",
+          "pos": "FWD"
         },
         {
           "playerId": 68,
           "club": "Bournemouth",
-          "name": "Marcus Tavernier",
+          "price": 1,
           "pos": "MID",
-          "price": 1
+          "name": "Marcus Tavernier"
         },
         {
           "pos": "MID",
+          "playerId": 371,
           "name": "Ryan Gravenberch",
           "club": "Liverpool",
-          "price": 2,
-          "playerId": 371
+          "price": 2
         },
         {
-          "price": 1,
-          "pos": "FWD",
-          "playerId": 248,
           "club": "Everton",
-          "name": "Norberto Bercique Gomes Betuncal"
+          "playerId": 248,
+          "name": "Norberto Bercique Gomes Betuncal",
+          "price": 1,
+          "pos": "FWD"
         },
         {
           "name": "Antoine Semenyo",
-          "pos": "MID",
-          "club": "Man City",
           "playerId": 397,
-          "price": 16
+          "price": 16,
+          "club": "Man City",
+          "pos": "MID"
         },
         {
+          "club": "Leeds",
           "pos": "MID",
           "playerId": 260,
           "price": 8,
-          "club": "Leeds",
           "name": "Harry Wilson"
         }
       ]
@@ -92,81 +92,81 @@
       "waiverBudget": 20,
       "roster": [
         {
-          "playerId": 40,
+          "price": 11,
+          "pos": "MID",
           "name": "Morgan Rogers",
-          "club": "Chelsea",
-          "pos": "MID",
-          "price": 11
+          "playerId": 40,
+          "club": "Chelsea"
         },
         {
-          "pos": "DEF",
-          "playerId": 356,
-          "price": 13,
           "name": "Virgil van Dijk",
-          "club": "Liverpool"
+          "price": 13,
+          "pos": "DEF",
+          "club": "Liverpool",
+          "playerId": 356
         },
         {
-          "name": "Bryan Mbeumo",
           "club": "Man Utd",
-          "pos": "MID",
           "playerId": 427,
+          "name": "Bryan Mbeumo",
+          "pos": "MID",
           "price": 15
         },
         {
-          "club": "Spurs",
-          "name": "Pedro Porro Sauceda",
-          "playerId": 499,
           "pos": "DEF",
-          "price": 8
+          "name": "Pedro Porro Sauceda",
+          "price": 8,
+          "playerId": 499,
+          "club": "Spurs"
         },
         {
+          "price": 6,
+          "pos": "MID",
           "name": "Kevin Schade",
-          "club": "Brentford",
-          "price": 6,
-          "pos": "MID",
-          "playerId": 94
+          "playerId": 94,
+          "club": "Brentford"
         },
         {
-          "playerId": 368,
-          "price": 7,
           "club": "Liverpool",
+          "name": "Dominik Szoboszlai",
           "pos": "MID",
-          "name": "Dominik Szoboszlai"
+          "playerId": 368,
+          "price": 7
         },
         {
-          "price": 12,
-          "playerId": 346,
+          "club": "Leeds",
           "pos": "FWD",
-          "name": "Dominic Calvert-Lewin",
-          "club": "Leeds"
+          "playerId": 346,
+          "price": 12,
+          "name": "Dominic Calvert-Lewin"
         },
         {
-          "price": 6,
           "playerId": 491,
+          "price": 6,
           "pos": "FWD",
           "name": "Igor Jesus Maciel da Cruz",
           "club": "Nott'm Forest"
         },
         {
-          "playerId": 439,
           "pos": "FWD",
-          "price": 4,
           "name": "Benjamin Sesko",
-          "club": "Man Utd"
+          "club": "Man Utd",
+          "price": 4,
+          "playerId": 439
         },
         {
-          "playerId": 25,
+          "name": "Viktor Gyökeres",
           "pos": "FWD",
-          "club": "Arsenal",
           "price": 3,
-          "name": "Viktor Gyökeres"
+          "playerId": 25,
+          "club": "Arsenal"
         },
         {
           "pos": "GK",
           "name": "Antonín Kinský",
           "price": 1,
-          "club": "Spurs",
-          "playerId": 496
+          "playerId": 496,
+          "club": "Spurs"
         }
       ]
     },
@@ -177,81 +177,81 @@
       "waiverBudget": 20,
       "roster": [
         {
+          "price": 18,
+          "club": "Man Utd",
           "pos": "MID",
           "name": "Bruno Borges Fernandes",
-          "club": "Man Utd",
-          "price": 18,
           "playerId": 426
         },
         {
+          "club": "Man City",
           "name": "Rayan Cherki",
           "pos": "MID",
-          "club": "Man City",
-          "price": 8,
-          "playerId": 399
+          "playerId": 399,
+          "price": 8
         },
         {
-          "playerId": 480,
+          "club": "Nott'm Forest",
           "pos": "MID",
-          "name": "Morgan Gibbs-White",
           "price": 13,
-          "club": "Nott'm Forest"
+          "playerId": 480,
+          "name": "Morgan Gibbs-White"
         },
         {
-          "price": 8,
-          "playerId": 388,
           "pos": "DEF",
           "club": "Man City",
-          "name": "Marc Guéhi"
+          "name": "Marc Guéhi",
+          "price": 8,
+          "playerId": 388
         },
         {
-          "club": "Spurs",
           "name": "Marcos Senesi Barón",
           "price": 4,
+          "playerId": 498,
           "pos": "DEF",
-          "playerId": 498
+          "club": "Spurs"
         },
         {
-          "pos": "GK",
+          "club": "Man Utd",
           "playerId": 412,
           "name": "Senne Lammens",
           "price": 6,
-          "club": "Man Utd"
+          "pos": "GK"
         },
         {
           "pos": "DEF",
-          "name": "Daniel Muñoz Mejía",
           "club": "Crystal Palace",
-          "price": 3,
-          "playerId": 201
+          "playerId": 201,
+          "name": "Daniel Muñoz Mejía",
+          "price": 3
         },
         {
           "playerId": 452,
+          "name": "Bruno Guimarães Rodriguez Moura",
           "pos": "MID",
-          "club": "Arsenal",
           "price": 7,
-          "name": "Bruno Guimarães Rodriguez Moura"
+          "club": "Arsenal"
         },
         {
-          "name": "Dango Ouattara",
-          "pos": "MID",
           "club": "Brentford",
           "playerId": 95,
-          "price": 7
+          "pos": "MID",
+          "price": 7,
+          "name": "Dango Ouattara"
         },
         {
-          "pos": "FWD",
-          "name": "Jean-Philippe Mateta",
-          "club": "Crystal Palace",
+          "playerId": 223,
           "price": 3,
-          "playerId": 223
+          "club": "Crystal Palace",
+          "name": "Jean-Philippe Mateta",
+          "pos": "FWD"
         },
         {
-          "club": "Arsenal",
-          "name": "Riccardo Calafiori",
           "playerId": 8,
-          "pos": "DEF",
-          "price": 2
+          "club": "Arsenal",
+          "price": 2,
+          "name": "Riccardo Calafiori",
+          "pos": "DEF"
         }
       ]
     },
@@ -264,79 +264,79 @@
         {
           "pos": "MID",
           "name": "Cole Palmer",
+          "price": 14,
           "club": "Chelsea",
-          "playerId": 154,
-          "price": 14
+          "playerId": 154
         },
         {
-          "name": "Ollie Watkins",
-          "club": "Aston Villa",
-          "price": 6,
           "pos": "FWD",
-          "playerId": 55
+          "club": "Aston Villa",
+          "playerId": 55,
+          "name": "Ollie Watkins",
+          "price": 6
         },
         {
-          "club": "Arsenal",
           "name": "Bukayo Saka",
           "playerId": 12,
           "price": 10,
+          "club": "Arsenal",
           "pos": "MID"
         },
         {
-          "price": 13,
           "pos": "FWD",
-          "club": "Brentford",
           "name": "Igor Thiago Nascimento Rodrigues",
-          "playerId": 106
+          "playerId": 106,
+          "price": 13,
+          "club": "Brentford"
         },
         {
-          "club": "Liverpool",
           "name": "Cody Gakpo",
+          "price": 5,
           "playerId": 367,
           "pos": "MID",
-          "price": 5
+          "club": "Liverpool"
         },
         {
+          "price": 4,
           "playerId": 152,
-          "club": "Chelsea",
-          "name": "Marco Palestra",
           "pos": "DEF",
-          "price": 4
+          "name": "Marco Palestra",
+          "club": "Chelsea"
         },
         {
-          "name": "Elliot Anderson",
-          "club": "Man City",
+          "price": 4,
           "pos": "MID",
           "playerId": 481,
-          "price": 4
-        },
-        {
-          "playerId": 384,
-          "pos": "GK",
-          "price": 4,
-          "name": "Gianluigi Donnarumma",
+          "name": "Elliot Anderson",
           "club": "Man City"
         },
         {
-          "playerId": 112,
-          "price": 3,
+          "playerId": 384,
+          "club": "Man City",
+          "name": "Gianluigi Donnarumma",
+          "price": 4,
+          "pos": "GK"
+        },
+        {
           "club": "Spurs",
           "pos": "DEF",
+          "playerId": 112,
+          "price": 3,
           "name": "Jan Paul van Hecke"
         },
         {
           "playerId": 200,
           "club": "Chelsea",
-          "name": "Maxence Lacroix",
           "price": 2,
+          "name": "Maxence Lacroix",
           "pos": "DEF"
         },
         {
-          "club": "Sunderland",
-          "price": 3,
-          "name": "Brian Brobbey",
           "playerId": 552,
-          "pos": "FWD"
+          "club": "Sunderland",
+          "name": "Brian Brobbey",
+          "pos": "FWD",
+          "price": 3
         }
       ]
     },
@@ -347,81 +347,81 @@
       "waiverBudget": 20,
       "roster": [
         {
-          "name": "Jeremie Frimpong",
           "club": "Liverpool",
           "pos": "DEF",
+          "price": 5,
           "playerId": 357,
-          "price": 5
+          "name": "Jeremie Frimpong"
         },
         {
-          "price": 3,
-          "pos": "FWD",
-          "playerId": 569,
+          "club": "Fulham",
           "name": "Gonzalo García",
-          "club": "Fulham"
+          "playerId": 569,
+          "price": 3,
+          "pos": "FWD"
         },
         {
-          "name": "Richarlison de Andrade",
-          "club": "Spurs",
           "pos": "FWD",
+          "name": "Richarlison de Andrade",
           "playerId": 527,
-          "price": 5
+          "price": 5,
+          "club": "Spurs"
         },
         {
+          "club": "Man City",
           "playerId": 398,
           "pos": "MID",
-          "name": "Phil Foden",
           "price": 14,
-          "club": "Man City"
+          "name": "Phil Foden"
         },
         {
-          "pos": "GK",
-          "name": "Alisson Becker",
           "club": "Liverpool",
-          "price": 3,
-          "playerId": 350
+          "name": "Alisson Becker",
+          "playerId": 350,
+          "pos": "GK",
+          "price": 3
         },
         {
+          "club": "Everton",
           "pos": "DEF",
           "price": 8,
-          "playerId": 229,
           "name": "James Tarkowski",
-          "club": "Everton"
+          "playerId": 229
         },
         {
-          "pos": "DEF",
+          "club": "Bournemouth",
           "playerId": 61,
+          "pos": "DEF",
           "price": 5,
-          "name": "Adrien Truffert",
-          "club": "Bournemouth"
+          "name": "Adrien Truffert"
         },
         {
-          "pos": "MID",
           "price": 2,
-          "playerId": 400,
           "name": "Jérémy Doku",
-          "club": "Man City"
+          "playerId": 400,
+          "club": "Man City",
+          "pos": "MID"
         },
         {
-          "pos": "FWD",
+          "club": "Liverpool",
           "playerId": 379,
+          "pos": "FWD",
           "price": 20,
-          "name": "Alexander Isak",
-          "club": "Liverpool"
+          "name": "Alexander Isak"
         },
         {
+          "club": "Everton",
+          "pos": "MID",
           "playerId": 237,
           "price": 6,
-          "pos": "MID",
-          "name": "Iliman Ndiaye",
-          "club": "Everton"
+          "name": "Iliman Ndiaye"
         },
         {
-          "price": 1,
           "pos": "DEF",
-          "playerId": 362,
           "name": "Jeremy Jacquet",
-          "club": "Liverpool"
+          "price": 1,
+          "club": "Liverpool",
+          "playerId": 362
         }
       ]
     },
@@ -432,81 +432,81 @@
       "waiverBudget": 20,
       "roster": [
         {
-          "pos": "FWD",
-          "price": 20,
+          "club": "Chelsea",
           "playerId": 165,
-          "name": "João Pedro Junqueira de Jesus",
-          "club": "Chelsea"
+          "price": 20,
+          "pos": "FWD",
+          "name": "João Pedro Junqueira de Jesus"
         },
         {
+          "playerId": 411,
+          "pos": "FWD",
           "club": "Man City",
           "name": "Erling Haaland",
-          "pos": "FWD",
-          "price": 37,
-          "playerId": 411
+          "price": 37
         },
         {
           "pos": "MID",
-          "club": "Arsenal",
           "price": 9,
           "playerId": 13,
-          "name": "Declan Rice"
+          "name": "Declan Rice",
+          "club": "Arsenal"
         },
         {
           "price": 13,
-          "pos": "MID",
-          "playerId": 428,
           "name": "Matheus Santos Carneiro da Cunha",
-          "club": "Man Utd"
+          "club": "Man Utd",
+          "pos": "MID",
+          "playerId": 428
         },
         {
-          "name": "Nico O'Reilly",
-          "club": "Man City",
+          "price": 6,
           "pos": "DEF",
+          "name": "Nico O'Reilly",
           "playerId": 387,
-          "price": 6
+          "club": "Man City"
         },
         {
           "pos": "MID",
           "name": "Rayan Vitor Simplício Rocha",
-          "club": "Bournemouth",
+          "playerId": 67,
           "price": 5,
-          "playerId": 67
+          "club": "Bournemouth"
         },
         {
+          "price": 5,
           "playerId": 208,
           "pos": "MID",
-          "price": 5,
-          "club": "Crystal Palace",
-          "name": "Ismaïla Sarr"
+          "name": "Ismaïla Sarr",
+          "club": "Crystal Palace"
         },
         {
+          "playerId": 149,
           "club": "Chelsea",
+          "price": 1,
           "name": "Levi Samuels Colwill",
-          "price": 1,
-          "pos": "DEF",
-          "playerId": 149
+          "pos": "DEF"
         },
         {
-          "playerId": 123,
+          "name": "Jack Hinshelwood",
           "price": 1,
-          "club": "Brighton",
           "pos": "MID",
-          "name": "Jack Hinshelwood"
+          "playerId": 123,
+          "club": "Brighton"
         },
         {
-          "price": 1,
           "playerId": 532,
-          "pos": "DEF",
+          "name": "Daniel Ballard",
+          "price": 1,
           "club": "Sunderland",
-          "name": "Daniel Ballard"
+          "pos": "DEF"
         },
         {
           "name": "Caoimhín Kelleher",
           "pos": "GK",
-          "club": "Brentford",
           "playerId": 82,
-          "price": 1
+          "price": 1,
+          "club": "Brentford"
         }
       ]
     }
@@ -2578,7 +2578,7 @@
       "club": "Brentford",
       "pts": 13,
       "eventPoints": 13,
-      "selectedByPercent": 4.1,
+      "selectedByPercent": 4.2,
       "expectedPoints": 1.7,
       "nowCost": 4.5,
       "news": "",
@@ -2863,7 +2863,7 @@
       "club": "Brentford",
       "pts": 14,
       "eventPoints": 14,
-      "selectedByPercent": 4.2,
+      "selectedByPercent": 4.3,
       "expectedPoints": 2,
       "nowCost": 5.5,
       "news": "",
@@ -2938,7 +2938,7 @@
       "club": "Brighton",
       "pts": 17,
       "eventPoints": 17,
-      "selectedByPercent": 2.4,
+      "selectedByPercent": 2.5,
       "expectedPoints": 1.7,
       "nowCost": 4.5,
       "news": "",
@@ -4588,7 +4588,7 @@
       "club": "Crystal Palace",
       "pts": 0,
       "eventPoints": 0,
-      "selectedByPercent": 4.2,
+      "selectedByPercent": 4.1,
       "expectedPoints": 1.7,
       "nowCost": 6.5,
       "news": "Groin injury - 75% chance of playing",
@@ -6073,7 +6073,7 @@
       "club": "Hull City",
       "pts": 10,
       "eventPoints": 10,
-      "selectedByPercent": 1,
+      "selectedByPercent": 1.1,
       "expectedPoints": 1.9,
       "nowCost": 4.5,
       "news": "",
@@ -6508,7 +6508,7 @@
       "club": "Ipswich Town",
       "pts": 1,
       "eventPoints": 1,
-      "selectedByPercent": 2.2,
+      "selectedByPercent": 2.3,
       "expectedPoints": 1,
       "nowCost": 4.5,
       "news": "",
@@ -7331,8 +7331,8 @@
       "name": "Cody Gakpo",
       "pos": "MID",
       "club": "Liverpool",
-      "pts": 10,
-      "eventPoints": 10,
+      "pts": 12,
+      "eventPoints": 12,
       "selectedByPercent": 3.7,
       "expectedPoints": 2.5,
       "nowCost": 7,
@@ -7663,7 +7663,7 @@
       "club": "Man City",
       "pts": 10,
       "eventPoints": 10,
-      "selectedByPercent": 17.4,
+      "selectedByPercent": 17.5,
       "expectedPoints": 2.8,
       "nowCost": 6,
       "news": "",
@@ -7708,7 +7708,7 @@
       "club": "Man City",
       "pts": 9,
       "eventPoints": 9,
-      "selectedByPercent": 11.4,
+      "selectedByPercent": 11.5,
       "expectedPoints": 2.5,
       "nowCost": 5.5,
       "news": "",
@@ -7828,7 +7828,7 @@
       "club": "Man City",
       "pts": 8,
       "eventPoints": 8,
-      "selectedByPercent": 8.4,
+      "selectedByPercent": 8.5,
       "expectedPoints": 2.6,
       "nowCost": 7.5,
       "news": "",
@@ -8323,7 +8323,7 @@
       "club": "Man Utd",
       "pts": 2,
       "eventPoints": 2,
-      "selectedByPercent": 38,
+      "selectedByPercent": 37.9,
       "expectedPoints": 2.8,
       "nowCost": 8,
       "news": "",
@@ -8533,7 +8533,7 @@
       "club": "Man Utd",
       "pts": 0,
       "eventPoints": 0,
-      "selectedByPercent": 1.2,
+      "selectedByPercent": 1.1,
       "expectedPoints": 1,
       "nowCost": 4.5,
       "news": "",
@@ -8638,7 +8638,7 @@
       "club": "Newcastle",
       "pts": 0,
       "eventPoints": 0,
-      "selectedByPercent": 2.5,
+      "selectedByPercent": 2.4,
       "expectedPoints": 0,
       "nowCost": 5,
       "news": "Ankle injury - Expected back 14 Sep",
@@ -8711,9 +8711,9 @@
       "name": "Anthony Elanga",
       "pos": "MID",
       "club": "Newcastle",
-      "pts": 10,
-      "eventPoints": 10,
-      "selectedByPercent": 0.9,
+      "pts": 9,
+      "eventPoints": 9,
+      "selectedByPercent": 1,
       "expectedPoints": 2.2,
       "nowCost": 6,
       "news": "",
@@ -8848,7 +8848,7 @@
       "club": "Newcastle",
       "pts": 4,
       "eventPoints": 4,
-      "selectedByPercent": 1.8,
+      "selectedByPercent": 1.9,
       "expectedPoints": 2,
       "nowCost": 6,
       "news": "",
@@ -9448,7 +9448,7 @@
       "club": "Spurs",
       "pts": 0,
       "eventPoints": 0,
-      "selectedByPercent": 19.4,
+      "selectedByPercent": 19.3,
       "expectedPoints": 1,
       "nowCost": 4,
       "news": "",
@@ -9538,7 +9538,7 @@
       "club": "Spurs",
       "pts": 0,
       "eventPoints": 0,
-      "selectedByPercent": 5,
+      "selectedByPercent": 4.9,
       "expectedPoints": 1.1,
       "nowCost": 5,
       "news": "Unspecified injury - 50% chance of playing",
@@ -10093,7 +10093,7 @@
       "club": "Sunderland",
       "pts": 0,
       "eventPoints": 0,
-      "selectedByPercent": 0.3,
+      "selectedByPercent": 0.2,
       "expectedPoints": 0,
       "nowCost": 4,
       "news": "Has joined Konyaspor permanently",
@@ -10300,8 +10300,8 @@
   "meta": {
     "seasonStatus": "in-season",
     "currentGameweek": 1,
-    "lastUpdated": "2026-08-23T19:48:30.383Z",
-    "lastFplSync": "2026-08-23T19:48:30.368Z"
+    "lastUpdated": "2026-08-23T20:50:31.648Z",
+    "lastFplSync": "2026-08-23T20:50:31.625Z"
   },
   "liveScores": {
     "gw": 1,
@@ -10323,220 +10323,106 @@
         "a": 3,
         "b": 4,
         "scoreA": 40,
-        "scoreB": 27
+        "scoreB": 29
       }
     ]
   },
   "rumours": [
     {
-      "handle": "@FPL_Degenerate",
-      "name": "FPL Degenerate",
+      "handle": "@SquadShuffleHQ",
+      "name": "Squad Shuffle HQ",
       "color": "#E8543F",
-      "text": "the gap between how confident people sound in the group chat and how their squads actually look is not adding up 🔥"
+      "text": "413 players still unclaimed on the waiver wire. One of them wins somebody a title and this whole league is too busy scrolling to notice."
     },
     {
-      "handle": "@WaiverWireWatch",
-      "name": "Waiver Wire Watch",
-      "color": "#E8543F",
+      "handle": "@LastPickLarry",
+      "name": "Last Pick Larry",
+      "color": "#8AA095",
       "text": "Confirmed: Lash and Nikhil completed a trade this week. Full details still filtering through the league — sources say both sides are already calling it a win."
     },
     {
-      "handle": "@BenchWarmerBrian",
-      "name": "Brian",
-      "color": "#8AA095",
-      "text": "Marcus Tavernier sitting on 10 points already for Lash this gameweek. That's 1m well spent, live and in real time 🔥"
+      "handle": "@TripleCaptainTom",
+      "name": "Tom",
+      "color": "#37C871",
+      "text": "the group chat is already 400 messages deep and literally NOTHING has happened yet. imagine week 12"
     },
     {
-      "handle": "@ArmchairGaffer",
-      "name": "The Armchair Gaffer",
+      "handle": "@BudgetBuzzUK",
+      "name": "Budget Buzz",
       "color": "#FFB627",
-      "text": "not emotionally prepared for gameweek 1, my heart genuinely cannot take this league 😭"
+      "text": "A source close to the situation (me, staring at the waiver list) confirms Abdukodir Khusanov is a free hit sitting right there in plain sight. Baffling nobody's pulled the trigger."
     },
     {
-      "handle": "@BigManBants",
-      "name": "Big Man Bants",
+      "handle": "@LastPickLarry",
+      "name": "Last Pick Larry",
       "color": "#8AA095",
-      "text": "Nikhil spent 1m on Jeremy Jacquet and I need everyone to just sit with that number for a second 👀"
+      "text": "Varun down to 21m combined. Financially, this is a crime scene."
+    },
+    {
+      "handle": "@LastPickLarry",
+      "name": "Last Pick Larry",
+      "color": "#8AA095",
+      "text": "Adi currently running 11 players deep. Fully loaded — for now. Ask again after the next waiver deadline."
     },
     {
       "handle": "@SquadShuffleHQ",
       "name": "Squad Shuffle HQ",
       "color": "#E8543F",
-      "text": "A source close to the situation (me, staring at the waiver list) confirms Ben Johnson is a free hit sitting right there in plain sight. Baffling nobody's pulled the trigger."
+      "text": "Varun dropped 37m on Erling Haaland and there is no refund policy in this league. Committed now, for better or worse."
     },
     {
-      "handle": "@ProbablyWrongTakes",
-      "name": "Probably Wrong Takes",
-      "color": "#37C871",
-      "text": "I've decided who I'm rooting against and it's whoever's having the most fun doing well. sorry"
+      "handle": "@WaiverWireWatch",
+      "name": "Waiver Wire Watch",
+      "color": "#E8543F",
+      "text": "Marcus Tavernier cost Lash just 1m. Absolute daylight robbery and everyone's too polite to say it out loud."
     },
     {
-      "handle": "@ArmchairGaffer",
-      "name": "The Armchair Gaffer",
+      "handle": "@LeagueOfItsOwn",
+      "name": "A League Of Its Own",
       "color": "#FFB627",
-      "text": "Nikhil picking up Jeremy Jacquet is either genius or a cry for help. genuinely could be both"
-    },
-    {
-      "handle": "@FPL_Degenerate",
-      "name": "FPL Degenerate",
-      "color": "#E8543F",
-      "text": "LIVE: Lash up 37-34 on Varun and it's not over yet. Nothing's safe till the whistle"
-    },
-    {
-      "handle": "@FPL_Degenerate",
-      "name": "FPL Degenerate",
-      "color": "#E8543F",
-      "text": "watched three squads get announced back to back and I need to lie down"
-    },
-    {
-      "handle": "@ProbablyWrongTakes",
-      "name": "Probably Wrong Takes",
-      "color": "#37C871",
-      "text": "just did the maths on somebody's spending and I have never seen anyone go all in like that. reckless. iconic. reckless"
-    },
-    {
-      "handle": "@ShoutyFromTheSofa",
-      "name": "Shouty From The Sofa",
-      "color": "#E8543F",
-      "text": "Lash and Nikhil just pulled off a 2-for-2 trade and I have several questions 👀"
-    },
-    {
-      "handle": "@BudgetBuzzUK",
-      "name": "Budget Buzz",
-      "color": "#FFB627",
-      "text": "Jack Hinshelwood (Varun) leads all rostered players with 16 points so far in Gameweek 1. Worth watching as the rest of today's fixtures wrap up."
-    },
-    {
-      "handle": "@AdiFCFaithful",
-      "name": "Adi FC Faithful",
-      "color": "#E8543F",
-      "text": "Chase FC really thought they could just exist near Adi FC. adorable"
-    },
-    {
-      "handle": "@FPLGrapevine",
-      "name": "FPL Grapevine",
-      "color": "#FFB627",
-      "text": "Malhar sitting on 52m right now. Enough firepower to change this league and they're just... not."
-    },
-    {
-      "handle": "@ProbablyWrongTakes",
-      "name": "Probably Wrong Takes",
-      "color": "#37C871",
-      "text": "Lash straight up gave away Alexander Isak and Iliman Ndiaye in that trade. brave or insane, genuinely no in-between"
-    },
-    {
-      "handle": "@DraftRoomLeaks",
-      "name": "Draft Room Leaks",
-      "color": "#37C871",
-      "text": "Varun down to 21m combined. Financially, this is a crime scene."
-    },
-    {
-      "handle": "@BigManBants",
-      "name": "Big Man Bants",
-      "color": "#8AA095",
-      "text": "everyone in this league thinks they drafted the smart squad. statistically most of you are just wrong 💀"
-    },
-    {
-      "handle": "@LastPickLarry",
-      "name": "Last Pick Larry",
-      "color": "#8AA095",
-      "text": "413 players still unclaimed on the waiver wire. One of them wins somebody a title and this whole league is too busy scrolling to notice."
-    },
-    {
-      "handle": "@BenchWarmerBrian",
-      "name": "Brian",
-      "color": "#8AA095",
-      "text": "Jeremy Jacquet to Nikhil for 1m. bold. unhinged. slightly evil. I respect it 🔥"
-    },
-    {
-      "handle": "@ClipboardGossip",
-      "name": "Clipboard Gossip",
-      "color": "#37C871",
-      "text": "502m of a possible 600m spent league-wide. Still real money on the table and somebody is sitting on it out of pure stubbornness."
-    },
-    {
-      "handle": "@ClipboardGossip",
-      "name": "Clipboard Gossip",
-      "color": "#37C871",
-      "text": "Malhar currently running 11 players deep. Fully loaded — for now. Ask again after the next waiver deadline."
+      "text": "reminder: whoever finishes bottom has to change their profile picture to the trophy for a month. no exceptions, no appeals"
     },
     {
       "handle": "@TheAuctionInsider",
       "name": "The Auction Insider",
       "color": "#37C871",
-      "text": "Adi sitting on 34m right now. Enough firepower to change this league and they're just... not."
-    },
-    {
-      "handle": "@BenchWarmerBrian",
-      "name": "Brian",
-      "color": "#8AA095",
-      "text": "somebody in this league is about to get bullied for a full calendar year over one decision. build a bridge"
-    },
-    {
-      "handle": "@DraftRoomLeaks",
-      "name": "Draft Room Leaks",
-      "color": "#37C871",
-      "text": "Gameweek 1 in progress: Chase 40 - 27 Malhar. Numbers still moving as the rest of the fixtures play out."
-    },
-    {
-      "handle": "@BudgetBuzzUK",
-      "name": "Budget Buzz",
-      "color": "#FFB627",
-      "text": "Lash currently running 11 players deep. Fully loaded — for now. Ask again after the next waiver deadline."
-    },
-    {
-      "handle": "@LastPickLarry",
-      "name": "Last Pick Larry",
-      "color": "#8AA095",
-      "text": "Cody Gakpo (Malhar) leads all rostered players with 10 points so far in Gameweek 1. Worth watching as the rest of today's fixtures wrap up."
+      "text": "Varun sitting on 21m right now. Basically down to loose change and vibes at this point."
     },
     {
       "handle": "@ShoutyFromTheSofa",
       "name": "Shouty From The Sofa",
       "color": "#E8543F",
-      "text": "the confidence some of you are showing after the picks you made is genuinely inspiring behaviour"
+      "text": "just did the maths on somebody's spending and I have never seen anyone go all in like that. reckless. iconic. reckless"
     },
     {
-      "handle": "@ChaseFCDiehard",
-      "name": "Chase FC Diehard",
-      "color": "#8AA095",
-      "text": "Malhar FC fans going very quiet watching us put up 40-27 live. take your time replying to this one"
-    },
-    {
-      "handle": "@FPL_Degenerate",
-      "name": "FPL Degenerate",
+      "handle": "@SquadShuffleHQ",
+      "name": "Squad Shuffle HQ",
       "color": "#E8543F",
-      "text": "someone's captain pick is about to end a real friendship. calling it now"
+      "text": "Lash currently running 11 players deep. Fully loaded — for now. Ask again after the next waiver deadline."
     },
     {
       "handle": "@BudgetBuzzUK",
       "name": "Budget Buzz",
       "color": "#FFB627",
-      "text": "Varun dropped 37m on Erling Haaland and there is no refund policy in this league. Committed now, for better or worse."
+      "text": "502m of a possible 600m spent league-wide. Still real money on the table and somebody is sitting on it out of pure stubbornness."
     },
     {
-      "handle": "@MalharFCDiehard",
-      "name": "Malhar FC Diehard",
+      "handle": "@BigManBants",
+      "name": "Big Man Bants",
       "color": "#8AA095",
-      "text": "Nikhil FC really thought they could just exist near Malhar FC. adorable"
+      "text": "genuinely losing sleep over gameweek 1 and I don't think that counts as normal behaviour anymore"
     },
     {
-      "handle": "@DraftRoomLeaks",
-      "name": "Draft Room Leaks",
-      "color": "#37C871",
-      "text": "Told Lash have been \"circling\" Igor Julio dos Santos de Paulo (Brighton) for two straight weeks now. At what point does circling just become cowardice."
-    },
-    {
-      "handle": "@FPL_Degenerate",
-      "name": "FPL Degenerate",
-      "color": "#E8543F",
-      "text": "the group chat is already 400 messages deep and literally NOTHING has happened yet. imagine week 12"
-    },
-    {
-      "handle": "@ArmchairGaffer",
-      "name": "The Armchair Gaffer",
+      "handle": "@AdiFCDiehard",
+      "name": "Adi FC Diehard",
       "color": "#FFB627",
-      "text": "reminder: whoever finishes bottom has to change their profile picture to the trophy for a month. no exceptions, no appeals"
+      "text": "Adi FC sitting on 34m, Varun FC scraping by on 21m. we said what we said"
+    },
+    {
+      "handle": "@BigManBants",
+      "name": "Big Man Bants",
+      "color": "#8AA095",
+      "text": "the gap between how confident people sound in the group chat and how their squads actually look is not adding up 🔥"
     },
     {
       "handle": "@FPL_Degenerate",
@@ -10545,88 +10431,202 @@
       "text": "can't stop thinking about Nikhil dropping 1m on Jeremy Jacquet. that's not a signing, that's a personality trait now"
     },
     {
-      "handle": "@ChaseFCFaithful",
-      "name": "Chase FC Faithful",
+      "handle": "@LashFCFaithful",
+      "name": "Lash FC Faithful",
+      "color": "#E8543F",
+      "text": "every Nikhil FC supporter in this league needs to sit down and think about their choices"
+    },
+    {
+      "handle": "@VarunFCFaithful",
+      "name": "Varun FC Faithful",
       "color": "#37C871",
-      "text": "Chase FC sitting on 41m, Adi FC scraping by on 34m. we said what we said"
+      "text": "imagine supporting Malhar FC. couldn't be us. genuinely could never be us"
+    },
+    {
+      "handle": "@BenchWarmerBrian",
+      "name": "Brian",
+      "color": "#8AA095",
+      "text": "watched three squads get announced back to back and I need to lie down"
+    },
+    {
+      "handle": "@TripleCaptainTom",
+      "name": "Tom",
+      "color": "#37C871",
+      "text": "not emotionally prepared for gameweek 1, my heart genuinely cannot take this league 😭"
+    },
+    {
+      "handle": "@FPL_Degenerate",
+      "name": "FPL Degenerate",
+      "color": "#E8543F",
+      "text": "Nikhil picking up Jeremy Jacquet is either genius or a cry for help. genuinely could be both"
+    },
+    {
+      "handle": "@TheAuctionInsider",
+      "name": "The Auction Insider",
+      "color": "#37C871",
+      "text": "EXCLUSIVE: Victor Torp has been sitting on the waiver wire at 0.2% selected while every manager in this league pretends not to notice. Someone's about to look very smart."
+    },
+    {
+      "handle": "@TripleCaptainTom",
+      "name": "Tom",
+      "color": "#37C871",
+      "text": "someone's captain pick is about to end a real friendship. calling it now"
+    },
+    {
+      "handle": "@BigManBants",
+      "name": "Big Man Bants",
+      "color": "#8AA095",
+      "text": "Nikhil spent 1m on Jeremy Jacquet and I need everyone to just sit with that number for a second 👀"
+    },
+    {
+      "handle": "@BenchWarmerBrian",
+      "name": "Brian",
+      "color": "#8AA095",
+      "text": "Lash straight up gave away Alexander Isak and Iliman Ndiaye in that trade. brave or insane, genuinely no in-between"
+    },
+    {
+      "handle": "@WaiverWireWatch",
+      "name": "Waiver Wire Watch",
+      "color": "#E8543F",
+      "text": "EXCLUSIVE: Yéremy Pino Santos has been sitting on the waiver wire at 0.2% selected while every manager in this league pretends not to notice. Someone's about to look very smart."
+    },
+    {
+      "handle": "@TheAuctionInsider",
+      "name": "The Auction Insider",
+      "color": "#37C871",
+      "text": "Riccardo Calafiori (Chase) leads all rostered players with 9 points so far in Gameweek 1. Worth watching as the rest of today's fixtures wrap up."
+    },
+    {
+      "handle": "@TripleCaptainTom",
+      "name": "Tom",
+      "color": "#37C871",
+      "text": "everyone in this league thinks they drafted the smart squad. statistically most of you are just wrong 💀"
+    },
+    {
+      "handle": "@TripleCaptainTom",
+      "name": "Tom",
+      "color": "#37C871",
+      "text": "Lash and Nikhil just pulled off a 2-for-2 trade and I have several questions 👀"
+    },
+    {
+      "handle": "@WaiverWireWatch",
+      "name": "Waiver Wire Watch",
+      "color": "#E8543F",
+      "text": "Told Varun have been \"circling\" Abdul Fatawu (Ipswich Town) for two straight weeks now. At what point does circling just become cowardice."
+    },
+    {
+      "handle": "@LashUltras",
+      "name": "Lash FC Ultras",
+      "color": "#37C871",
+      "text": "Varun FC fans going very quiet watching us put up 37-34 live. take your time replying to this one"
+    },
+    {
+      "handle": "@LastPickLarry",
+      "name": "Last Pick Larry",
+      "color": "#8AA095",
+      "text": "EXCLUSIVE: Arnaud Kalimuendo has been sitting on the waiver wire at 0.1% selected while every manager in this league pretends not to notice. Someone's about to look very smart."
+    },
+    {
+      "handle": "@WaiverWireWatch",
+      "name": "Waiver Wire Watch",
+      "color": "#E8543F",
+      "text": "Told Malhar have been \"circling\" Arnaud Kalimuendo (Nott'm Forest) for two straight weeks now. At what point does circling just become cowardice."
     },
     {
       "handle": "@ProbablyWrongTakes",
       "name": "Probably Wrong Takes",
       "color": "#37C871",
-      "text": "genuinely losing sleep over gameweek 1 and I don't think that counts as normal behaviour anymore"
+      "text": "I've decided who I'm rooting against and it's whoever's having the most fun doing well. sorry"
     },
     {
-      "handle": "@ChaseFCDiehard",
-      "name": "Chase FC Diehard",
+      "handle": "@BudgetBuzzUK",
+      "name": "Budget Buzz",
+      "color": "#FFB627",
+      "text": "Told Varun have been \"circling\" Jaydee Canvot (Crystal Palace) for two straight weeks now. At what point does circling just become cowardice."
+    },
+    {
+      "handle": "@TheAuctionInsider",
+      "name": "The Auction Insider",
+      "color": "#37C871",
+      "text": "Marc Guéhi (Chase) leads all rostered players with 10 points so far in Gameweek 1. Worth watching as the rest of today's fixtures wrap up."
+    },
+    {
+      "handle": "@SquadShuffleHQ",
+      "name": "Squad Shuffle HQ",
       "color": "#E8543F",
-      "text": "Lash FC fans keep talking. Chase FC keeps winning arguments in the group chat, which is the only stat that matters"
+      "text": "Malhar sitting on 52m right now. Enough firepower to change this league and they're just... not."
     },
     {
-      "handle": "@LastPickLarry",
-      "name": "Last Pick Larry",
-      "color": "#8AA095",
-      "text": "A source close to the situation (me, staring at the waiver list) confirms Sávio Moreira de Oliveira is a free hit sitting right there in plain sight. Baffling nobody's pulled the trigger."
+      "handle": "@ChaseUltras",
+      "name": "Chase FC Ultras",
+      "color": "#E8543F",
+      "text": "Chase FC fans have zero respect for Nikhil FC and it shows every single week"
     },
     {
-      "handle": "@LastPickLarry",
-      "name": "Last Pick Larry",
-      "color": "#8AA095",
+      "handle": "@BudgetBuzzUK",
+      "name": "Budget Buzz",
+      "color": "#FFB627",
       "text": "Malhar sitting on 52m like a dragon guarding gold it has no plan for. Do something with it."
+    },
+    {
+      "handle": "@LashUltras",
+      "name": "Lash FC Ultras",
+      "color": "#37C871",
+      "text": "every Malhar FC supporter in this league needs to sit down and think about their choices"
+    },
+    {
+      "handle": "@DraftRoomLeaks",
+      "name": "Draft Room Leaks",
+      "color": "#37C871",
+      "text": "Gameweek 1 in progress: Chase 40 - 29 Malhar. Numbers still moving as the rest of the fixtures play out."
     },
     {
       "handle": "@NikhilFCDiehard",
       "name": "Nikhil FC Diehard",
-      "color": "#E8543F",
+      "color": "#FFB627",
+      "text": "Nikhil FC sitting on 33m, Varun FC scraping by on 21m. we said what we said"
+    },
+    {
+      "handle": "@TripleCaptainTom",
+      "name": "Tom",
+      "color": "#37C871",
+      "text": "LIVE: Lash up 37-34 on Varun and it's not over yet. Nothing's safe till the whistle"
+    },
+    {
+      "handle": "@ArmchairGaffer",
+      "name": "The Armchair Gaffer",
+      "color": "#FFB627",
+      "text": "Riccardo Calafiori sitting on 9 points already for Chase this gameweek. That's 2m well spent, live and in real time 🔥"
+    },
+    {
+      "handle": "@BenchWarmerBrian",
+      "name": "Brian",
+      "color": "#8AA095",
+      "text": "somebody in this league is about to get bullied for a full calendar year over one decision. build a bridge"
+    },
+    {
+      "handle": "@FPLGrapevine",
+      "name": "FPL Grapevine",
+      "color": "#FFB627",
+      "text": "Told Nikhil have been \"circling\" Destiny Udogie (Spurs) for two straight weeks now. At what point does circling just become cowardice."
+    },
+    {
+      "handle": "@NikhilFCDiehard",
+      "name": "Nikhil FC Diehard",
+      "color": "#37C871",
       "text": "Adi FC fans going very quiet watching us put up 24-21 live. take your time replying to this one"
     },
     {
       "handle": "@BudgetBuzzUK",
       "name": "Budget Buzz",
       "color": "#FFB627",
-      "text": "Marcus Tavernier cost Lash just 1m. Absolute daylight robbery and everyone's too polite to say it out loud."
+      "text": "Gameweek 1 in progress: Lash 37 - 34 Varun. Numbers still moving as the rest of the fixtures play out."
     },
     {
-      "handle": "@ClipboardGossip",
-      "name": "Clipboard Gossip",
+      "handle": "@DraftRoomLeaks",
+      "name": "Draft Room Leaks",
       "color": "#37C871",
-      "text": "Gameweek 1 in progress: Adi 21 - 24 Nikhil. Numbers still moving as the rest of the fixtures play out."
-    },
-    {
-      "handle": "@FPLGrapevine",
-      "name": "FPL Grapevine",
-      "color": "#FFB627",
-      "text": "Marc Guéhi (Chase) leads all rostered players with 10 points so far in Gameweek 1. Worth watching as the rest of today's fixtures wrap up."
-    },
-    {
-      "handle": "@LashUltras",
-      "name": "Lash FC Ultras",
-      "color": "#E8543F",
-      "text": "Varun FC fans going very quiet watching us put up 37-34 live. take your time replying to this one"
-    },
-    {
-      "handle": "@TheAuctionInsider",
-      "name": "The Auction Insider",
-      "color": "#37C871",
-      "text": "A source close to the situation (me, staring at the waiver list) confirms Nicolás Domínguez is a free hit sitting right there in plain sight. Baffling nobody's pulled the trigger."
-    },
-    {
-      "handle": "@BigManBants",
-      "name": "Big Man Bants",
-      "color": "#8AA095",
-      "text": "LIVE: Nikhil up 24-21 on Adi and it's not over yet. Nothing's safe till the whistle"
-    },
-    {
-      "handle": "@BigManBants",
-      "name": "Big Man Bants",
-      "color": "#8AA095",
-      "text": "Marc Guéhi sitting on 10 points already for Chase this gameweek. That's 8m well spent, live and in real time 🔥"
-    },
-    {
-      "handle": "@ArmchairGaffer",
-      "name": "The Armchair Gaffer",
-      "color": "#FFB627",
-      "text": "Cody Gakpo sitting on 10 points already for Malhar this gameweek. That's 5m well spent, live and in real time 🔥"
+      "text": "A source close to the situation (me, staring at the waiver list) confirms Pedro Lomba Neto is a free hit sitting right there in plain sight. Baffling nobody's pulled the trigger."
     }
   ],
   "livePlayerPoints": {
@@ -10667,7 +10667,7 @@
     "357": 0,
     "362": 1,
     "366": 2,
-    "367": 10,
+    "367": 12,
     "368": 8,
     "371": 5,
     "379": 2,
