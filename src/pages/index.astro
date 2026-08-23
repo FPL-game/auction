@@ -3,7 +3,8 @@ import auctionLeagueData from "../data/auctionLeague.json";
 import { computeStandings, teamName } from "../lib/auctionLeagueUtils.mjs";
 
 const state = auctionLeagueData as any;
-const { teams, fixtures, results, players, meta } = state;
+const { teams, fixtures, results, players, meta, liveScores } = state;
+const livePlayerPoints = state.livePlayerPoints || {};
 // Generated fresh every sync run (scripts/update-fpl-data.mjs) from real current
 // data — unpicked players, budgets, rosters. Empty until the first sync after this
 // feature ships.
@@ -825,13 +826,17 @@ const FAQ = [
   <section class="page" id="page-live">
     <div class="section-eyebrow">This Gameweek</div>
     <div class="section-title">Live Scores {meta.currentGameweek ? `— GW${meta.currentGameweek}` : ""}</div>
-    <div class="live-banner" id="liveScoresBanner"><span class="live-dot"></span> Computed live from each team's current roster. Click a team to see the player breakdown.</div>
+    <div class="live-banner" id="liveScoresBanner"><span class="live-dot"></span> Real FPL live gameweek scores, checked for updates every minute. Click a team to see the player breakdown.</div>
     <div>
-      {(fixtures.find((f: any) => f.gw === meta.currentGameweek) || fixtures[0]).matches.map((m: [number, number]) => (
+      {(fixtures.find((f: any) => f.gw === meta.currentGameweek) || fixtures[0]).matches.map((m: [number, number]) => {
+        const lsMatch = liveScores?.matches?.find((x: any) => x.a === m[0] && x.b === m[1]);
+        const initialA = lsMatch?.scoreA ?? 0;
+        const initialB = lsMatch?.scoreB ?? 0;
+        return (
         <div class="score-card-wrap">
           <div class="score-card">
             <div class="team-name">{teamName(teams, m[0])}</div>
-            <div class="score" id={`live-score-${m[0]}-${m[1]}`}>0 &ndash; 0</div>
+            <div class="score" id={`live-score-${m[0]}-${m[1]}`}>{initialA} &ndash; {initialB}</div>
             <div class="team-name right">{teamName(teams, m[1])}</div>
           </div>
           <div class="score-breakdown">
@@ -845,7 +850,8 @@ const FAQ = [
             </details>
           </div>
         </div>
-      ))}
+        );
+      })}
     </div>
   </section>
 
@@ -944,6 +950,7 @@ const FAQ = [
 <script type="application/json" id="teamsSeed" set:html={JSON.stringify(teams)}></script>
 <script type="application/json" id="playersNewsSeed" set:html={JSON.stringify(playersWithNews)}></script>
 <script type="application/json" id="playerPointsSeed" set:html={JSON.stringify(players.map((p: any) => ({ id: p.id, eventPoints: p.eventPoints ?? 0 })))}></script>
+<script type="application/json" id="liveScoresSeed" set:html={JSON.stringify({ liveScores, livePlayerPoints })}></script>
 <script type="application/json" id="rumoursSeed" set:html={JSON.stringify(rumours)}></script>
 
 <script>
@@ -1066,15 +1073,27 @@ const FAQ = [
   const db = getFirestore(app);
 
   const seedTeams = JSON.parse(document.getElementById('teamsSeed').textContent);
+  // eventPoints (season-long snapshot from FPL's bootstrap-static) is the fallback source —
+  // used when no gameweek is currently live. liveScoresData/livePointsMap (real per-gameweek
+  // live points, from FPL's live event feed) take priority whenever they're present, and get
+  // refreshed periodically below without needing a full page reload.
   const playerPoints = new Map(
     JSON.parse(document.getElementById('playerPointsSeed').textContent).map((p) => [String(p.id), p.eventPoints]),
   );
   const playersNews = new Map(
     JSON.parse(document.getElementById('playersNewsSeed').textContent).map((p) => [String(p.id), p]),
   );
+  let liveScoresSeed = JSON.parse(document.getElementById('liveScoresSeed').textContent);
+  let liveScoresData = liveScoresSeed.liveScores;
+  let livePointsMap = new Map(Object.entries(liveScoresSeed.livePlayerPoints || {}));
   const DEFAULTS = { remainingBudget: 100, waiverBudget: 20, roster: [] };
   const liveTeams = {}; // teamId -> {name, remainingBudget, waiverBudget, roster}
   let anyLive = false;
+
+  function pointsFor(playerId) {
+    const key = String(playerId);
+    return livePointsMap.has(key) ? livePointsMap.get(key) : (playerPoints.get(key) ?? 0);
+  }
 
   function renderInjuryWire() {
     const feed = document.getElementById('injuryWireFeed');
@@ -1181,13 +1200,13 @@ const FAQ = [
     if (breakdownEl) {
       breakdownEl.innerHTML = live.roster.length
         ? live.roster.map((p) => {
-            const pts = playerPoints.get(String(p.playerId)) ?? 0;
+            const pts = pointsFor(p.playerId);
             total += pts;
             return `<li><span>${p.name}</span><span class="pts">${pts}</span></li>`;
           }).join('')
         : '<li class="empty-note">Squad not drafted yet.</li>';
     } else {
-      total = live.roster.reduce((sum, p) => sum + (playerPoints.get(String(p.playerId)) ?? 0), 0);
+      total = live.roster.reduce((sum, p) => sum + pointsFor(p.playerId), 0);
     }
     return total;
   }
@@ -1195,11 +1214,38 @@ const FAQ = [
   function renderAllLiveScores() {
     document.querySelectorAll('[id^="live-score-"]').forEach((scoreEl) => {
       const [a, b] = scoreEl.id.replace('live-score-', '').split('-');
-      const scoreA = renderLiveScoreFor(a);
-      const scoreB = renderLiveScoreFor(b);
+      // renderLiveScoreFor() also fills in the per-player breakdown as a side effect —
+      // always call both sides even though the headline number below may come from
+      // the server's own total instead, so the breakdown list stays in sync.
+      const breakdownTotalA = renderLiveScoreFor(a);
+      const breakdownTotalB = renderLiveScoreFor(b);
+      const serverMatch = liveScoresData?.matches?.find((m) => String(m.a) === a && String(m.b) === b);
+      const scoreA = serverMatch ? serverMatch.scoreA : breakdownTotalA;
+      const scoreB = serverMatch ? serverMatch.scoreB : breakdownTotalB;
       scoreEl.textContent = `${scoreA} – ${scoreB}`;
     });
   }
+
+  // ---- Soft refresh: re-fetch this page's own HTML periodically and pull the freshest
+  // live-score seed out of it, so the tab picks up a new sync+deploy without the user
+  // needing to manually reload (still bounded by how often the sync workflow itself runs).
+  async function refreshLiveScores() {
+    try {
+      const res = await fetch(location.pathname, { cache: 'no-store' });
+      if (!res.ok) return;
+      const html = await res.text();
+      const freshDoc = new DOMParser().parseFromString(html, 'text/html');
+      const freshSeedEl = freshDoc.getElementById('liveScoresSeed');
+      if (!freshSeedEl) return;
+      const fresh = JSON.parse(freshSeedEl.textContent);
+      liveScoresData = fresh.liveScores;
+      livePointsMap = new Map(Object.entries(fresh.livePlayerPoints || {}));
+      renderAllLiveScores();
+    } catch (err) {
+      // Silent — a failed background refresh just retries on the next tick.
+    }
+  }
+  setInterval(refreshLiveScores, 60000);
 
   function renderTeamCard(teamId, data) {
     const budgetEl = document.getElementById(`budget-${teamId}`);
