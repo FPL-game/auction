@@ -152,6 +152,7 @@ async function main() {
 
   if (!rostersInPlay) {
     state.liveScores = null;
+    state.livePlayerPoints = null;
     state.rumours = generateRumours(state, recentMoves);
     await writeFile(DATA_PATH, JSON.stringify(state, null, 2) + "\n");
     console.log("No rosters drafted yet — refreshed player pool only.");
@@ -161,6 +162,9 @@ async function main() {
   // ---- Live, in-progress scores for the current gameweek ----
   // Computed before the Social Media feed below, so live-gameweek rumours can
   // reference these same real, current scores and standout player performances.
+  // livePlayerPoints (playerId -> points, for every rostered player) ships to the
+  // client so the Live Scores tab can render from these real live numbers instead
+  // of the season-long eventPoints snapshot it used to rely on.
   let livePerformers = [];
   if (liveEvent && !liveEvent.finished) {
     const live = await fetchJson(`${API_BASE}/event/${liveEvent.id}/live/`);
@@ -178,8 +182,14 @@ async function main() {
       }),
     };
 
-    livePerformers = state.teams
-      .flatMap((t) => t.roster.map((p) => ({ ...p, teamName: t.name })))
+    const rosterEntries = state.teams.flatMap((t) => t.roster.map((p) => ({ ...p, teamName: t.name })));
+    state.livePlayerPoints = Object.fromEntries(
+      rosterEntries
+        .filter((p) => p.playerId != null)
+        .map((p) => [String(p.playerId), liveById.get(p.playerId)?.stats.total_points ?? 0]),
+    );
+
+    livePerformers = rosterEntries
       .map((p) => ({
         ...p,
         livePoints: p.playerId != null ? (liveById.get(p.playerId)?.stats.total_points ?? 0) : 0,
@@ -187,6 +197,7 @@ async function main() {
       .filter((p) => p.livePoints > 0)
       .sort((a, b) => b.livePoints - a.livePoints);
   } else {
+    state.livePlayerPoints = null;
     state.liveScores = null;
   }
 
