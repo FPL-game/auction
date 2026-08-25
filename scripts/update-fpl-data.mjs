@@ -12,7 +12,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-import { POSITION_BY_ELEMENT_TYPE } from "../src/lib/auctionLeagueUtils.mjs";
+import { POSITION_BY_ELEMENT_TYPE, computeStandings } from "../src/lib/auctionLeagueUtils.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_PATH = path.join(__dirname, "..", "src", "data", "auctionLeague.json");
@@ -109,13 +109,16 @@ async function fetchLatestKickoff(gwId) {
 function gwScoreForRoster(roster, liveById) {
   let score = 0;
   let matched = 0;
+  let top = null;
   for (const p of roster) {
     if (p.playerId != null && liveById.has(p.playerId)) {
-      score += liveById.get(p.playerId).stats.total_points;
+      const pts = liveById.get(p.playerId).stats.total_points;
+      score += pts;
       matched++;
+      if (!top || pts > top.points) top = { name: p.name, points: pts };
     }
   }
-  return { score, matched, total: roster.length };
+  return { score, matched, total: roster.length, top };
 }
 
 async function main() {
@@ -285,9 +288,13 @@ async function main() {
   for (const ev of finishedEvents) {
     const gwFixture = state.fixtures.find((f) => f.gw === ev.id);
     if (!gwFixture) continue;
-    const alreadyFinal = gwFixture.matches.every(
-      ([a, b]) => state.results[`${ev.id}-${a}-${b}`]?.final,
-    );
+    // Also recompute once for results finalized before topScorerA/B existed on this
+    // object shape — otherwise those matches would stay final-but-star-less forever,
+    // since the whole point of `final` is to stop recomputing.
+    const alreadyFinal = gwFixture.matches.every(([a, b]) => {
+      const res = state.results[`${ev.id}-${a}-${b}`];
+      return res?.final && Object.prototype.hasOwnProperty.call(res, "topScorerA");
+    });
     if (alreadyFinal) continue;
 
     const forced =
@@ -304,8 +311,24 @@ async function main() {
         scoreA: sa.score,
         scoreB: sb.score,
         final: !!ev.data_checked || forced,
+        topScorerA: sa.top,
+        topScorerB: sb.top,
       };
     }
+  }
+
+  // Stamp the real-world moment each gameweek's results first went fully final — used by
+  // the homepage to lead with the Match Recap for a day after a gameweek wraps, then fall
+  // back to leading with Social Media the rest of the time. Only ever set once per GW (a
+  // GW that's already stamped keeps its original stamp even as its scores keep getting
+  // recomputed above until data_checked catches up).
+  state.meta.gwFinalizedAt = state.meta.gwFinalizedAt || {};
+  for (const ev of finishedEvents) {
+    if (state.meta.gwFinalizedAt[ev.id]) continue;
+    const gwFixture = state.fixtures.find((f) => f.gw === ev.id);
+    if (!gwFixture) continue;
+    const allFinal = gwFixture.matches.every(([a, b]) => state.results[`${ev.id}-${a}-${b}`]?.final);
+    if (allFinal) state.meta.gwFinalizedAt[ev.id] = new Date().toISOString();
   }
 
   state.rumours = generateRumours(state, recentMoves, state.liveScores, livePerformers);
@@ -448,6 +471,26 @@ function generateRumours(state, recentMoves = [], liveScores = null, livePerform
     "the gap between how confident people sound in the group chat and how their squads actually look is not adding up 🔥",
     "genuinely losing sleep over gameweek 1 and I don't think that counts as normal behaviour anymore",
     "somebody in this league is about to get bullied for a full calendar year over one decision. build a bridge",
+    "the amount of trash talk happening before a single ball has been kicked is genuinely unhinged and I am so here for it",
+    "watching grown adults refresh a fantasy football website every four minutes and honestly. same",
+    "someone just said 'trust the process' about their squad and I have never heard four words used more incorrectly",
+    "the group chat has gone from banter to actual threats in under an hour. love this league",
+    "at least two people in this league are about to learn a very expensive lesson in real time",
+    "the sheer arrogance radiating off some of these picks could power a small city",
+    "somebody screenshot the standings unprompted and posted it with zero context. we see you",
+    "this league has more storylines already than an actual Premier League season and we're not even a gameweek in",
+    "the way some of you talk about your squads versus what's actually on the pitch is a genuine crime against honesty",
+    "reminder that talking a big game and having a big game are two completely different sports",
+    "somebody's about to go very quiet in the group chat and we all know exactly who",
+    "the confidence to price is currently at an all-time league high and reality has entered the chat",
+    "nobody has apologised for anything yet but give it one bad gameweek",
+    "nothing bonds six grown adults quite like mutual, deeply personal fantasy football resentment",
+    "nobody in this league respects a rebuild. everybody in this league is about to need one",
+    "nothing says 'healthy competition' quite like the group chat going silent for six hours after a bad result",
+    "nobody warned me how personally I'd take a league where I only know these people through spreadsheets",
+    "this league runs on spite, screenshots and the faint smell of unresolved beef. wouldn't change a thing",
+    "somewhere in this league someone is drafting a strongly worded message they will absolutely still send",
+    "the trash talk to actual football knowledge ratio in this group chat should be studied academically",
   ];
   for (const line of hypeLines) templates.push(() => ({ fan: true, text: line }));
 
@@ -469,6 +512,15 @@ function generateRumours(state, recentMoves = [], liveScores = null, livePerform
       (us, rival) => `${us.name} FC did not ask to be better than ${rival.name} FC, it just sort of happened, repeatedly, on purpose`,
       (us, rival) => `sending this on behalf of every ${us.name} FC supporter: ${rival.name} FC, this is not the callout you think it is, please stop`,
       (us, rival) => `${rival.name} FC fans in shambles again. some things never change, and honestly we hope they never do`,
+      (us, rival) => `${us.name} FC supporters would like it on record that we called ${rival.name} FC's collapse weeks in advance`,
+      (us, rival) => `${rival.name} FC fans have started a new bit where they pretend the table doesn't matter. very brave given where they are on it`,
+      (us, rival) => `there's a very specific kind of quiet that only ${rival.name} FC fans go the week after we play them`,
+      (us, rival) => `${us.name} FC did not come to make friends with ${rival.name} FC. ${us.name} FC came to make a point, repeatedly, in writing`,
+      (us, rival) => `someone tell ${rival.name} FC that moral victories don't show up in the standings. we'll wait`,
+      (us, rival) => `${rival.name} FC fans really said "wait for us" three weeks ago. still waiting on our end too`,
+      (us, rival) => `${us.name} FC has a folder. it's called "receipts". most of it is ${rival.name} FC`,
+      (us, rival) => `${rival.name} FC talking a big game for a team that's one bad week from a full identity crisis`,
+      (us, rival) => `${us.name} FC would like to remind ${rival.name} FC that history remembers winners, and history has taken notes`,
     ];
     templates.push(() => {
       const [us, rival] = pickTwoDistinct(state.teams);
@@ -484,12 +536,42 @@ function generateRumours(state, recentMoves = [], liveScores = null, livePerform
       (us, rival) => us.roster.length - rival.roster.length > 0
         ? `${us.name} FC currently ${us.roster.length} players deep, ${rival.name} FC at ${rival.roster.length}. numbers don't lie, ${rival.name} FC`
         : null,
+      (us, rival) => {
+        const usTop = [...us.roster].sort((a, b) => b.price - a.price)[0];
+        const rivalTop = [...rival.roster].sort((a, b) => b.price - a.price)[0];
+        if (!usTop || !rivalTop || usTop.price <= rivalTop.price) return null;
+        return `${us.name} FC's ${usTop.name} cost more than ${rival.name} FC's entire spending on ${rivalTop.name}. spend accordingly next time, ${rival.name} FC`;
+      },
     ];
     templates.push(() => {
       const [us, rival] = pickTwoDistinct(state.teams);
       const line = pick(dataRivalryLines)(us, rival);
       return { fan: true, text: line || pick(rivalryLines)(us, rival), persona: teamFanPersona(us) };
     });
+
+    // ---- Table-based rivalry: once results exist, gloat by real league position ----
+    if (Object.keys(state.results || {}).length) {
+      const standings = computeStandings(state.teams, state.results);
+      if (standings.length > 1) {
+        const standingsRivalryLines = [
+          (us, rival) => `${us.name} FC sit above ${rival.name} FC in the table right now and we intend to keep it that way`,
+          (us, rival) => `${us.Pts} points to ${rival.Pts}. ${rival.name} FC, the table doesn't lie, even when you do`,
+          (us, rival) => `checked the standings again just to make sure ${us.name} FC are still above ${rival.name} FC. can confirm, still are`,
+          (us, rival) => `${rival.name} FC fans keep talking like they're not looking up at ${us.name} FC in the table. someone show them the standings page`,
+        ];
+        templates.push(() => {
+          const [rowA, rowB] = pickTwoDistinct(standings);
+          const aAhead = standings.indexOf(rowA) < standings.indexOf(rowB);
+          const [usRow, rivalRow] = aAhead ? [rowA, rowB] : [rowB, rowA];
+          const usTeam = state.teams.find((t) => t.id === usRow.id);
+          if (usRow.Pts === rivalRow.Pts) {
+            const rivalTeam = state.teams.find((t) => t.id === rivalRow.id);
+            return { fan: true, text: pick(rivalryLines)(usTeam, rivalTeam), persona: teamFanPersona(usTeam) };
+          }
+          return { fan: true, text: pick(standingsRivalryLines)(usRow, rivalRow), persona: teamFanPersona(usTeam) };
+        });
+      }
+    }
   }
 
   // ---- Fan reactions to real recent squad moves ----
@@ -599,32 +681,92 @@ function generateRumours(state, recentMoves = [], liveScores = null, livePerform
         if (!res) return null;
         const teamA = state.teams.find((t) => t.id === a);
         const teamB = state.teams.find((t) => t.id === b);
-        return { teamA, teamB, scoreA: res.scoreA, scoreB: res.scoreB, margin: Math.abs(res.scoreA - res.scoreB) };
+        return {
+          teamA,
+          teamB,
+          scoreA: res.scoreA,
+          scoreB: res.scoreB,
+          margin: Math.abs(res.scoreA - res.scoreB),
+          topScorerA: res.topScorerA || null,
+          topScorerB: res.topScorerB || null,
+        };
       })
       .filter((r) => r !== null);
 
     if (matchResults.length) {
+      const blowoutLines = [
+        (winner, loser, ws, ls) => `${winner.name} ${ws} - ${ls} ${loser.name}. that's not a scoreline, that's a hostage situation 😭 somebody check on ${loser.name}`,
+        (winner, loser, ws, ls) => `${winner.name} put ${ws - ls} points between themselves and ${loser.name}. ${loser.name} FC fans have already left the group chat, mentally if not literally`,
+        (winner, loser, ws, ls) => `${loser.name} lost to ${winner.name} ${ws}-${ls} and honestly at this point it's less a result, more a diagnosis`,
+      ];
+      const narrowLines = [
+        (winner, loser) => `${winner.name} edge ${loser.name} by the width of a single point. someone's heart genuinely stopped watching that live`,
+        (winner, loser) => `${winner.name} survive ${loser.name} by the barest possible margin. nobody in either group chat is breathing normally yet`,
+        (winner, loser) => `${loser.name} will replay every single lineup decision in their head this week after losing to ${winner.name} by basically nothing`,
+      ];
+      const standardWinLines = [
+        (winner, loser) => `${winner.name} beat ${loser.name} this gameweek. professional, unbothered, mildly boring. respect the process`,
+        (winner, loser) => `${winner.name} get the job done against ${loser.name}. not pretty, not dramatic, just three points and a quiet exit`,
+        (winner, loser) => `${loser.name} will point to the bigger picture after that loss to ${winner.name}. ${winner.name} will point to the table`,
+      ];
+      const drawLines = [
+        (a, b, sa) => `${a.name} ${sa} - ${sa} ${b.name}. a draw. the most cowardly result in football and both sides should be a little embarrassed`,
+        (a, b, sa) => `${a.name} and ${b.name} draw ${sa}-${sa}. nobody wins, nobody loses, everybody's group chat goes quiet out of respect for the anticlimax`,
+      ];
+
       templates.push(() => {
         const r = pick(matchResults);
-        const [winner, loser, ws, ls] = r.scoreA >= r.scoreB
-          ? [r.teamA, r.teamB, r.scoreA, r.scoreB]
-          : [r.teamB, r.teamA, r.scoreB, r.scoreA];
-        if (ws === ls) return { fan: true, text: `${r.teamA.name} ${r.scoreA} - ${r.scoreB} ${r.teamB.name}. a draw. the most cowardly result in football and both sides should be a little embarrassed` };
-        if (ws - ls >= 30) return { fan: true, text: `${winner.name} ${ws} - ${ls} ${loser.name}. that's not a scoreline, that's a hostage situation 😭 somebody check on ${loser.name}` };
-        if (ws - ls <= 5) return { fan: true, text: `${winner.name} edge ${loser.name} by the width of a single point. someone's heart genuinely stopped watching that live` };
-        return { fan: true, text: `${winner.name} beat ${loser.name} this gameweek. professional, unbothered, mildly boring. respect the process` };
+        if (r.scoreA === r.scoreB) return { fan: true, text: pick(drawLines)(r.teamA, r.teamB, r.scoreA) };
+        const winnerIsA = r.scoreA > r.scoreB;
+        const winner = winnerIsA ? r.teamA : r.teamB;
+        const loser = winnerIsA ? r.teamB : r.teamA;
+        const ws = winnerIsA ? r.scoreA : r.scoreB;
+        const ls = winnerIsA ? r.scoreB : r.scoreA;
+        if (ws - ls >= 30) return { fan: true, text: pick(blowoutLines)(winner, loser, ws, ls) };
+        if (ws - ls <= 5) return { fan: true, text: pick(narrowLines)(winner, loser) };
+        return { fan: true, text: pick(standardWinLines)(winner, loser) };
       });
+
+      // A separate callout that leans on the real per-player breakdown — who actually won
+      // (or lost) their team the match, not just the final score.
+      const starMatches = matchResults.filter((r) => r.topScorerA || r.topScorerB);
+      if (starMatches.length) {
+        templates.push(() => {
+          const r = pick(starMatches);
+          const winnerIsA = r.scoreA >= r.scoreB;
+          const winnerTeam = winnerIsA ? r.teamA : r.teamB;
+          const loserTeam = winnerIsA ? r.teamB : r.teamA;
+          const star = winnerIsA ? r.topScorerA : r.topScorerB;
+          if (!star) return { fan: true, text: `${winnerTeam.name} beat ${loserTeam.name} this gameweek without a single standout — just a solid team performance top to bottom` };
+          return { fan: true, text: `${star.name} single-handedly dragged ${winnerTeam.name} past ${loserTeam.name} with ${star.points} points. everyone else on that roster is just along for the ride at this point` };
+        });
+      }
+    }
+
+    // League-wide "player of the gameweek" callout across every finished match this GW.
+    const allStars = matchResults.flatMap((r) => [
+      r.topScorerA ? { ...r.topScorerA, teamName: r.teamA.name } : null,
+      r.topScorerB ? { ...r.topScorerB, teamName: r.teamB.name } : null,
+    ]).filter(Boolean);
+    if (allStars.length) {
+      const gwTopScorer = [...allStars].sort((a, b) => b.points - a.points)[0];
+      templates.push(() => ({ fan: false, text: `${gwTopScorer.name} was the standout performer of Gameweek ${latestGw}, putting up ${gwTopScorer.points} points for ${gwTopScorer.teamName}. Everyone else was playing for second.` }));
+      templates.push(() => ({ fan: true, text: `${gwTopScorer.teamName} owning ${gwTopScorer.name} this gameweek should honestly be illegal. ${gwTopScorer.points} points and the rest of the league just had to watch` }));
     }
   }
 
   // Dedup by exact text within this batch — without it, a small pool of applicable
   // templates (e.g. pre-season, when every team's numbers look identical) can pick the
-  // same generated line twice and the feed reads as repeating itself immediately.
-  const count = Math.min(50, templates.length * 3);
+  // same generated line twice and the feed reads as repeating itself immediately. The pool
+  // is deliberately generous (up to 150) — rivalry/banter templates redraw a random team
+  // pair + line on every pick, so the real space of unique strings they can produce is in
+  // the hundreds, and a big baked-in pool is what lets the homepage's Refresh button serve
+  // many clicks in a row without repeating a post (see renderRumours() client-side).
+  const count = Math.min(150, templates.length * 6);
   const rumours = [];
   const seenTexts = new Set();
   let attempts = 0;
-  while (rumours.length < count && attempts < count * 6) {
+  while (rumours.length < count && attempts < count * 10) {
     attempts++;
     const entry = pick(templates)();
     if (seenTexts.has(entry.text)) continue;
