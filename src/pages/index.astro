@@ -19,6 +19,10 @@ const tickerText = tickerItems.join(" &nbsp; / &nbsp; ");
 
 const unpickedCount = players.filter((p: any) => p.draftedBy === null).length;
 
+function pick(arr: any[]) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
 // ---- Match Day Recap: most recently completed gameweek, from real results ----
 const playedGws = Object.keys(results).map((k: string) => Number(k.split("-")[0]));
 const latestGw = playedGws.length ? Math.max(...playedGws) : null;
@@ -29,18 +33,63 @@ const latestRecaps = (latestGwFixture?.matches || [])
     if (!res) return null;
     const winner = res.scoreA > res.scoreB ? a : res.scoreB > res.scoreA ? b : null;
     const margin = Math.abs(res.scoreA - res.scoreB);
-    return { a, b, scoreA: res.scoreA, scoreB: res.scoreB, winner, margin };
+    return {
+      a, b, scoreA: res.scoreA, scoreB: res.scoreB, winner, margin,
+      topScorerA: res.topScorerA || null,
+      topScorerB: res.topScorerB || null,
+    };
   })
   .filter((r: any) => r !== null);
 
-function recapFlavor(r: any) {
-  if (r.winner === null) return "Honours even — both sides walk away with a point.";
+// A snarky, multi-sentence recap paragraph rather than a single flat line — leans on the
+// real per-player top scorer for each side (captured at finalize time in the sync script)
+// wherever it's available, so the banter is grounded in what actually happened, not just
+// the final score. Randomised per site build (like the Social Media feed) so the copy
+// varies gameweek to gameweek even for similar-shaped results.
+function starLine(top: any, teamLabel: string) {
+  return top ? ` ${top.name} led the way for ${teamLabel} with ${top.points} points.` : "";
+}
+
+function recapParagraph(r: any) {
+  const teamAName = teamName(teams, r.a);
+  const teamBName = teamName(teams, r.b);
+
+  if (r.winner === null) {
+    const starA = r.topScorerA ? ` ${r.topScorerA.name} (${r.topScorerA.points} pts) did the heavy lifting for ${teamAName}` : "";
+    const starB = r.topScorerB ? `${starA ? " while" : ""} ${r.topScorerB.name} (${r.topScorerB.points} pts) matched them stride for stride for ${teamBName}` : "";
+    return `Honours even between ${teamAName} and ${teamBName} — ${r.scoreA} apiece, and nobody in this league is happy about it.${starA}${starB}. A draw settles nothing and everyone knows it.`;
+  }
+
   const winnerName = teamName(teams, r.winner);
   const loserName = teamName(teams, r.winner === r.a ? r.b : r.a);
-  if (r.margin >= 40) return `${winnerName} put on an absolute clinic against ${loserName}. Not much to say here.`;
-  if (r.margin >= 20) return `${winnerName} take a comfortable win over ${loserName}.`;
-  if (r.margin <= 5) return `${winnerName} edge out ${loserName} in a nail-biter. Margins don't get much finer.`;
-  return `${winnerName} get the better of ${loserName} in a solid week.`;
+  const topWinner = r.winner === r.a ? r.topScorerA : r.topScorerB;
+  const topLoser = r.winner === r.a ? r.topScorerB : r.topScorerA;
+  const scoreHigh = Math.max(r.scoreA, r.scoreB);
+  const scoreLow = Math.min(r.scoreA, r.scoreB);
+
+  let templates: string[];
+  if (r.margin >= 40) {
+    templates = [
+      `${winnerName} didn't just beat ${loserName}, they took the scenic route through their entire lineup and back — ${scoreHigh}-${scoreLow}.${starLine(topWinner, winnerName)} ${loserName} FC fans have already muted the group chat.`,
+      `Brutal. ${winnerName} put ${r.margin} points between themselves and ${loserName}, which in this league counts as a public execution.${starLine(topWinner, winnerName)}${topLoser ? ` Even ${topLoser.name}'s ${topLoser.points} points for ${loserName} barely registered.` : ""} ${loserName}, we'll see you at the next waiver deadline — you clearly need it.`,
+    ];
+  } else if (r.margin >= 20) {
+    templates = [
+      `${winnerName} controlled this one from start to finish, seeing off ${loserName} ${scoreHigh}-${scoreLow} with room to spare.${starLine(topWinner, winnerName)} ${loserName} FC ultras are already drafting their excuses for the group chat.`,
+      `A comfortable week for ${winnerName}, who beat ${loserName} ${scoreHigh}-${scoreLow} without ever looking troubled.${starLine(topWinner, winnerName)} Nothing to see here — except ${loserName} quietly reconsidering their whole squad.`,
+    ];
+  } else if (r.margin <= 5) {
+    templates = [
+      `${winnerName} survive a genuine heart-attack of a gameweek, edging out ${loserName} ${scoreHigh}-${scoreLow} by the width of a crossbar.${starLine(topWinner, winnerName)} ${loserName} will be replaying every single substitution decision in their head for a week.`,
+      `Margins don't get much finer than this — ${winnerName} nick it off ${loserName} ${scoreHigh}-${scoreLow}, just ${r.margin} agonising point${r.margin === 1 ? "" : "s"} between them.${starLine(topWinner, winnerName)} Somebody in ${loserName}'s camp is not sleeping tonight.`,
+    ];
+  } else {
+    templates = [
+      `${winnerName} get the better of ${loserName} ${scoreHigh}-${scoreLow} in a solid, professional week's work.${starLine(topWinner, winnerName)}${topLoser ? ` ${topLoser.name} tried to drag ${loserName} back into it with ${topLoser.points} points, but it wasn't enough.` : ""} ${loserName} FC fans, there's always next Gameweek.`,
+      `Not a classic, but ${winnerName} do what they needed to against ${loserName}, ${scoreHigh}-${scoreLow}.${starLine(topWinner, winnerName)} ${loserName} will point to the bigger picture. ${winnerName} will point to the table.`,
+    ];
+  }
+  return pick(templates);
 }
 
 // ---- Injury Wire source data (players with real FPL news, for owned-player cross-reference client-side) ----
@@ -48,9 +97,21 @@ const playersWithNews = players
   .filter((p: any) => p.news && p.news.trim().length > 0)
   .map((p: any) => ({ id: p.id, name: p.name, pos: p.pos, club: p.club, news: p.news }));
 
-// Until the first Gameweek result exists, Squad Moves/Injury Wire/Match Recap are thin —
-// lead with the Social Media feed instead. Reverts automatically once real results land.
-const preSeasonMode = Object.keys(results).length === 0;
+// ---- Homepage section order ----
+// Default (pre-season, and any day outside the recap window below): Social Media leads,
+// since Squad Moves/Injury Wire/Match Recap are thin or stale most of the time.
+// For a day after a Gameweek finishes (state.meta.gwFinalizedAt, stamped by the sync
+// script the moment a GW's results first go fully final): Match Recap leads instead,
+// followed by Social Media, with Squad Moves and Injury Wire pushed below — that's the
+// one window where the recap is genuinely the most interesting thing on the page.
+const gwFinalizedAt = (meta?.gwFinalizedAt || {}) as Record<string, string>;
+const latestGwFinalizedAt = latestGw !== null ? gwFinalizedAt[String(latestGw)] : null;
+const recapWindowActive = !!latestGwFinalizedAt
+  && (Date.now() - new Date(latestGwFinalizedAt).getTime()) < 24 * 60 * 60 * 1000;
+
+const ORDER = recapWindowActive
+  ? { matchRecap: 1, social: 2, squadMoves: 3, injuryWire: 4 }
+  : { social: 1, squadMoves: 2, injuryWire: 3, matchRecap: 4 };
 
 const FAQ = [
   { cat: "The Basics", items: [
@@ -705,7 +766,7 @@ const FAQ = [
     <div class="section-title">What's Happening</div>
 
     <div class="news-wire-stack">
-      <div class="news-block" style={`order:${preSeasonMode ? 2 : 1}`}>
+      <div class="news-block" style={`order:${ORDER.squadMoves}`}>
         <div class="news-block-head">
           <span class="news-block-title">&#128260; Squad Moves</span>
           <span class="news-block-tag live-tag">Live</span>
@@ -713,7 +774,7 @@ const FAQ = [
         <div id="squadMovesFeed"><p class="empty-note">No moves logged yet — they'll appear here the moment the admin makes one.</p></div>
       </div>
 
-      <div class="news-block" style={`order:${preSeasonMode ? 3 : 2}`}>
+      <div class="news-block" style={`order:${ORDER.injuryWire}`}>
         <div class="news-block-head">
           <span class="news-block-title">&#129719; Injury Wire</span>
           <span class="news-block-tag">Real FPL data</span>
@@ -721,7 +782,7 @@ const FAQ = [
         <div id="injuryWireFeed"><p class="empty-note">No injury concerns for owned players right now.</p></div>
       </div>
 
-      <div class="news-block" style={`order:${preSeasonMode ? 4 : 3}`}>
+      <div class="news-block" style={`order:${ORDER.matchRecap}`}>
         <div class="news-block-head">
           <span class="news-block-title">&#128202; Match Day Recap</span>
           <span class="news-block-tag">{latestGw ? `Gameweek ${latestGw}` : "Season not underway"}</span>
@@ -735,7 +796,7 @@ const FAQ = [
                   <span class="recap-vs">&ndash;</span>
                   <span class={r.winner === r.b ? "recap-winner" : ""}>{r.scoreB} {teamName(teams, r.b)}</span>
                 </div>
-                <p class="recap-flavor">{recapFlavor(r)}</p>
+                <p class="recap-flavor">{recapParagraph(r)}</p>
               </div>
             ))}
           </div>
@@ -744,7 +805,7 @@ const FAQ = [
         )}
       </div>
 
-      <div class="rumours-section" style={`order:${preSeasonMode ? 1 : 4}`}>
+      <div class="rumours-section" style={`order:${ORDER.social}`}>
         <div class="rumours-head">
           <div>
             <span class="news-block-title">&#128241; Social Media</span>
@@ -970,6 +1031,11 @@ const FAQ = [
     return copy;
   }
 
+  // Dispensed without replacement from a shuffled copy of the full pool (baked at build
+  // time, up to 150 posts) so hitting Refresh repeatedly always surfaces posts you haven't
+  // seen yet this visit, instead of re-shuffling the same handful back at you. Only once
+  // the whole pool has been shown does it reshuffle and start a fresh lap.
+  let rumoursQueue = [];
   function renderRumours() {
     const feed = document.getElementById('rumoursFeed');
     if (!feed) return;
@@ -977,7 +1043,8 @@ const FAQ = [
       feed.innerHTML = '<p class="empty-note">Nothing doing right now — check back after the next sync.</p>';
       return;
     }
-    const picks = shuffled(rumours).slice(0, 9);
+    if (rumoursQueue.length < 9) rumoursQueue = shuffled(rumours);
+    const picks = rumoursQueue.splice(0, 9);
     feed.innerHTML = picks.map((r) => `
       <div class="tweet-card">
         <div class="tweet-avatar" style="background:${r.color}">${initials(r.name)}</div>
