@@ -3,6 +3,7 @@ import auctionLeagueData from "../data/auctionLeague.json";
 
 const state = auctionLeagueData as any;
 const { teams, players } = state;
+const currentGameweek = state.meta?.currentGameweek ?? 1;
 
 // Slim player list for the searchable dropdown — id/name/pos/club/pts only.
 const playerOptions = players.map((p: any) => ({
@@ -249,6 +250,19 @@ const playerOptions = players.map((p: any) => ({
       </div>
       <button id="saveBudgetBtn">Save Budget</button>
       <div class="msg" id="budgetMsg"></div>
+    </div>
+
+    <div class="card">
+      <h2>Force-Finalize Gameweek</h2>
+      <p class="sub" style="margin-bottom:14px;">FPL's own "finished" flag can lag the real final whistle by hours. Force a gameweek final here to make Standings, Match Recap and Social Media update immediately, using live scores as of now. The site also auto-finalizes any gameweek 2 hours after its last kickoff on its own — use this to skip that wait.</p>
+      <label for="forceFinalizeGwInput">Gameweek</label>
+      <input type="number" id="forceFinalizeGwInput" min="1" step="1" value={currentGameweek} />
+      <div class="row">
+        <button id="forceFinalizeBtn">Force-Finalize</button>
+        <button class="secondary" id="unforceFinalizeBtn">Un-Force</button>
+      </div>
+      <div class="msg" id="forceFinalizeMsg"></div>
+      <p class="sub" id="forceFinalizeStatus" style="margin-top:10px;margin-bottom:0;"></p>
     </div>
 
     <div class="card">
@@ -694,6 +708,59 @@ const playerOptions = players.map((p: any) => ({
       budgetMsg.className = 'msg error';
       budgetMsg.textContent = 'Failed: ' + err.message;
     }
+  });
+
+  // ---- Force-Finalize Gameweek override ----
+  // Writes the list of manually-forced GWs to a single Firestore doc that
+  // scripts/update-fpl-data.mjs reads (public read) on every sync. Needs a
+  // Firestore rule allowing public read + authenticated write on this doc,
+  // matching the pattern already used for teams/draftLog.
+  const forceFinalizeGwInput = document.getElementById('forceFinalizeGwInput');
+  const forceFinalizeMsg = document.getElementById('forceFinalizeMsg');
+  const forceFinalizeStatus = document.getElementById('forceFinalizeStatus');
+  const OVERRIDES_REF = doc(db, 'overrides', 'manualFinalizedGws');
+
+  async function refreshForceFinalizeStatus() {
+    const gw = Number(forceFinalizeGwInput.value);
+    try {
+      const snap = await getDoc(OVERRIDES_REF);
+      const gws = snap.exists() ? (snap.data().gws || []) : [];
+      forceFinalizeStatus.textContent = gws.includes(gw)
+        ? `GW${gw} is currently force-finalized.`
+        : `GW${gw} is not force-finalized.`;
+    } catch (err) {
+      forceFinalizeStatus.textContent = '';
+    }
+  }
+  forceFinalizeGwInput.addEventListener('change', refreshForceFinalizeStatus);
+  refreshForceFinalizeStatus();
+
+  async function setForceFinalized(gw, forced) {
+    forceFinalizeMsg.textContent = '';
+    try {
+      const snap = await getDoc(OVERRIDES_REF);
+      const gws = new Set(snap.exists() ? (snap.data().gws || []) : []);
+      if (forced) gws.add(gw); else gws.delete(gw);
+      await setDoc(OVERRIDES_REF, { gws: [...gws] });
+      forceFinalizeMsg.className = 'msg ok';
+      forceFinalizeMsg.textContent = forced
+        ? `GW${gw} force-finalized. Reflects on the site within a few minutes, next data sync.`
+        : `GW${gw} un-forced.`;
+      refreshForceFinalizeStatus();
+    } catch (err) {
+      forceFinalizeMsg.className = 'msg error';
+      forceFinalizeMsg.textContent = 'Failed: ' + err.message;
+    }
+  }
+  document.getElementById('forceFinalizeBtn').addEventListener('click', () => {
+    const gw = Number(forceFinalizeGwInput.value);
+    if (!gw || gw < 1) { forceFinalizeMsg.className = 'msg error'; forceFinalizeMsg.textContent = 'Enter a valid gameweek number.'; return; }
+    setForceFinalized(gw, true);
+  });
+  document.getElementById('unforceFinalizeBtn').addEventListener('click', () => {
+    const gw = Number(forceFinalizeGwInput.value);
+    if (!gw || gw < 1) { forceFinalizeMsg.className = 'msg error'; forceFinalizeMsg.textContent = 'Enter a valid gameweek number.'; return; }
+    setForceFinalized(gw, false);
   });
 
   // ---- Reset draft ----
