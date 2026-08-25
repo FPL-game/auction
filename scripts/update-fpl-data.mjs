@@ -73,6 +73,39 @@ async function fetchRecentDraftLog() {
     .slice(-15);
 }
 
+// Gameweeks the admin has manually force-finalized via the admin panel — for when
+// FPL's own gameweek is clearly over in real life but its `finished` flag hasn't
+// caught up yet. Single-document Firestore GET returns the doc directly (not wrapped
+// in `documents`, unlike the collection-list fetches above), and a 404 (no admin has
+// ever forced anything) is the expected default, not an error.
+async function fetchManualFinalizedGws() {
+  try {
+    const res = await fetch(`${FIRESTORE_BASE}/overrides/manualFinalizedGws`);
+    if (!res.ok) return [];
+    const body = await res.json();
+    const decoded = decodeFirestoreMap(body);
+    return Array.isArray(decoded.gws) ? decoded.gws.map(Number) : [];
+  } catch {
+    return [];
+  }
+}
+
+// Latest real-world kickoff time across a gameweek's fixtures, in ms — for the
+// 2-hour auto-finalize fallback below (a single match rarely runs past kickoff+2h
+// once stoppage time is included).
+async function fetchLatestKickoff(gwId) {
+  try {
+    const fixtures = await fetchJson(`${API_BASE}/fixtures/?event=${gwId}`);
+    const kickoffs = fixtures
+      .map((f) => f.kickoff_time)
+      .filter(Boolean)
+      .map((t) => new Date(t).getTime());
+    return kickoffs.length ? Math.max(...kickoffs) : null;
+  } catch {
+    return null;
+  }
+}
+
 function gwScoreForRoster(roster, liveById) {
   let score = 0;
   let matched = 0;
@@ -144,6 +177,28 @@ async function main() {
   const next = events.find((e) => e.is_next) || null;
   const liveEvent = current || null;
 
+  // ---- Manual + time-based override for gameweeks FPL hasn't flagged finished yet ----
+  // FPL's own event-level `finished` flag can lag the real final whistle by a while —
+  // sometimes hours. Two independent escape hatches, either is enough to treat the
+  // current gameweek as done for our purposes even though FPL itself hasn't said so:
+  //  1. Admin force-finalizes it from the admin panel (Firestore overrides doc).
+  //  2. Automatically, once 2+ hours have passed since its last fixture kicked off.
+  // Neither ever overrides FPL once it does say finished — these only fill the gap
+  // before that, and self-correct (see the results-finalization loop below) once
+  // FPL's own data catches up.
+  const manualFinalizedGws = new Set(await fetchManualFinalizedGws());
+  let liveEventEffectivelyFinished = liveEvent ? liveEvent.finished : false;
+  if (liveEvent && !liveEventEffectivelyFinished) {
+    if (manualFinalizedGws.has(liveEvent.id)) {
+      liveEventEffectivelyFinished = true;
+    } else {
+      const latestKickoff = await fetchLatestKickoff(liveEvent.id);
+      if (latestKickoff != null && Date.now() - latestKickoff >= 2 * 60 * 60 * 1000) {
+        liveEventEffectivelyFinished = true;
+      }
+    }
+  }
+
   state.meta.lastFplSync = new Date().toISOString();
   state.meta.currentGameweek = liveEvent?.id ?? next?.id ?? mostRecentFinished?.id ?? null;
 
@@ -166,7 +221,7 @@ async function main() {
   // client so the Live Scores tab can render from these real live numbers instead
   // of the season-long eventPoints snapshot it used to rely on.
   let livePerformers = [];
-  if (liveEvent && !liveEvent.finished) {
+  if (liveEvent && !liveEventEffectivelyFinished) {
     const live = await fetchJson(`${API_BASE}/event/${liveEvent.id}/live/`);
     const liveById = new Map(live.elements.map((e) => [e.id, e]));
     const gwFixture = state.fixtures.find((f) => f.gw === liveEvent.id);
@@ -212,7 +267,21 @@ async function main() {
   // Also runs before generateRumours() below, not after, so a just-finalized gameweek's
   // result is reflected in the Social Media feed the same run it finishes, not one
   // sync cycle later.
-  const finishedEvents = events.filter((e) => e.finished);
+  //
+  // FPL's own `finished` flag is the normal trigger, but it can lag the real world (or,
+  // rarely, never flip promptly). Two overrides cover that: an admin can force a specific
+  // GW final via the `overrides/manualFinalizedGws` Firestore doc, and any GW is treated
+  // as effectively finished once it's 2+ hours past its last real kickoff regardless of
+  // what FPL reports (liveEventEffectivelyFinished, computed above). Either override marks
+  // the result `final` immediately instead of waiting on `data_checked` — once FPL's own
+  // `finished`/`data_checked` catch up, the normal flow below would keep recomputing until
+  // they do, but since we've already frozen it as final there's nothing left to correct.
+  const finishedEvents = events.filter(
+    (e) =>
+      e.finished ||
+      manualFinalizedGws.has(e.id) ||
+      (liveEvent && e.id === liveEvent.id && liveEventEffectivelyFinished),
+  );
   for (const ev of finishedEvents) {
     const gwFixture = state.fixtures.find((f) => f.gw === ev.id);
     if (!gwFixture) continue;
@@ -221,6 +290,9 @@ async function main() {
     );
     if (alreadyFinal) continue;
 
+    const forced =
+      manualFinalizedGws.has(ev.id) ||
+      (liveEvent && ev.id === liveEvent.id && liveEventEffectivelyFinished && !ev.finished);
     const live = await fetchJson(`${API_BASE}/event/${ev.id}/live/`);
     const liveById = new Map(live.elements.map((e) => [e.id, e]));
     for (const [a, b] of gwFixture.matches) {
@@ -228,7 +300,11 @@ async function main() {
       const teamB = state.teams.find((t) => t.id === b);
       const sa = gwScoreForRoster(teamA.roster, liveById);
       const sb = gwScoreForRoster(teamB.roster, liveById);
-      state.results[`${ev.id}-${a}-${b}`] = { scoreA: sa.score, scoreB: sb.score, final: !!ev.data_checked };
+      state.results[`${ev.id}-${a}-${b}`] = {
+        scoreA: sa.score,
+        scoreB: sb.score,
+        final: !!ev.data_checked || forced,
+      };
     }
   }
 
