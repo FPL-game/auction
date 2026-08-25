@@ -202,21 +202,24 @@ async function main() {
   }
 
   // ---- Finalize results for any completed gameweek not yet recorded ----
-  // Gate on data_checked, not just finished — FPL can still adjust bonus points for a
-  // while after full-time, before data_checked goes true. Finalizing on `finished` alone
-  // risks locking in a score before bonus points are confirmed, and nothing ever
-  // re-checks it afterward (the alreadyDone guard below skips anything already recorded).
+  // Show the result as soon as FPL marks the gameweek `finished`, but keep recomputing
+  // it on every sync until FPL's separate `data_checked` flag also confirms bonus points
+  // — that can lag `finished` by many hours. Gating on data_checked alone (an earlier
+  // version of this) left results stuck showing nothing for that whole window; locking
+  // the score in on `finished` alone and never revisiting it risked freezing it a point
+  // or two off if bonus points shifted afterward. This does both: available immediately,
+  // self-corrects until FPL itself calls it final.
   // Also runs before generateRumours() below, not after, so a just-finalized gameweek's
   // result is reflected in the Social Media feed the same run it finishes, not one
   // sync cycle later.
-  const finishedEvents = events.filter((e) => e.finished && e.data_checked);
+  const finishedEvents = events.filter((e) => e.finished);
   for (const ev of finishedEvents) {
     const gwFixture = state.fixtures.find((f) => f.gw === ev.id);
     if (!gwFixture) continue;
-    const alreadyDone = gwFixture.matches.every(
-      ([a, b]) => state.results[`${ev.id}-${a}-${b}`],
+    const alreadyFinal = gwFixture.matches.every(
+      ([a, b]) => state.results[`${ev.id}-${a}-${b}`]?.final,
     );
-    if (alreadyDone) continue;
+    if (alreadyFinal) continue;
 
     const live = await fetchJson(`${API_BASE}/event/${ev.id}/live/`);
     const liveById = new Map(live.elements.map((e) => [e.id, e]));
@@ -225,7 +228,7 @@ async function main() {
       const teamB = state.teams.find((t) => t.id === b);
       const sa = gwScoreForRoster(teamA.roster, liveById);
       const sb = gwScoreForRoster(teamB.roster, liveById);
-      state.results[`${ev.id}-${a}-${b}`] = { scoreA: sa.score, scoreB: sb.score };
+      state.results[`${ev.id}-${a}-${b}`] = { scoreA: sa.score, scoreB: sb.score, final: !!ev.data_checked };
     }
   }
 
