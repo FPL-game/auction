@@ -201,10 +201,15 @@ async function main() {
     state.liveScores = null;
   }
 
-  state.rumours = generateRumours(state, recentMoves, state.liveScores, livePerformers);
-
   // ---- Finalize results for any completed gameweek not yet recorded ----
-  const finishedEvents = events.filter((e) => e.finished);
+  // Gate on data_checked, not just finished — FPL can still adjust bonus points for a
+  // while after full-time, before data_checked goes true. Finalizing on `finished` alone
+  // risks locking in a score before bonus points are confirmed, and nothing ever
+  // re-checks it afterward (the alreadyDone guard below skips anything already recorded).
+  // Also runs before generateRumours() below, not after, so a just-finalized gameweek's
+  // result is reflected in the Social Media feed the same run it finishes, not one
+  // sync cycle later.
+  const finishedEvents = events.filter((e) => e.finished && e.data_checked);
   for (const ev of finishedEvents) {
     const gwFixture = state.fixtures.find((f) => f.gw === ev.id);
     if (!gwFixture) continue;
@@ -223,6 +228,8 @@ async function main() {
       state.results[`${ev.id}-${a}-${b}`] = { scoreA: sa.score, scoreB: sb.score };
     }
   }
+
+  state.rumours = generateRumours(state, recentMoves, state.liveScores, livePerformers);
 
   state.meta.lastUpdated = new Date().toISOString();
   await writeFile(DATA_PATH, JSON.stringify(state, null, 2) + "\n");
