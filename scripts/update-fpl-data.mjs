@@ -110,15 +110,17 @@ function gwScoreForRoster(roster, liveById) {
   let score = 0;
   let matched = 0;
   let top = null;
+  const breakdown = [];
   for (const p of roster) {
+    const pts = p.playerId != null && liveById.has(p.playerId) ? liveById.get(p.playerId).stats.total_points : 0;
     if (p.playerId != null && liveById.has(p.playerId)) {
-      const pts = liveById.get(p.playerId).stats.total_points;
       score += pts;
       matched++;
       if (!top || pts > top.points) top = { name: p.name, points: pts };
     }
+    breakdown.push({ playerId: p.playerId, name: p.name, points: pts });
   }
-  return { score, matched, total: roster.length, top };
+  return { score, matched, total: roster.length, top, breakdown };
 }
 
 async function main() {
@@ -261,7 +263,7 @@ async function main() {
       matches: (gwFixture?.matches || []).map(([a, b]) => {
         const sa = gwScoreForRoster(rosterForGw(liveEvent.id, a), liveById);
         const sb = gwScoreForRoster(rosterForGw(liveEvent.id, b), liveById);
-        return { a, b, scoreA: sa.score, scoreB: sb.score };
+        return { a, b, scoreA: sa.score, scoreB: sb.score, breakdownA: sa.breakdown, breakdownB: sb.breakdown };
       }),
     };
 
@@ -339,6 +341,8 @@ async function main() {
         final: !!ev.data_checked || forced,
         topScorerA: sa.top,
         topScorerB: sb.top,
+        breakdownA: sa.breakdown,
+        breakdownB: sb.breakdown,
       };
     }
   }
