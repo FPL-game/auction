@@ -202,6 +202,33 @@ async function main() {
     }
   }
 
+  // ---- Freeze each gameweek's rosters the moment it goes live ----
+  // Scores/standings for a gameweek must never change after the fact just because someone
+  // later gets removed, added or traded — real FPL matches are scored against whoever
+  // was actually rostered for that gameweek, not whoever happens to be on the roster now.
+  // Without this, gwScoreForRoster() below would keep reading state.teams[i].roster (the
+  // live, currently-mutating roster from Firestore), so a transfer made any time after a
+  // gameweek would silently recompute — and change — that gameweek's already-reported
+  // score and the standings built from it. Snapshotting once, right as a GW goes live (the
+  // earliest point every sync can see it), and using that snapshot for every later score
+  // computation for that GW — live or final — closes the gap. Once a result is `final`,
+  // nothing recomputes it at all regardless (see the finalize loop below), so this mainly
+  // protects the in-progress/provisional-final window.
+  state.gwRosterSnapshots = state.gwRosterSnapshots || {};
+  if (liveEvent && !state.gwRosterSnapshots[liveEvent.id]) {
+    state.gwRosterSnapshots[liveEvent.id] = Object.fromEntries(
+      state.teams.map((t) => [t.id, JSON.parse(JSON.stringify(t.roster))]),
+    );
+  }
+  function rosterForGw(gwId, teamId) {
+    const snap = state.gwRosterSnapshots[gwId];
+    if (snap && snap[teamId]) return snap[teamId];
+    // No snapshot (a gameweek that finished before this protection existed) — fall back
+    // to the current roster as a one-time best-effort. Once final, it's never touched
+    // again, so this can't keep drifting.
+    return state.teams.find((t) => t.id === teamId)?.roster || [];
+  }
+
   state.meta.lastFplSync = new Date().toISOString();
   state.meta.currentGameweek = liveEvent?.id ?? next?.id ?? mostRecentFinished?.id ?? null;
 
@@ -232,15 +259,15 @@ async function main() {
       gw: liveEvent.id,
       finished: false,
       matches: (gwFixture?.matches || []).map(([a, b]) => {
-        const teamA = state.teams.find((t) => t.id === a);
-        const teamB = state.teams.find((t) => t.id === b);
-        const sa = gwScoreForRoster(teamA.roster, liveById);
-        const sb = gwScoreForRoster(teamB.roster, liveById);
+        const sa = gwScoreForRoster(rosterForGw(liveEvent.id, a), liveById);
+        const sb = gwScoreForRoster(rosterForGw(liveEvent.id, b), liveById);
         return { a, b, scoreA: sa.score, scoreB: sb.score };
       }),
     };
 
-    const rosterEntries = state.teams.flatMap((t) => t.roster.map((p) => ({ ...p, teamName: t.name })));
+    const rosterEntries = state.teams.flatMap((t) =>
+      rosterForGw(liveEvent.id, t.id).map((p) => ({ ...p, teamName: t.name })),
+    );
     state.livePlayerPoints = Object.fromEntries(
       rosterEntries
         .filter((p) => p.playerId != null)
@@ -288,13 +315,14 @@ async function main() {
   for (const ev of finishedEvents) {
     const gwFixture = state.fixtures.find((f) => f.gw === ev.id);
     if (!gwFixture) continue;
-    // Also recompute once for results finalized before topScorerA/B existed on this
-    // object shape — otherwise those matches would stay final-but-star-less forever,
-    // since the whole point of `final` is to stop recomputing.
-    const alreadyFinal = gwFixture.matches.every(([a, b]) => {
-      const res = state.results[`${ev.id}-${a}-${b}`];
-      return res?.final && Object.prototype.hasOwnProperty.call(res, "topScorerA");
-    });
+    // Absolute rule: once a result is `final`, it is never recomputed again, for any
+    // reason — not to backfill a new field, not because a transfer changed a roster.
+    // That's what makes `final` actually mean final. (An older result missing
+    // topScorerA/B just stays without that detail forever — recapParagraph() already
+    // renders fine without it.)
+    const alreadyFinal = gwFixture.matches.every(
+      ([a, b]) => state.results[`${ev.id}-${a}-${b}`]?.final,
+    );
     if (alreadyFinal) continue;
 
     const forced =
@@ -303,10 +331,8 @@ async function main() {
     const live = await fetchJson(`${API_BASE}/event/${ev.id}/live/`);
     const liveById = new Map(live.elements.map((e) => [e.id, e]));
     for (const [a, b] of gwFixture.matches) {
-      const teamA = state.teams.find((t) => t.id === a);
-      const teamB = state.teams.find((t) => t.id === b);
-      const sa = gwScoreForRoster(teamA.roster, liveById);
-      const sb = gwScoreForRoster(teamB.roster, liveById);
+      const sa = gwScoreForRoster(rosterForGw(ev.id, a), liveById);
+      const sb = gwScoreForRoster(rosterForGw(ev.id, b), liveById);
       state.results[`${ev.id}-${a}-${b}`] = {
         scoreA: sa.score,
         scoreB: sb.score,
