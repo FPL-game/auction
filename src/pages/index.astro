@@ -23,6 +23,26 @@ function pick(arr: any[]) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
+// ---- Live Scores tab: once a gameweek has a result, that result is authoritative ----
+// state.liveScores only covers a gameweek while it's actively in progress — once it's
+// done (even just provisionally, before FPL's data_checked confirms bonus points), this
+// script's own results-finalize loop is the only source of truth. Without this, the tab
+// would fall back to summing each rostered player's ever-changing live/season points
+// (scripts/update-fpl-data.mjs's gwScoreForRoster is snapshot-protected, but the client's
+// own fallback wasn't) — which drifts for two independent reasons even with zero roster
+// changes: FPL keeps correcting provisional bonus points for days after a match, and any
+// transfer after the gameweek would swap in a different roster entirely. Every match for
+// the currently-displayed gameweek that already has a stored result uses that result's
+// score and per-player breakdown, frozen, from here on.
+const currentGwFixture = fixtures.find((f: any) => f.gw === meta.currentGameweek) || fixtures[0];
+const finalMatchesForCurrentGw = (currentGwFixture?.matches || [])
+  .map(([a, b]: [number, number]) => {
+    const res = results[`${meta.currentGameweek}-${a}-${b}`];
+    if (!res) return null;
+    return { a, b, scoreA: res.scoreA, scoreB: res.scoreB, breakdownA: res.breakdownA || null, breakdownB: res.breakdownB || null };
+  })
+  .filter((m: any) => m !== null);
+
 // ---- Match Day Recap: most recently completed gameweek, from real results ----
 const playedGws = Object.keys(results).map((k: string) => Number(k.split("-")[0]));
 const latestGw = playedGws.length ? Math.max(...playedGws) : null;
@@ -887,12 +907,21 @@ const FAQ = [
   <section class="page" id="page-live">
     <div class="section-eyebrow">This Gameweek</div>
     <div class="section-title">Live Scores {meta.currentGameweek ? `— GW${meta.currentGameweek}` : ""}</div>
-    <div class="live-banner" id="liveScoresBanner"><span class="live-dot"></span> Real FPL live gameweek scores, checked for updates every minute. Click a team to see the player breakdown.</div>
+    <div class="live-banner" id="liveScoresBanner">
+      {finalMatchesForCurrentGw.length ? (
+        <>&#10003; Gameweek {meta.currentGameweek} final. This result is locked in and won't change.</>
+      ) : (
+        <><span class="live-dot"></span> Real FPL live gameweek scores, checked for updates every minute. Click a team to see the player breakdown.</>
+      )}
+    </div>
     <div>
-      {(fixtures.find((f: any) => f.gw === meta.currentGameweek) || fixtures[0]).matches.map((m: [number, number]) => {
+      {(currentGwFixture?.matches || []).map((m: [number, number]) => {
+        const finalMatch = finalMatchesForCurrentGw.find((x: any) => x.a === m[0] && x.b === m[1]);
         const lsMatch = liveScores?.matches?.find((x: any) => x.a === m[0] && x.b === m[1]);
-        const initialA = lsMatch?.scoreA ?? 0;
-        const initialB = lsMatch?.scoreB ?? 0;
+        const initialA = finalMatch?.scoreA ?? lsMatch?.scoreA ?? 0;
+        const initialB = finalMatch?.scoreB ?? lsMatch?.scoreB ?? 0;
+        const breakdownA = finalMatch?.breakdownA;
+        const breakdownB = finalMatch?.breakdownB;
         return (
         <div class="score-card-wrap">
           <div class="score-card">
@@ -903,11 +932,19 @@ const FAQ = [
           <div class="score-breakdown">
             <details>
               <summary>Points overview <span class="chevron">+</span></summary>
-              <ul class="breakdown-list" id={`breakdown-${m[0]}`}><li class="empty-note">Squad not drafted yet.</li></ul>
+              <ul class="breakdown-list" id={`breakdown-${m[0]}`}>
+                {breakdownA
+                  ? breakdownA.map((p: any) => <li><span>{p.name}</span><span class="pts">{p.points}</span></li>)
+                  : <li class="empty-note">Squad not drafted yet.</li>}
+              </ul>
             </details>
             <details>
               <summary>Points overview <span class="chevron">+</span></summary>
-              <ul class="breakdown-list" id={`breakdown-${m[1]}`}><li class="empty-note">Squad not drafted yet.</li></ul>
+              <ul class="breakdown-list" id={`breakdown-${m[1]}`}>
+                {breakdownB
+                  ? breakdownB.map((p: any) => <li><span>{p.name}</span><span class="pts">{p.points}</span></li>)
+                  : <li class="empty-note">Squad not drafted yet.</li>}
+              </ul>
             </details>
           </div>
         </div>
@@ -1011,7 +1048,7 @@ const FAQ = [
 <script type="application/json" id="teamsSeed" set:html={JSON.stringify(teams)}></script>
 <script type="application/json" id="playersNewsSeed" set:html={JSON.stringify(playersWithNews)}></script>
 <script type="application/json" id="playerPointsSeed" set:html={JSON.stringify(players.map((p: any) => ({ id: p.id, eventPoints: p.eventPoints ?? 0 })))}></script>
-<script type="application/json" id="liveScoresSeed" set:html={JSON.stringify({ liveScores, livePlayerPoints })}></script>
+<script type="application/json" id="liveScoresSeed" set:html={JSON.stringify({ liveScores, livePlayerPoints, finalMatches: finalMatchesForCurrentGw, currentGameweek: meta.currentGameweek })}></script>
 <script type="application/json" id="rumoursSeed" set:html={JSON.stringify(rumours)}></script>
 
 <script>
@@ -1153,6 +1190,9 @@ const FAQ = [
   let liveScoresSeed = JSON.parse(document.getElementById('liveScoresSeed').textContent);
   let liveScoresData = liveScoresSeed.liveScores;
   let livePointsMap = new Map(Object.entries(liveScoresSeed.livePlayerPoints || {}));
+  // Keyed by "a-b" — a frozen result for this match, once one exists, always wins over
+  // any live/roster-derived number (see the comment on finalMatchesForCurrentGw above).
+  let finalMatchesMap = new Map((liveScoresSeed.finalMatches || []).map((m) => [`${m.a}-${m.b}`, m]));
   const DEFAULTS = { remainingBudget: 100, waiverBudget: 20, roster: [] };
   const liveTeams = {}; // teamId -> {name, remainingBudget, waiverBudget, roster}
   let anyLive = false;
@@ -1260,9 +1300,21 @@ const FAQ = [
     });
   });
 
-  function renderLiveScoreFor(teamId) {
-    const live = liveTeams[teamId] || DEFAULTS;
+  // frozenBreakdown, when given, is this gameweek's locked-in per-player breakdown for
+  // this team's side of the match — rendered as-is and never recomputed from the live
+  // roster/points. Only falls back to the roster+pointsFor() live computation when no
+  // frozen result exists yet for this match (the gameweek is still genuinely in progress).
+  function renderLiveScoreFor(teamId, frozenBreakdown) {
     const breakdownEl = document.getElementById(`breakdown-${teamId}`);
+    if (frozenBreakdown) {
+      if (breakdownEl) {
+        breakdownEl.innerHTML = frozenBreakdown.length
+          ? frozenBreakdown.map((p) => `<li><span>${p.name}</span><span class="pts">${p.points}</span></li>`).join('')
+          : '<li class="empty-note">Squad not drafted yet.</li>';
+      }
+      return frozenBreakdown.reduce((sum, p) => sum + p.points, 0);
+    }
+    const live = liveTeams[teamId] || DEFAULTS;
     let total = 0;
     if (breakdownEl) {
       breakdownEl.innerHTML = live.roster.length
@@ -1281,6 +1333,15 @@ const FAQ = [
   function renderAllLiveScores() {
     document.querySelectorAll('[id^="live-score-"]').forEach((scoreEl) => {
       const [a, b] = scoreEl.id.replace('live-score-', '').split('-');
+      const finalMatch = finalMatchesMap.get(`${a}-${b}`);
+      if (finalMatch) {
+        // Locked in — render straight from the frozen result, never from the current
+        // (possibly since-transferred) roster or FPL's still-shifting live points.
+        renderLiveScoreFor(a, finalMatch.breakdownA);
+        renderLiveScoreFor(b, finalMatch.breakdownB);
+        scoreEl.textContent = `${finalMatch.scoreA} – ${finalMatch.scoreB}`;
+        return;
+      }
       // renderLiveScoreFor() also fills in the per-player breakdown as a side effect —
       // always call both sides even though the headline number below may come from
       // the server's own total instead, so the breakdown list stays in sync.
@@ -1307,6 +1368,13 @@ const FAQ = [
       const fresh = JSON.parse(freshSeedEl.textContent);
       liveScoresData = fresh.liveScores;
       livePointsMap = new Map(Object.entries(fresh.livePlayerPoints || {}));
+      finalMatchesMap = new Map((fresh.finalMatches || []).map((m) => [`${m.a}-${m.b}`, m]));
+      const banner = document.getElementById('liveScoresBanner');
+      if (banner) {
+        banner.innerHTML = finalMatchesMap.size
+          ? `&#10003; Gameweek ${fresh.currentGameweek} final. This result is locked in and won't change.`
+          : `<span class="live-dot"></span> Real FPL live gameweek scores, checked for updates every minute. Click a team to see the player breakdown.`;
+      }
       renderAllLiveScores();
     } catch (err) {
       // Silent — a failed background refresh just retries on the next tick.
