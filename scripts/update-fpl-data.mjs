@@ -401,6 +401,12 @@ function pick(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
+function ordinal(n) {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return `${n}${s[(v - 20) % 10] || s[v] || s[0]}`;
+}
+
 function pickTwoDistinct(arr) {
   const a = pick(arr);
   let b = pick(arr);
@@ -454,6 +460,51 @@ function generateRumours(state, recentMoves = [], liveScores = null, livePerform
       const p = pick(unpicked);
       return { fan: false, text: `A source close to the situation (me, staring at the waiver list) confirms ${p.name} is a free hit sitting right there in plain sight. Baffling nobody's pulled the trigger.` };
     });
+    templates.push(() => {
+      const p = pick(unpicked);
+      return { fan: true, text: `not a single manager in this league has picked up ${p.name} yet and honestly at this point I'm starting to think it's a group project nobody wants to be first to touch` };
+    });
+    templates.push(() => {
+      const p = pick(unpicked);
+      return { fan: true, text: `${p.name} (${p.club}) still a free agent. someone's waiver budget is just sat there doing absolutely nothing about it` };
+    });
+  }
+
+  // ---- High-scoring unpicked players: real season points, not just ownership ----
+  // Ownership alone (selectedByPercent) doesn't tell you who's actually GOOD, just who's
+  // popular — this filters by real accumulated FPL points, the actual "how is this player
+  // still available" stat, and is empty pre-season when nobody has any points yet.
+  const highScoringUnpicked = [...unpicked].filter((p) => p.pts > 0).sort((a, b) => b.pts - a.pts);
+  if (highScoringUnpicked.length) {
+    const topTierUnpicked = highScoringUnpicked.slice(0, Math.max(3, Math.ceil(highScoringUnpicked.length / 3)));
+    templates.push(() => {
+      const p = pick(topTierUnpicked);
+      return { fan: false, text: `${p.name} has racked up ${p.pts} points this season and is STILL a free agent in this league. Somebody is going to win a Gameweek off this and it's going to be humiliating for the rest of you.` };
+    });
+    templates.push(() => {
+      const p = pick(topTierUnpicked);
+      return { fan: true, text: `${p.name} sitting on ${p.pts} points this season, owned by literally nobody in this league. we are all watching this happen in real time and choosing to do nothing` };
+    });
+    templates.push(() => {
+      const p = pick(topTierUnpicked);
+      return { fan: true, text: `genuinely baffled how ${p.name} (${p.pts} pts, ${p.club}) hasn't been snapped up yet. this league has a blind spot and it has a name` };
+    });
+    templates.push(() => {
+      const p = pick(topTierUnpicked);
+      return { fan: false, text: `${p.name}: ${p.pts} points this season, ${p.selectedByPercent.toFixed(1)}% selected in this league. Those two numbers should not both be true at the same time.` };
+    });
+    templates.push(() => {
+      const p = pick(topTierUnpicked);
+      const t = pick(state.teams);
+      return { fan: true, text: `${t.name} has the waiver budget to go get ${p.name} (${p.pts} pts) right now and is instead just... not. incredible restraint or a genuine tactical error, no in-between` };
+    });
+    if (topTierUnpicked.length > 1) {
+      templates.push(() => {
+        const [a, b] = [pick(topTierUnpicked), pick(topTierUnpicked)];
+        if (a.id === b.id) return { fan: false, text: `${a.name} still unclaimed on ${a.pts} points this season. Free real estate, and this league is letting it sit vacant.` };
+        return { fan: false, text: `Between them, ${a.name} and ${b.name} have put up ${a.pts + b.pts} points this season combined — and neither is owned in this league. That's a title's worth of points on the table.` };
+      });
+    }
   }
 
   if (richest && poorest && richest.id !== poorest.id) {
@@ -604,27 +655,187 @@ function generateRumours(state, recentMoves = [], liveScores = null, livePerform
     }
   }
 
+  // ---- Standings & form banter: real table movement, gaps, and streaks ----
+  // Real FPL Twitter runs on "green arrow / red arrow" rank-movement banter — this is the
+  // league-table equivalent: who actually climbed or dropped after the latest result, not
+  // just who won this week's match. Computed by diffing the table with and without the
+  // most recent gameweek's results, so it's always grounded in a real position change.
+  if (Object.keys(state.results || {}).length) {
+    const allPlayedGws = Object.keys(state.results).map((k) => Number(k.split("-")[0]));
+    const latestPlayedGw = Math.max(...allPlayedGws);
+    const standingsNow = computeStandings(state.teams, state.results);
+    const resultsBeforeLatest = Object.fromEntries(
+      Object.entries(state.results).filter(([k]) => Number(k.split("-")[0]) !== latestPlayedGw),
+    );
+    const standingsBefore = computeStandings(state.teams, resultsBeforeLatest);
+    const rankBefore = new Map(standingsBefore.map((row, i) => [row.id, i]));
+
+    const movers = standingsNow
+      .map((row, i) => ({ row, rankNow: i, rankBefore: rankBefore.has(row.id) ? rankBefore.get(row.id) : i }))
+      .filter((m) => m.rankBefore !== m.rankNow);
+    const climbers = movers.filter((m) => m.rankNow < m.rankBefore);
+    const droppers = movers.filter((m) => m.rankNow > m.rankBefore);
+
+    if (climbers.length) {
+      const climbLines = [
+        (team, m) => `${team.name} climb from ${ordinal(m.rankBefore + 1)} to ${ordinal(m.rankNow + 1)} after Gameweek ${latestPlayedGw}. green arrow behaviour and they know it`,
+        (team, m) => `${team.name} up to ${ordinal(m.rankNow + 1)} after this week — from ${ordinal(m.rankBefore + 1)}. quietly building something over there`,
+        (team, m) => `everyone slept on ${team.name} and now they're ${ordinal(m.rankNow + 1)} in the table. hope the nap was worth it`,
+        (team, m) => `${team.name} on the move — ${ordinal(m.rankBefore + 1)} to ${ordinal(m.rankNow + 1)} in a single gameweek. put some respect on it`,
+      ];
+      templates.push(() => {
+        const m = pick(climbers);
+        const team = state.teams.find((t) => t.id === m.row.id);
+        return { fan: true, text: pick(climbLines)(team, m), persona: teamFanPersona(team) };
+      });
+      templates.push(() => {
+        const m = pick(climbers);
+        const team = state.teams.find((t) => t.id === m.row.id);
+        return { fan: false, text: `${team.name} move up to ${ordinal(m.rankNow + 1)} in the table after Gameweek ${latestPlayedGw}. Quiet progress, but progress all the same.` };
+      });
+    }
+    if (droppers.length) {
+      const dropLines = [
+        (team, m) => `${team.name} drop from ${ordinal(m.rankBefore + 1)} to ${ordinal(m.rankNow + 1)} after this week. red arrow, and the group chat saw it happen live`,
+        (team, m) => `not going to name names but someone dropped to ${ordinal(m.rankNow + 1)} this week and it definitely rhymes with "${team.name}"`,
+        (team, m) => `${team.name} sliding — ${ordinal(m.rankBefore + 1)} down to ${ordinal(m.rankNow + 1)}. this is how a season quietly gets away from you`,
+        (team, m) => `${team.name} now ${ordinal(m.rankNow + 1)} in the table. was ${ordinal(m.rankBefore + 1)} not that long ago. numbers don't forget`,
+      ];
+      templates.push(() => {
+        const m = pick(droppers);
+        const team = state.teams.find((t) => t.id === m.row.id);
+        return { fan: true, text: pick(dropLines)(team, m), persona: teamFanPersona(team) };
+      });
+      templates.push(() => {
+        const m = pick(droppers);
+        const team = state.teams.find((t) => t.id === m.row.id);
+        return { fan: false, text: `${team.name} slip to ${ordinal(m.rankNow + 1)} after Gameweek ${latestPlayedGw}, down from ${ordinal(m.rankBefore + 1)}.` };
+      });
+    }
+
+    if (standingsNow.length > 1) {
+      const leader = standingsNow[0];
+      const second = standingsNow[1];
+      const gap = leader.Pts - second.Pts;
+      const leaderTeam = state.teams.find((t) => t.id === leader.id);
+      const secondTeam = state.teams.find((t) => t.id === second.id);
+      if (gap === 0) {
+        const tiedLines = [
+          () => `${leaderTeam.name} and ${secondTeam.name} tied at the top on ${leader.Pts} points. this league doesn't do easy`,
+          () => `dead heat at the summit — ${leaderTeam.name} and ${secondTeam.name} both on ${leader.Pts}. somebody needs to actually separate themselves here`,
+        ];
+        templates.push(() => ({ fan: true, text: pick(tiedLines)() }));
+      } else if (gap >= 6) {
+        const clearLines = [
+          () => `${leaderTeam.name} clear at the top by ${gap} points. the rest of this league is playing for a trophy that doesn't exist yet`,
+          () => `${leaderTeam.name} pulling away at ${gap} points clear. this is starting to look less like a title race and more like a coronation`,
+          () => `${gap}-point gap between ${leaderTeam.name} and everyone else at the top. somebody needs to actually do something about this`,
+        ];
+        templates.push(() => ({ fan: true, text: pick(clearLines)(), persona: teamFanPersona(leaderTeam) }));
+        templates.push(() => ({ fan: false, text: `${leaderTeam.name} lead the table by ${gap} points over ${secondTeam.name}. Not a title race yet, but it's getting there.` }));
+      } else {
+        const closeLines = [
+          () => `just ${gap} point${gap === 1 ? "" : "s"} separates top from second right now. this table has commitment issues`,
+          () => `${leaderTeam.name} top, ${secondTeam.name} breathing down their neck by ${gap}. one bad gameweek changes everything here`,
+          () => `the gap between 1st and 2nd is ${gap} point${gap === 1 ? "" : "s"}. nobody in this league gets to relax`,
+        ];
+        templates.push(() => ({ fan: true, text: pick(closeLines)() }));
+      }
+
+      const bottom = standingsNow[standingsNow.length - 1];
+      const bottomTeam = state.teams.find((t) => t.id === bottom.id);
+      if (standingsNow.length > 2 && bottom.Pts < leader.Pts) {
+        const bottomLines = [
+          () => `${bottomTeam.name} rooted to the bottom of the table. it's giving relegation form in a league with no relegation, which is almost more embarrassing`,
+          () => `${bottomTeam.name} bottom of the pile right now. no relegation in this league so at least there's that. small mercies`,
+          () => `${bottomTeam.name} anchored at the foot of the table. every league needs a cautionary tale and this season's is written`,
+        ];
+        templates.push(() => ({ fan: true, text: pick(bottomLines)(), persona: teamFanPersona(bottomTeam) }));
+      }
+    }
+
+    // Real unbeaten/winless streak callouts — genuine "form guide" content, not padding.
+    const unbeatenLines = [
+      (team, row) => `${team.name} still unbeaten through ${row.P} gameweeks. the rest of the league would like a word, preferably in private`,
+      (team, row) => `${row.P} gameweeks in, ${team.name} still haven't lost. this is either sustainable or a countdown, and nobody knows which yet`,
+      (team, row) => `${team.name} unbeaten run continues — ${row.P} gameweeks and counting. every other manager in this league is quietly furious about it`,
+    ];
+    const winlessLines = [
+      (team, row) => `${team.name} still searching for a first win through ${row.P} gameweeks. it's not a rebuild anymore, it's a lifestyle`,
+      (team, row) => `${row.P} gameweeks, zero wins for ${team.name}. at some point this stops being bad luck and starts being a pattern`,
+      (team, row) => `${team.name} winless through ${row.P} gameweeks. the group chat has run out of nice things to say`,
+    ];
+    standingsNow.forEach((row) => {
+      const team = state.teams.find((t) => t.id === row.id);
+      if (row.P >= 2 && row.P === row.W) {
+        templates.push(() => ({ fan: true, text: pick(unbeatenLines)(team, row), persona: teamFanPersona(team) }));
+      }
+      if (row.P >= 2 && row.P === row.L) {
+        templates.push(() => ({ fan: true, text: pick(winlessLines)(team, row), persona: teamFanPersona(team) }));
+      }
+    });
+
+    // Official-style table snapshot — drier, headline tone, like a league account posting
+    // the numbers rather than a fan reacting to them.
+    templates.push(() => {
+      const top3 = standingsNow.slice(0, 3).map((row, i) => `${i + 1}. ${row.name} (${row.Pts}pts)`).join(" | ");
+      return { fan: false, text: `📊 Standings after Gameweek ${latestPlayedGw}: ${top3}` };
+    });
+    templates.push(() => {
+      const bottomThree = [...standingsNow].reverse().slice(0, 3).map((row, i) => `${standingsNow.length - i}. ${row.name} (${row.Pts}pts)`).reverse().join(" | ");
+      return { fan: false, text: `📊 Bottom of the table after Gameweek ${latestPlayedGw}: ${bottomThree}` };
+    });
+    templates.push(() => {
+      const t = pick(standingsNow);
+      const team = state.teams.find((x) => x.id === t.id);
+      return { fan: false, text: `Form check: ${team.name} sit ${ordinal(standingsNow.indexOf(t) + 1)} with a record of ${t.W}W-${t.D}D-${t.L}L and a points difference of ${t.PF - t.PA >= 0 ? "+" : ""}${t.PF - t.PA}.` };
+    });
+  }
+
   // ---- Fan reactions to real recent squad moves ----
   const recentAdds = recentMoves.filter((m) => m.type === "add");
   const recentTrades = recentMoves.filter((m) => m.type === "trade");
 
   if (recentAdds.length) {
+    const addLines = [
+      (m) => `${m.teamName} spent ${m.price}m on ${m.playerName} and I need everyone to just sit with that number for a second 👀`,
+      (m) => `${m.teamName} picking up ${m.playerName} is either genius or a cry for help. genuinely could be both`,
+      (m) => `can't stop thinking about ${m.teamName} dropping ${m.price}m on ${m.playerName}. that's not a signing, that's a personality trait now`,
+      (m) => `${m.playerName} to ${m.teamName} for ${m.price}m. bold. unhinged. slightly evil. I respect it 🔥`,
+      (m) => `${m.teamName} didn't need to do this. ${m.teamName} did this anyway. ${m.playerName} for ${m.price}m, no notes`,
+      (m) => `the confidence it takes to spend ${m.price}m on ${m.playerName} and post about it like it's normal. incredible honestly`,
+      (m) => `${m.teamName} adding ${m.playerName} for ${m.price}m is either the signing of the season or the first domino. we'll find out together`,
+      (m) => `watched ${m.teamName} bring in ${m.playerName} and immediately had to put my phone down for a minute`,
+      (m) => `${m.playerName} joins ${m.teamName} for ${m.price}m. the rest of this league just got a lot more nervous, whether they admit it or not`,
+      (m) => `${m.teamName} clearly have a plan with ${m.playerName}. nobody else can see it yet. that's usually how the good ones go`,
+    ];
     templates.push(() => {
       const m = pick(recentAdds);
-      return { fan: true, text: `${m.teamName} spent ${m.price}m on ${m.playerName} and I need everyone to just sit with that number for a second 👀` };
+      return { fan: true, text: pick(addLines)(m) };
     });
     templates.push(() => {
       const m = pick(recentAdds);
-      return { fan: true, text: `${m.teamName} picking up ${m.playerName} is either genius or a cry for help. genuinely could be both` };
+      return { fan: false, text: `Squad News: ${m.teamName} have added ${m.playerName} for ${m.price}m. Roster now reflects the change league-wide.` };
     });
-    templates.push(() => {
-      const m = pick(recentAdds);
-      return { fan: true, text: `can't stop thinking about ${m.teamName} dropping ${m.price}m on ${m.playerName}. that's not a signing, that's a personality trait now` };
-    });
-    templates.push(() => {
-      const m = pick(recentAdds);
-      return { fan: true, text: `${m.playerName} to ${m.teamName} for ${m.price}m. bold. unhinged. slightly evil. I respect it 🔥` };
-    });
+
+    // ---- Big-money signings: only the actually expensive ones get the full headline treatment ----
+    const bigAdds = recentAdds.filter((m) => m.price >= 8);
+    if (bigAdds.length) {
+      const bigAddLines = [
+        (m) => `🚨 BIG MONEY MOVE: ${m.teamName} drop ${m.price}m on ${m.playerName}. this league just got a lot more interesting`,
+        (m) => `${m.price}m. for ${m.playerName}. by ${m.teamName}. let that sink in for a second before you go back to scrolling`,
+        (m) => `${m.teamName} just made the kind of signing that ends up on a highlight reel or a cautionary tale. ${m.playerName} for ${m.price}m, no middle ground`,
+        (m) => `nobody in this league has spent ${m.price}m on one player like ${m.teamName} just did for ${m.playerName}. respect the audacity`,
+      ];
+      templates.push(() => {
+        const m = pick(bigAdds);
+        return { fan: true, text: pick(bigAddLines)(m) };
+      });
+      templates.push(() => {
+        const m = pick(bigAdds);
+        return { fan: false, text: `BREAKING: ${m.teamName} land ${m.playerName} for ${m.price}m — the biggest single outlay this league has seen in weeks.` };
+      });
+    }
   }
 
   // ---- Fan and insider reactions to real recent trades ----
@@ -644,6 +855,22 @@ function generateRumours(state, recentMoves = [], liveScores = null, livePerform
     templates.push(() => {
       const t = pick(recentTrades);
       return { fan: false, text: `Confirmed: ${t.teamAName} and ${t.teamBName} completed a trade this week. Full details still filtering through the league — sources say both sides are already calling it a win.` };
+    });
+    templates.push(() => {
+      const t = pick(recentTrades);
+      const names = (t.playersBToA || []).map((p) => p.name).join(" and ");
+      if (!names) return { fan: true, text: `${t.teamBName} walk away from that trade with ${t.teamAName} looking very pleased with themselves. we'll see who's right by the run-in` };
+      return { fan: true, text: `${t.teamBName} coming away from that trade with ${names}. quietly one of the better bits of business in this league so far` };
+    });
+    templates.push(() => {
+      const t = pick(recentTrades);
+      return { fan: true, text: `${t.teamAName} and ${t.teamBName} both think they won that trade. one of them is objectively wrong and I have thoughts` };
+    });
+    templates.push(() => {
+      const t = pick(recentTrades);
+      if (!t.budgetAToB && !t.budgetBToA) return { fan: true, text: `${t.teamAName} and ${t.teamBName} swapped players straight up, no cash involved. a rare display of mutual respect in this league` };
+      const amt = t.budgetAToB || t.budgetBToA;
+      return { fan: true, text: `there was actual cash changing hands in that ${t.teamAName}-${t.teamBName} trade — ${amt}m of it. this league runs on more than just banter apparently` };
     });
   }
 
@@ -719,6 +946,8 @@ function generateRumours(state, recentMoves = [], liveScores = null, livePerform
           margin: Math.abs(res.scoreA - res.scoreB),
           topScorerA: res.topScorerA || null,
           topScorerB: res.topScorerB || null,
+          breakdownA: res.breakdownA || null,
+          breakdownB: res.breakdownB || null,
         };
       })
       .filter((r) => r !== null);
@@ -728,20 +957,37 @@ function generateRumours(state, recentMoves = [], liveScores = null, livePerform
         (winner, loser, ws, ls) => `${winner.name} ${ws} - ${ls} ${loser.name}. that's not a scoreline, that's a hostage situation 😭 somebody check on ${loser.name}`,
         (winner, loser, ws, ls) => `${winner.name} put ${ws - ls} points between themselves and ${loser.name}. ${loser.name} FC fans have already left the group chat, mentally if not literally`,
         (winner, loser, ws, ls) => `${loser.name} lost to ${winner.name} ${ws}-${ls} and honestly at this point it's less a result, more a diagnosis`,
+        (winner, loser, ws, ls) => `${ws}-${ls}. ${winner.name} over ${loser.name}. this wasn't a gameweek, it was a statement`,
+        (winner, loser, ws, ls) => `${loser.name} shipped ${ws - ls} more points than they scored against ${winner.name}. someone screenshot this for the end-of-season recap`,
+        (winner, loser, ws, ls) => `${winner.name} ${ws}, ${loser.name} ${ls}. some results you argue with. this one you just accept`,
+        (winner, loser, ws, ls) => `${loser.name} will want this gameweek deleted from the record. ${winner.name} ${ws}-${ls} says otherwise, permanently`,
+        (winner, loser, ws, ls) => `there's losing, and then there's whatever ${loser.name} just did against ${winner.name}. ${ws}-${ls} is not a typo`,
+        (winner, loser, ws, ls) => `${winner.name} didn't just win, they made a point. ${ws}-${ls} over ${loser.name}, and everyone in the league chat saw it`,
       ];
       const narrowLines = [
         (winner, loser) => `${winner.name} edge ${loser.name} by the width of a single point. someone's heart genuinely stopped watching that live`,
         (winner, loser) => `${winner.name} survive ${loser.name} by the barest possible margin. nobody in either group chat is breathing normally yet`,
         (winner, loser) => `${loser.name} will replay every single lineup decision in their head this week after losing to ${winner.name} by basically nothing`,
+        (winner, loser) => `${winner.name} win it by a whisker against ${loser.name}. this is the kind of result that ages a manager by ten years`,
+        (winner, loser) => `${winner.name} scrape past ${loser.name} by the smallest possible margin. a win's a win, but that one needed a lie down after`,
+        (winner, loser) => `${loser.name} were one lucky bounce away from taking that off ${winner.name}. instead it's nothing, and that's brutal`,
+        (winner, loser) => `${winner.name} vs ${loser.name} came down to fractions. ${winner.name} got the right side of them, barely`,
       ];
       const standardWinLines = [
         (winner, loser) => `${winner.name} beat ${loser.name} this gameweek. professional, unbothered, mildly boring. respect the process`,
         (winner, loser) => `${winner.name} get the job done against ${loser.name}. not pretty, not dramatic, just three points and a quiet exit`,
         (winner, loser) => `${loser.name} will point to the bigger picture after that loss to ${winner.name}. ${winner.name} will point to the table`,
+        (winner, loser) => `${winner.name} take care of business against ${loser.name}. nothing to see here, which is exactly how ${winner.name} likes it`,
+        (winner, loser) => `${winner.name} did what they needed to do against ${loser.name} and not a point more. efficient, if a little joyless`,
+        (winner, loser) => `${loser.name} weren't outclassed by ${winner.name}, just out-executed. small margins, same three points`,
+        (winner, loser) => `${winner.name} put a routine win on the board against ${loser.name}. this league needs a few more of these from everyone else`,
       ];
       const drawLines = [
         (a, b, sa) => `${a.name} ${sa} - ${sa} ${b.name}. a draw. the most cowardly result in football and both sides should be a little embarrassed`,
         (a, b, sa) => `${a.name} and ${b.name} draw ${sa}-${sa}. nobody wins, nobody loses, everybody's group chat goes quiet out of respect for the anticlimax`,
+        (a, b, sa) => `${sa}-${sa} between ${a.name} and ${b.name}. a point apiece, zero satisfaction for anyone involved`,
+        (a, b, sa) => `${a.name} ${sa}-${sa} ${b.name}. the football equivalent of a shrug, and both sides know it`,
+        (a, b, sa) => `honours shared between ${a.name} and ${b.name} at ${sa} apiece. the standings barely noticed and neither did anyone else`,
       ];
 
       templates.push(() => {
@@ -761,6 +1007,11 @@ function generateRumours(state, recentMoves = [], liveScores = null, livePerform
       // (or lost) their team the match, not just the final score.
       const starMatches = matchResults.filter((r) => r.topScorerA || r.topScorerB);
       if (starMatches.length) {
+        const starLines = [
+          (star, winnerTeam, loserTeam) => `${star.name} single-handedly dragged ${winnerTeam.name} past ${loserTeam.name} with ${star.points} points. everyone else on that roster is just along for the ride at this point`,
+          (star, winnerTeam, loserTeam) => `${winnerTeam.name} beat ${loserTeam.name} mostly because ${star.name} decided to show up. ${star.points} points from one player is doing a lot of heavy lifting`,
+          (star, winnerTeam, loserTeam) => `take away ${star.name}'s ${star.points} points and ${winnerTeam.name} probably don't beat ${loserTeam.name}. that's how this league works sometimes`,
+        ];
         templates.push(() => {
           const r = pick(starMatches);
           const winnerIsA = r.scoreA >= r.scoreB;
@@ -768,7 +1019,69 @@ function generateRumours(state, recentMoves = [], liveScores = null, livePerform
           const loserTeam = winnerIsA ? r.teamB : r.teamA;
           const star = winnerIsA ? r.topScorerA : r.topScorerB;
           if (!star) return { fan: true, text: `${winnerTeam.name} beat ${loserTeam.name} this gameweek without a single standout — just a solid team performance top to bottom` };
-          return { fan: true, text: `${star.name} single-handedly dragged ${winnerTeam.name} past ${loserTeam.name} with ${star.points} points. everyone else on that roster is just along for the ride at this point` };
+          return { fan: true, text: pick(starLines)(star, winnerTeam, loserTeam) };
+        });
+      }
+
+      // Official-style scoreline posts — dry, headline tone, straight off a league account.
+      const officialResultLines = [
+        (r) => `FULL-TIME (GW${latestGw}): ${r.teamA.name} ${r.scoreA} - ${r.scoreB} ${r.teamB.name}.`,
+        (r) => `RESULT — Gameweek ${latestGw}: ${r.teamA.name} ${r.scoreA}, ${r.teamB.name} ${r.scoreB}.`,
+        (r) => `⚽ ${r.teamA.name} ${r.scoreA} - ${r.scoreB} ${r.teamB.name}. Confirmed final score for Gameweek ${latestGw}.`,
+      ];
+      templates.push(() => {
+        const r = pick(matchResults);
+        return { fan: false, text: pick(officialResultLines)(r) };
+      });
+      templates.push(() => {
+        const all = matchResults.map((r) => `${r.teamA.name} ${r.scoreA}-${r.scoreB} ${r.teamB.name}`).join(" | ");
+        return { fan: false, text: `📋 All results, Gameweek ${latestGw}: ${all}` };
+      });
+
+      // ---- Real FPL slang from the full per-player breakdown: hauls and blanks ----
+      // "Haul" (10+ points) and "blank" (nothing) are the actual vocabulary FPL Twitter
+      // uses for this — grounded here in this gameweek's real per-player numbers rather
+      // than just the team-level score.
+      const allPlayerLines = matchResults.flatMap((r) => [
+        ...(r.breakdownA || []).map((p) => ({ ...p, teamName: r.teamA.name })),
+        ...(r.breakdownB || []).map((p) => ({ ...p, teamName: r.teamB.name })),
+      ]);
+      const haulers = allPlayerLines.filter((p) => p.points >= 10);
+      const massiveHaulers = allPlayerLines.filter((p) => p.points >= 15);
+      const blankers = allPlayerLines.filter((p) => p.points === 0 && p.playerId != null);
+
+      if (haulers.length) {
+        const haulLines = [
+          (p) => `${p.name} absolutely hauled for ${p.teamName} this gameweek — ${p.points} points. that's not a pick, that's a whole personality now`,
+          (p) => `${p.name} put up ${p.points} points for ${p.teamName}. certified haul, no debate needed`,
+          (p) => `whoever drafted ${p.name} for ${p.teamName} is feeling very smug right now, and honestly, ${p.points} points earns it`,
+          (p) => `${p.teamName} owe this gameweek to ${p.name}. ${p.points} points from one player is basically doing the job alone`,
+        ];
+        templates.push(() => {
+          const p = pick(haulers);
+          return { fan: true, text: pick(haulLines)(p) };
+        });
+        templates.push(() => {
+          const p = pick(haulers);
+          return { fan: false, text: `${p.name} returned ${p.points} points for ${p.teamName} in Gameweek ${latestGw} — comfortably a haul by any definition.` };
+        });
+      }
+      if (massiveHaulers.length) {
+        templates.push(() => {
+          const p = pick(massiveHaulers);
+          return { fan: true, text: `${p.name} didn't haul for ${p.teamName}, he had a testimonial. ${p.points} points in one gameweek should not be legal` };
+        });
+      }
+      if (blankers.length) {
+        const blankLines = [
+          (p) => `${p.name} blanked for ${p.teamName} this gameweek. zero. nothing. an absolute non-event, and ${p.teamName} paid for it in the table`,
+          (p) => `somewhere in ${p.teamName}'s squad, ${p.name} contributed a hard zero this week. every fantasy league has one of these, apparently`,
+          (p) => `${p.name} returned absolutely nothing for ${p.teamName} this gameweek. not injured, not benched, just quiet. deeply, expensively quiet`,
+          (p) => `${p.teamName} carried ${p.name} to a blank this week. these things happen, they just shouldn't happen this often`,
+        ];
+        templates.push(() => {
+          const p = pick(blankers);
+          return { fan: true, text: pick(blankLines)(p) };
         });
       }
     }
@@ -780,23 +1093,135 @@ function generateRumours(state, recentMoves = [], liveScores = null, livePerform
     ]).filter(Boolean);
     if (allStars.length) {
       const gwTopScorer = [...allStars].sort((a, b) => b.points - a.points)[0];
-      templates.push(() => ({ fan: false, text: `${gwTopScorer.name} was the standout performer of Gameweek ${latestGw}, putting up ${gwTopScorer.points} points for ${gwTopScorer.teamName}. Everyone else was playing for second.` }));
-      templates.push(() => ({ fan: true, text: `${gwTopScorer.teamName} owning ${gwTopScorer.name} this gameweek should honestly be illegal. ${gwTopScorer.points} points and the rest of the league just had to watch` }));
+      const topScorerLines = [
+        () => ({ fan: false, text: `${gwTopScorer.name} was the standout performer of Gameweek ${latestGw}, putting up ${gwTopScorer.points} points for ${gwTopScorer.teamName}. Everyone else was playing for second.` }),
+        () => ({ fan: true, text: `${gwTopScorer.teamName} owning ${gwTopScorer.name} this gameweek should honestly be illegal. ${gwTopScorer.points} points and the rest of the league just had to watch` }),
+        () => ({ fan: true, text: `player of the gameweek, no debate: ${gwTopScorer.name}, ${gwTopScorer.points} points, ${gwTopScorer.teamName}. everyone else was just there` }),
+        () => ({ fan: false, text: `🏅 Gameweek ${latestGw} MVP: ${gwTopScorer.name} (${gwTopScorer.teamName}) — ${gwTopScorer.points} points.` }),
+      ];
+      templates.push(() => pick(topScorerLines)());
     }
+  }
+
+  // ---- Pre-match preview: hype for the upcoming, not-yet-played gameweek ----
+  // The mirror image of the post-match section above. Grounded in real fixtures, real
+  // standings position (once a table exists) and real head-to-head history — this only
+  // cares about which gameweek THIS league hasn't finished yet, independent of whatever
+  // FPL's own live/finished state currently says.
+  const nextPreviewGw = playedGws.length ? Math.max(...playedGws) + 1 : 1;
+  const previewFixture = state.fixtures.find((f) => f.gw === nextPreviewGw);
+  const previewAlreadyPlayed = !!previewFixture && previewFixture.matches.every(
+    ([a, b]) => state.results[`${nextPreviewGw}-${a}-${b}`],
+  );
+  if (previewFixture && !previewAlreadyPlayed && state.teams.some((t) => t.roster.length > 0)) {
+    const previewMatches = previewFixture.matches.map(([a, b]) => ({
+      a,
+      b,
+      teamA: state.teams.find((t) => t.id === a),
+      teamB: state.teams.find((t) => t.id === b),
+    }));
+
+    // Generic hype, no data required beyond the fixture itself.
+    const genericPreviewLines = [
+      (m) => `Gameweek ${nextPreviewGw} preview: ${m.teamA.name} vs ${m.teamB.name}. mark the calendar, or don't, we'll remind you anyway`,
+      (m) => `${m.teamA.name} host ${m.teamB.name} this gameweek. or don't host, it's fantasy football, but you know what I mean`,
+      (m) => `can't stop thinking about ${m.teamA.name} vs ${m.teamB.name} this week. absolutely nothing has happened yet and I'm already invested`,
+      (m) => `${m.teamA.name} and ${m.teamB.name} this gameweek. one of these group chats is about to have a very bad week`,
+      (m) => `not me refreshing the fixture list for ${m.teamA.name} vs ${m.teamB.name} like it's a cup final. it's gameweek ${nextPreviewGw}. get a grip, me`,
+      (m) => `${m.teamA.name} vs ${m.teamB.name} up next. put your rivalries on hold for this one. actually, don't, that's the fun part`,
+      (m) => `gameweek ${nextPreviewGw} can't come quick enough. ${m.teamA.name} vs ${m.teamB.name} alone is worth the wait`,
+      (m) => `everyone's very quiet about ${m.teamA.name} vs ${m.teamB.name} this week. suspiciously quiet. somebody knows something`,
+    ];
+    templates.push(() => {
+      const m = pick(previewMatches);
+      return { fan: true, text: pick(genericPreviewLines)(m) };
+    });
+    templates.push(() => {
+      const all = previewMatches.map((m) => `${m.teamA.name} vs ${m.teamB.name}`).join(" | ");
+      return { fan: false, text: `📅 Gameweek ${nextPreviewGw} fixtures: ${all}` };
+    });
+
+    // Standings-aware preview — once a table exists, frame the fixture by real position.
+    if (Object.keys(state.results || {}).length) {
+      const standingsForPreview = computeStandings(state.teams, state.results);
+      const rankOf = new Map(standingsForPreview.map((row, i) => [row.id, i]));
+      const standingsPreviewLines = [
+        (higher, lower, hRank, lRank) => `${higher.name} (${ordinal(hRank + 1)}) welcome ${lower.name} (${ordinal(lRank + 1)}) this gameweek. form says one thing, this league says trust nothing`,
+        (higher, lower, hRank, lRank) => `${ordinal(hRank + 1)} vs ${ordinal(lRank + 1)} this week: ${higher.name} against ${lower.name}. table position means nothing until kickoff`,
+        (higher, lower, hRank, lRank) => `${lower.name} (${ordinal(lRank + 1)}) have a real shot to cause chaos against ${higher.name} (${ordinal(hRank + 1)}) this gameweek. underdog stories exist for a reason`,
+        (higher, lower, hRank, lRank) => `${higher.name} sit ${ordinal(hRank + 1)}, ${lower.name} sit ${ordinal(lRank + 1)}. on paper this is straightforward. this league does not play out on paper`,
+      ];
+      templates.push(() => {
+        const m = pick(previewMatches);
+        const rankA = rankOf.has(m.a) ? rankOf.get(m.a) : previewMatches.length;
+        const rankB = rankOf.has(m.b) ? rankOf.get(m.b) : previewMatches.length;
+        const [higher, lower, hRank, lRank] = rankA <= rankB ? [m.teamA, m.teamB, rankA, rankB] : [m.teamB, m.teamA, rankB, rankA];
+        return { fan: true, text: pick(standingsPreviewLines)(higher, lower, hRank, lRank) };
+      });
+    }
+
+    // Rematch/revenge preview — only fires when this exact pair has already met this season.
+    const rematches = previewMatches.filter((m) =>
+      playedGws.some((gw) => {
+        const fx = state.fixtures.find((f) => f.gw === gw);
+        return fx?.matches.some(([a, b]) => (a === m.a && b === m.b) || (a === m.b && b === m.a));
+      }),
+    );
+    if (rematches.length) {
+      const revengeLines = [
+        (m) => `${m.teamA.name} and ${m.teamB.name} have already done this once this season. round two, and somebody's got a score to settle`,
+        (m) => `${m.teamA.name} vs ${m.teamB.name} again. these two know exactly what happened last time, and at least one of them hasn't stopped thinking about it`,
+        (m) => `rematch alert: ${m.teamA.name} and ${m.teamB.name} meet again this gameweek. round one is not forgotten by everyone involved`,
+      ];
+      templates.push(() => {
+        const m = pick(rematches);
+        return { fan: true, text: pick(revengeLines)(m), persona: teamFanPersona(pick([m.teamA, m.teamB])) };
+      });
+    }
+
+    // Budget-comparison preview — who's cooking something up before kickoff.
+    templates.push(() => {
+      const m = pick(previewMatches);
+      const aTotal = m.teamA.remainingBudget + m.teamA.waiverBudget;
+      const bTotal = m.teamB.remainingBudget + m.teamB.waiverBudget;
+      if (aTotal === bTotal) return { fan: true, text: `${m.teamA.name} and ${m.teamB.name} go into this gameweek with identical budgets. whatever happens, nobody can blame the bank balance` };
+      const [flush, tight] = aTotal > bTotal ? [m.teamA, m.teamB] : [m.teamB, m.teamA];
+      return { fan: true, text: `${flush.name} go into this gameweek against ${tight.name} with a lot more in the bank. money doesn't play football though, so we'll see` };
+    });
+
+    // Big-name showdown preview — real, most expensive player on each side.
+    templates.push(() => {
+      const m = pick(previewMatches);
+      const priciestA = [...m.teamA.roster].sort((a, b) => b.price - a.price)[0];
+      const priciestB = [...m.teamB.roster].sort((a, b) => b.price - a.price)[0];
+      if (!priciestA || !priciestB) return { fan: true, text: `${m.teamA.name} vs ${m.teamB.name} this gameweek. squads still filling out, but the fixture's locked in either way` };
+      return { fan: false, text: `Gameweek ${nextPreviewGw} headline act: ${priciestA.name} (${m.teamA.name}) against ${priciestB.name} (${m.teamB.name}). Only one of these price tags gets to have a good week.` };
+    });
+
+    // Rivalry-flavored preview, reusing the fictional fanbase personas.
+    templates.push(() => {
+      const m = pick(previewMatches);
+      const [us, rival] = pick([[m.teamA, m.teamB], [m.teamB, m.teamA]]);
+      return {
+        fan: true,
+        text: `${rival.name} FC fans have had all week to think about facing us this gameweek. hope they used the time well, because we didn't`,
+        persona: teamFanPersona(us),
+      };
+    });
   }
 
   // Dedup by exact text within this batch — without it, a small pool of applicable
   // templates (e.g. pre-season, when every team's numbers look identical) can pick the
   // same generated line twice and the feed reads as repeating itself immediately. The pool
-  // is deliberately generous (up to 150) — rivalry/banter templates redraw a random team
-  // pair + line on every pick, so the real space of unique strings they can produce is in
-  // the hundreds, and a big baked-in pool is what lets the homepage's Refresh button serve
-  // many clicks in a row without repeating a post (see renderRumours() client-side).
-  const count = Math.min(150, templates.length * 6);
+  // is deliberately generous (up to 250) — rivalry/banter/preview templates redraw a random
+  // team pair + line on every pick, so the real space of unique strings they can produce is
+  // in the hundreds, and a big baked-in pool is what lets the homepage's Refresh button
+  // serve many clicks in a row without repeating a post (see renderRumours() client-side).
+  const count = Math.min(250, templates.length * 6);
   const rumours = [];
   const seenTexts = new Set();
   let attempts = 0;
-  while (rumours.length < count && attempts < count * 10) {
+  while (rumours.length < count && attempts < count * 12) {
     attempts++;
     const entry = pick(templates)();
     if (seenTexts.has(entry.text)) continue;
