@@ -2435,7 +2435,7 @@
       "club": "Aston Villa",
       "pts": 7,
       "eventPoints": 6,
-      "selectedByPercent": 6.8,
+      "selectedByPercent": 6.7,
       "expectedPoints": 1.7,
       "nowCost": 4.5,
       "news": "Muscular injury - 75% chance of playing",
@@ -3815,7 +3815,7 @@
       "club": "Brighton",
       "pts": 21,
       "eventPoints": 4,
-      "selectedByPercent": 20,
+      "selectedByPercent": 20.1,
       "expectedPoints": 7,
       "nowCost": 4.8,
       "news": "",
@@ -3952,7 +3952,7 @@
       "eventPoints": 1,
       "selectedByPercent": 16.3,
       "expectedPoints": 5.3,
-      "nowCost": 5.5,
+      "nowCost": 5.6,
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
@@ -4310,7 +4310,7 @@
       "club": "Chelsea",
       "pts": 19,
       "eventPoints": 6,
-      "selectedByPercent": 29,
+      "selectedByPercent": 29.1,
       "expectedPoints": 6.3,
       "nowCost": 7.6,
       "news": "",
@@ -4535,7 +4535,7 @@
       "club": "Chelsea",
       "pts": 21,
       "eventPoints": 1,
-      "selectedByPercent": 22.7,
+      "selectedByPercent": 22.8,
       "expectedPoints": 7,
       "nowCost": 9.6,
       "news": "",
@@ -5617,7 +5617,7 @@
       "eventPoints": 0,
       "selectedByPercent": 0,
       "expectedPoints": 0,
-      "nowCost": 5,
+      "nowCost": 4.9,
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
@@ -5810,7 +5810,7 @@
       "club": "Crystal Palace",
       "pts": 7,
       "eventPoints": 7,
-      "selectedByPercent": 0.3,
+      "selectedByPercent": 0.4,
       "expectedPoints": 1.8,
       "nowCost": 4.5,
       "news": "",
@@ -7895,7 +7895,7 @@
       "club": "Leeds",
       "pts": 22,
       "eventPoints": 14,
-      "selectedByPercent": 1.5,
+      "selectedByPercent": 1.6,
       "expectedPoints": 7.3,
       "nowCost": 4.5,
       "news": "",
@@ -8120,7 +8120,7 @@
       "club": "Leeds",
       "pts": 10,
       "eventPoints": 1,
-      "selectedByPercent": 23.7,
+      "selectedByPercent": 23.6,
       "expectedPoints": 3.3,
       "nowCost": 6,
       "news": "",
@@ -8255,7 +8255,7 @@
       "club": "Leeds",
       "pts": 0,
       "eventPoints": 0,
-      "selectedByPercent": 0.4,
+      "selectedByPercent": 0.5,
       "expectedPoints": 1,
       "nowCost": 4,
       "news": "",
@@ -8555,7 +8555,7 @@
       "club": "Liverpool",
       "pts": 28,
       "eventPoints": 11,
-      "selectedByPercent": 14.5,
+      "selectedByPercent": 14.4,
       "expectedPoints": 7,
       "nowCost": 7.2,
       "news": "Thigh injury - 75% chance of playing",
@@ -9050,7 +9050,7 @@
       "club": "Man City",
       "pts": 13,
       "eventPoints": 6,
-      "selectedByPercent": 17.8,
+      "selectedByPercent": 17.7,
       "expectedPoints": 4.3,
       "nowCost": 8.4,
       "news": "",
@@ -9547,7 +9547,7 @@
       "eventPoints": 1,
       "selectedByPercent": 0.6,
       "expectedPoints": 1,
-      "nowCost": 4.5,
+      "nowCost": 4.4,
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
@@ -9727,7 +9727,7 @@
       "eventPoints": 0,
       "selectedByPercent": 0,
       "expectedPoints": 0,
-      "nowCost": 5,
+      "nowCost": 4.9,
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
@@ -10117,7 +10117,7 @@
       "eventPoints": 0,
       "selectedByPercent": 0.1,
       "expectedPoints": 0.3,
-      "nowCost": 5.9,
+      "nowCost": 5.8,
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
@@ -11242,7 +11242,7 @@
       "eventPoints": 0,
       "selectedByPercent": 1,
       "expectedPoints": 1,
-      "nowCost": 5.9,
+      "nowCost": 5.8,
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
@@ -11587,7 +11587,7 @@
       "eventPoints": 1,
       "selectedByPercent": 0.3,
       "expectedPoints": 2,
-      "nowCost": 5,
+      "nowCost": 4.9,
       "news": "",
       "newsAdded": null,
       "chanceOfPlaying": null,
@@ -11777,8 +11777,8 @@
   "meta": {
     "seasonStatus": "in-season",
     "currentGameweek": 3,
-    "lastUpdated": "2026-09-09T22:37:36.941Z",
-    "lastFplSync": "2026-09-09T22:37:36.934Z",
+    "lastUpdated": "2026-09-10T00:35:24.636Z",
+    "lastFplSync": "2026-09-10T00:35:24.628Z",
     "gwFinalizedAt": {
       "1": "2026-08-25T12:42:37.963Z",
       "2": "2026-08-31T21:04:21.146Z",
@@ -11788,28 +11788,292 @@
   "liveScores": null,
   "rumours": [
     {
-      "handle": "@BenchWarmerBrian",
-      "name": "Brian",
+      "handle": "@NikhilUltras",
+      "name": "Nikhil FC Ultras",
+      "color": "#FFB627",
+      "text": "3 gameweeks in, Nikhil still haven't lost. this is either sustainable or a countdown, and nobody knows which yet"
+    },
+    {
+      "handle": "@LeagueOfItsOwn",
+      "name": "A League Of Its Own",
+      "color": "#FFB627",
+      "text": "Dan Bentley (Coventry City) still a free agent. someone's waiver budget is just sat there doing absolutely nothing about it"
+    },
+    {
+      "handle": "@ChaseFCDiehard",
+      "name": "Chase FC Diehard",
+      "color": "#37C871",
+      "text": "Varun FC really thought they could just exist near Chase FC. adorable"
+    },
+    {
+      "handle": "@MalharFCDiehard",
+      "name": "Malhar FC Diehard",
+      "color": "#FFB627",
+      "text": "Malhar FC supporters would like it on record that we called Adi FC's collapse weeks in advance"
+    },
+    {
+      "handle": "@FPLGrapevine",
+      "name": "FPL Grapevine",
+      "color": "#FFB627",
+      "text": "Chase slip to 3rd after Gameweek 3, down from 2nd."
+    },
+    {
+      "handle": "@SquadShuffleHQ",
+      "name": "Squad Shuffle HQ",
+      "color": "#E8543F",
+      "text": "431 players still unclaimed on the waiver wire. One of them wins somebody a title and this whole league is too busy scrolling to notice."
+    },
+    {
+      "handle": "@LastPickLarry",
+      "name": "Last Pick Larry",
       "color": "#8AA095",
-      "text": "just did the maths on somebody's spending and I have never seen anyone go all in like that. reckless. iconic. reckless"
+      "text": "Kristoffer Ajer: 13 points this season, 4.9% selected in this league. Those two numbers should not both be true at the same time."
+    },
+    {
+      "handle": "@ArmchairGaffer",
+      "name": "The Armchair Gaffer",
+      "color": "#FFB627",
+      "text": "the group chat is already 400 messages deep and literally NOTHING has happened yet. imagine week 12"
+    },
+    {
+      "handle": "@LashFCFaithful",
+      "name": "Lash FC Faithful",
+      "color": "#E8543F",
+      "text": "Lash climb from 6th to 5th after Gameweek 3. green arrow behaviour and they know it"
+    },
+    {
+      "handle": "@ProbablyWrongTakes",
+      "name": "Probably Wrong Takes",
+      "color": "#37C871",
+      "text": "somebody's about to go very quiet in the group chat and we all know exactly who"
+    },
+    {
+      "handle": "@BudgetBuzzUK",
+      "name": "Budget Buzz",
+      "color": "#FFB627",
+      "text": "A source close to the situation (me, staring at the waiver list) confirms Ryan Sessegnon is a free hit sitting right there in plain sight. Baffling nobody's pulled the trigger."
     },
     {
       "handle": "@ShoutyFromTheSofa",
       "name": "Shouty From The Sofa",
       "color": "#E8543F",
-      "text": "Nikhil coming away from that trade with Antoine Semenyo and Harry Wilson. quietly one of the better bits of business in this league so far"
+      "text": "someone's captain pick is about to end a real friendship. calling it now"
     },
     {
-      "handle": "@TheAuctionInsider",
-      "name": "The Auction Insider",
-      "color": "#37C871",
-      "text": "Jordan Pickford has racked up 11 points this season and is STILL a free agent in this league. Somebody is going to win a Gameweek off this and it's going to be humiliating for the rest of you."
+      "handle": "@LastPickLarry",
+      "name": "Last Pick Larry",
+      "color": "#8AA095",
+      "text": "Squad News: Malhar have added Christos Tzolis for 1m. Roster now reflects the change league-wide."
+    },
+    {
+      "handle": "@VarunFCDiehard",
+      "name": "Varun FC Diehard",
+      "color": "#FFB627",
+      "text": "Varun bottom of the pile right now. no relegation in this league so at least there's that. small mercies"
     },
     {
       "handle": "@BigManBants",
       "name": "Big Man Bants",
       "color": "#8AA095",
-      "text": "someone just said 'trust the process' about their squad and I have never heard four words used more incorrectly"
+      "text": "Varun go into this gameweek against Adi with a lot more in the bank. money doesn't play football though, so we'll see"
+    },
+    {
+      "handle": "@DraftRoomLeaks",
+      "name": "Draft Room Leaks",
+      "color": "#37C871",
+      "text": "Confirmed: Lash and Nikhil completed a trade this week. Full details still filtering through the league — sources say both sides are already calling it a win."
+    },
+    {
+      "handle": "@ShoutyFromTheSofa",
+      "name": "Shouty From The Sofa",
+      "color": "#E8543F",
+      "text": "nothing says 'healthy competition' quite like the group chat going silent for six hours after a bad result"
+    },
+    {
+      "handle": "@BenchWarmerBrian",
+      "name": "Brian",
+      "color": "#8AA095",
+      "text": "Adi sit 4th, Varun sit 6th. on paper this is straightforward. this league does not play out on paper"
+    },
+    {
+      "handle": "@ClipboardGossip",
+      "name": "Clipboard Gossip",
+      "color": "#37C871",
+      "text": "📊 Bottom of the table after Gameweek 3: 4. Adi (3pts) | 5. Lash (3pts) | 6. Varun (3pts)"
+    },
+    {
+      "handle": "@WaiverWireWatch",
+      "name": "Waiver Wire Watch",
+      "color": "#E8543F",
+      "text": "Squad News: Malhar have added Alex Scott for 5m. Roster now reflects the change league-wide."
+    },
+    {
+      "handle": "@ArmchairGaffer",
+      "name": "The Armchair Gaffer",
+      "color": "#FFB627",
+      "text": "there was actual cash changing hands in that Lash-Nikhil trade — 15m of it. this league runs on more than just banter apparently"
+    },
+    {
+      "handle": "@TripleCaptainTom",
+      "name": "Tom",
+      "color": "#37C871",
+      "text": "reminder that talking a big game and having a big game are two completely different sports"
+    },
+    {
+      "handle": "@ClipboardGossip",
+      "name": "Clipboard Gossip",
+      "color": "#37C871",
+      "text": "Nikhil down to 4m combined. Financially, this is a crime scene."
+    },
+    {
+      "handle": "@ProbablyWrongTakes",
+      "name": "Probably Wrong Takes",
+      "color": "#37C871",
+      "text": "at least two people in this league are about to learn a very expensive lesson in real time"
+    },
+    {
+      "handle": "@ClipboardGossip",
+      "name": "Clipboard Gossip",
+      "color": "#37C871",
+      "text": "Bart Verbruggen: 9 points this season, 22.2% selected in this league. Those two numbers should not both be true at the same time."
+    },
+    {
+      "handle": "@BigManBants",
+      "name": "Big Man Bants",
+      "color": "#8AA095",
+      "text": "Malhar didn't need to do this. Malhar did this anyway. Maxim De Cuyper for 1m, no notes"
+    },
+    {
+      "handle": "@LeagueOfItsOwn",
+      "name": "A League Of Its Own",
+      "color": "#FFB627",
+      "text": "somewhere in this league someone is drafting a strongly worded message they will absolutely still send"
+    },
+    {
+      "handle": "@BenchWarmerBrian",
+      "name": "Brian",
+      "color": "#8AA095",
+      "text": "watched three squads get announced back to back and I need to lie down"
+    },
+    {
+      "handle": "@LastPickLarry",
+      "name": "Last Pick Larry",
+      "color": "#8AA095",
+      "text": "Varun currently running 11 players deep. Fully loaded — for now. Ask again after the next waiver deadline."
+    },
+    {
+      "handle": "@LeagueOfItsOwn",
+      "name": "A League Of Its Own",
+      "color": "#FFB627",
+      "text": "watching grown adults refresh a fantasy football website every four minutes and honestly. same"
+    },
+    {
+      "handle": "@AdiUltras",
+      "name": "Adi FC Ultras",
+      "color": "#8AA095",
+      "text": "sending this on behalf of every Adi FC supporter: Malhar FC, this is not the callout you think it is, please stop"
+    },
+    {
+      "handle": "@ProbablyWrongTakes",
+      "name": "Probably Wrong Takes",
+      "color": "#37C871",
+      "text": "Luca Williams-Barnett (Spurs) still a free agent. someone's waiver budget is just sat there doing absolutely nothing about it"
+    },
+    {
+      "handle": "@TheAuctionInsider",
+      "name": "The Auction Insider",
+      "color": "#37C871",
+      "text": "Gameweek 4 headline act: Bryan Mbeumo (Adi) against Erling Haaland (Varun). Only one of these price tags gets to have a good week."
+    },
+    {
+      "handle": "@TheAuctionInsider",
+      "name": "The Auction Insider",
+      "color": "#37C871",
+      "text": "Chase sitting on 27m right now. Basically down to loose change and vibes at this point."
+    },
+    {
+      "handle": "@MalharUltras",
+      "name": "Malhar FC Ultras",
+      "color": "#8AA095",
+      "text": "everyone slept on Malhar and now they're 2nd in the table. hope the nap was worth it"
+    },
+    {
+      "handle": "@SquadShuffleHQ",
+      "name": "Squad Shuffle HQ",
+      "color": "#E8543F",
+      "text": "📊 Standings after Gameweek 3: 1. Nikhil (9pts) | 2. Malhar (6pts) | 3. Chase (3pts)"
+    },
+    {
+      "handle": "@ProbablyWrongTakes",
+      "name": "Probably Wrong Takes",
+      "color": "#37C871",
+      "text": "the trash talk to actual football knowledge ratio in this group chat should be studied academically"
+    },
+    {
+      "handle": "@ClipboardGossip",
+      "name": "Clipboard Gossip",
+      "color": "#37C871",
+      "text": "FULL-TIME (GW3): Nikhil 36 - 26 Varun."
+    },
+    {
+      "handle": "@FPL_Degenerate",
+      "name": "FPL Degenerate",
+      "color": "#E8543F",
+      "text": "Chase has the waiver budget to go get Mohamed Belloumi (14 pts) right now and is instead just... not. incredible restraint or a genuine tactical error, no in-between"
+    },
+    {
+      "handle": "@SquadShuffleHQ",
+      "name": "Squad Shuffle HQ",
+      "color": "#E8543F",
+      "text": "Malhar sitting on 36m like a dragon guarding gold it has no plan for. Do something with it."
+    },
+    {
+      "handle": "@LeagueOfItsOwn",
+      "name": "A League Of Its Own",
+      "color": "#FFB627",
+      "text": "gameweek 4 can't come quick enough. Adi vs Varun alone is worth the wait"
+    },
+    {
+      "handle": "@LeagueOfItsOwn",
+      "name": "A League Of Its Own",
+      "color": "#FFB627",
+      "text": "take away Cody Gakpo's 11 points and Malhar probably don't beat Adi. that's how this league works sometimes"
+    },
+    {
+      "handle": "@ShoutyFromTheSofa",
+      "name": "Shouty From The Sofa",
+      "color": "#E8543F",
+      "text": "Varun has the waiver budget to go get Abdul Fatawu (8 pts) right now and is instead just... not. incredible restraint or a genuine tactical error, no in-between"
+    },
+    {
+      "handle": "@ProbablyWrongTakes",
+      "name": "Probably Wrong Takes",
+      "color": "#37C871",
+      "text": "Michael Kayode sitting on 16 points this season, owned by literally nobody in this league. we are all watching this happen in real time and choosing to do nothing"
+    },
+    {
+      "handle": "@MalharFCDiehard",
+      "name": "Malhar FC Diehard",
+      "color": "#37C871",
+      "text": "every Nikhil FC supporter in this league needs to sit down and think about their choices"
+    },
+    {
+      "handle": "@SquadShuffleHQ",
+      "name": "Squad Shuffle HQ",
+      "color": "#E8543F",
+      "text": "Malhar move up to 2nd in the table after Gameweek 3. Quiet progress, but progress all the same."
+    },
+    {
+      "handle": "@DraftRoomLeaks",
+      "name": "Draft Room Leaks",
+      "color": "#37C871",
+      "text": "Form check: Malhar sit 2nd with a record of 2W-0D-1L and a points difference of +8."
+    },
+    {
+      "handle": "@FPLGrapevine",
+      "name": "FPL Grapevine",
+      "color": "#FFB627",
+      "text": "Nikola Milenković has racked up 12 points this season and is STILL a free agent in this league. Somebody is going to win a Gameweek off this and it's going to be humiliating for the rest of you."
     },
     {
       "handle": "@BigManBants",
@@ -11821,463 +12085,43 @@
       "handle": "@FPL_Degenerate",
       "name": "FPL Degenerate",
       "color": "#E8543F",
-      "text": "Chase has the waiver budget to go get Elliot Anderson (8 pts) right now and is instead just... not. incredible restraint or a genuine tactical error, no in-between"
+      "text": "Jonah Kusi-Asare (Fulham) still a free agent. someone's waiver budget is just sat there doing absolutely nothing about it"
     },
     {
-      "handle": "@BudgetBuzzUK",
-      "name": "Budget Buzz",
-      "color": "#FFB627",
-      "text": "Malhar sitting on 36m like a dragon guarding gold it has no plan for. Do something with it."
-    },
-    {
-      "handle": "@TheAuctionInsider",
-      "name": "The Auction Insider",
-      "color": "#37C871",
-      "text": "Alexander Isak returned 13 points for Nikhil in Gameweek 3 — comfortably a haul by any definition."
-    },
-    {
-      "handle": "@ArmchairGaffer",
-      "name": "The Armchair Gaffer",
-      "color": "#FFB627",
-      "text": "the amount of trash talk happening before a single ball has been kicked is genuinely unhinged and I am so here for it"
-    },
-    {
-      "handle": "@LeagueOfItsOwn",
-      "name": "A League Of Its Own",
-      "color": "#FFB627",
-      "text": "the group chat is already 400 messages deep and literally NOTHING has happened yet. imagine week 12"
-    },
-    {
-      "handle": "@BenchWarmerBrian",
-      "name": "Brian",
+      "handle": "@LastPickLarry",
+      "name": "Last Pick Larry",
       "color": "#8AA095",
-      "text": "10m. for Kai Havertz. by Lash. let that sink in for a second before you go back to scrolling"
+      "text": "RESULT — Gameweek 3: Malhar 52, Adi 50."
     },
     {
-      "handle": "@ProbablyWrongTakes",
-      "name": "Probably Wrong Takes",
-      "color": "#37C871",
-      "text": "the gap between how confident people sound in the group chat and how their squads actually look is not adding up 🔥"
-    },
-    {
-      "handle": "@TheAuctionInsider",
-      "name": "The Auction Insider",
-      "color": "#37C871",
-      "text": "Gameweek 4 headline act: Bruno Borges Fernandes (Chase) against Bradley Barcola (Nikhil). Only one of these price tags gets to have a good week."
-    },
-    {
-      "handle": "@FPLGrapevine",
-      "name": "FPL Grapevine",
-      "color": "#FFB627",
-      "text": "Varun slip to 6th after Gameweek 3, down from 5th."
-    },
-    {
-      "handle": "@BigManBants",
-      "name": "Big Man Bants",
-      "color": "#8AA095",
-      "text": "not a single manager in this league has picked up Marcelino Núñez yet and honestly at this point I'm starting to think it's a group project nobody wants to be first to touch"
-    },
-    {
-      "handle": "@VarunFCDiehard",
-      "name": "Varun FC Diehard",
-      "color": "#37C871",
-      "text": "Adi FC fans have had all week to think about facing us this gameweek. hope they used the time well, because we didn't"
-    },
-    {
-      "handle": "@TheAuctionInsider",
-      "name": "The Auction Insider",
-      "color": "#37C871",
-      "text": "Malhar move up to 2nd in the table after Gameweek 3. Quiet progress, but progress all the same."
-    },
-    {
-      "handle": "@SquadShuffleHQ",
-      "name": "Squad Shuffle HQ",
+      "handle": "@FPL_Degenerate",
+      "name": "FPL Degenerate",
       "color": "#E8543F",
-      "text": "Nikhil down to 4m combined. Financially, this is a crime scene."
-    },
-    {
-      "handle": "@BigManBants",
-      "name": "Big Man Bants",
-      "color": "#8AA095",
-      "text": "Varun go into this gameweek against Adi with a lot more in the bank. money doesn't play football though, so we'll see"
-    },
-    {
-      "handle": "@BudgetBuzzUK",
-      "name": "Budget Buzz",
-      "color": "#FFB627",
-      "text": "📋 All results, Gameweek 3: Lash 32-26 Chase | Malhar 52-50 Adi | Nikhil 36-26 Varun"
-    },
-    {
-      "handle": "@LeagueOfItsOwn",
-      "name": "A League Of Its Own",
-      "color": "#FFB627",
-      "text": "Pascal Groß joins Adi for 8m. the rest of this league just got a lot more nervous, whether they admit it or not"
-    },
-    {
-      "handle": "@BigManBants",
-      "name": "Big Man Bants",
-      "color": "#8AA095",
-      "text": "at least two people in this league are about to learn a very expensive lesson in real time"
-    },
-    {
-      "handle": "@ProbablyWrongTakes",
-      "name": "Probably Wrong Takes",
-      "color": "#37C871",
-      "text": "🚨 BIG MONEY MOVE: Adi drop 8m on Pascal Groß. this league just got a lot more interesting"
-    },
-    {
-      "handle": "@DraftRoomLeaks",
-      "name": "Draft Room Leaks",
-      "color": "#37C871",
-      "text": "Chase slip to 3rd after Gameweek 3, down from 2nd."
-    },
-    {
-      "handle": "@MalharFCDiehard",
-      "name": "Malhar FC Diehard",
-      "color": "#FFB627",
-      "text": "Malhar FC sit above Adi FC in the table right now and we intend to keep it that way"
-    },
-    {
-      "handle": "@TripleCaptainTom",
-      "name": "Tom",
-      "color": "#37C871",
-      "text": "not emotionally prepared for gameweek 1, my heart genuinely cannot take this league 😭"
+      "text": "Bruno Guimarães Rodriguez Moura blanked for Chase this gameweek. zero. nothing. an absolute non-event, and Chase paid for it in the table"
     },
     {
       "handle": "@BenchWarmerBrian",
       "name": "Brian",
       "color": "#8AA095",
-      "text": "just 3 points separates top from second right now. this table has commitment issues"
+      "text": "not a single manager in this league has picked up Martin Dubravka yet and honestly at this point I'm starting to think it's a group project nobody wants to be first to touch"
     },
     {
-      "handle": "@TripleCaptainTom",
-      "name": "Tom",
-      "color": "#37C871",
-      "text": "Malhar sit 2nd, Lash sit 5th. on paper this is straightforward. this league does not play out on paper"
-    },
-    {
-      "handle": "@BenchWarmerBrian",
-      "name": "Brian",
+      "handle": "@LastPickLarry",
+      "name": "Last Pick Larry",
       "color": "#8AA095",
-      "text": "somebody's about to go very quiet in the group chat and we all know exactly who"
-    },
-    {
-      "handle": "@BenchWarmerBrian",
-      "name": "Brian",
-      "color": "#8AA095",
-      "text": "nobody in this league respects a rebuild. everybody in this league is about to need one"
-    },
-    {
-      "handle": "@LashFCFaithful",
-      "name": "Lash FC Faithful",
-      "color": "#37C871",
-      "text": "nothing personal to Malhar FC but also, respectfully, everything personal to Malhar FC"
-    },
-    {
-      "handle": "@MalharFCDiehard",
-      "name": "Malhar FC Diehard",
-      "color": "#FFB627",
-      "text": "everyone slept on Malhar and now they're 2nd in the table. hope the nap was worth it"
-    },
-    {
-      "handle": "@TripleCaptainTom",
-      "name": "Tom",
-      "color": "#37C871",
-      "text": "8m. for Christos Tzolis. by Adi. let that sink in for a second before you go back to scrolling"
-    },
-    {
-      "handle": "@ArmchairGaffer",
-      "name": "The Armchair Gaffer",
-      "color": "#FFB627",
-      "text": "the trash talk to actual football knowledge ratio in this group chat should be studied academically"
-    },
-    {
-      "handle": "@BigManBants",
-      "name": "Big Man Bants",
-      "color": "#8AA095",
-      "text": "genuinely baffled how Elliot Anderson (8 pts, Man City) hasn't been snapped up yet. this league has a blind spot and it has a name"
-    },
-    {
-      "handle": "@VarunFCDiehard",
-      "name": "Varun FC Diehard",
-      "color": "#37C871",
-      "text": "Varun rooted to the bottom of the table. it's giving relegation form in a league with no relegation, which is almost more embarrassing"
-    },
-    {
-      "handle": "@BigManBants",
-      "name": "Big Man Bants",
-      "color": "#8AA095",
-      "text": "Lash owe this gameweek to Marcus Tavernier. 10 points from one player is basically doing the job alone"
-    },
-    {
-      "handle": "@BudgetBuzzUK",
-      "name": "Budget Buzz",
-      "color": "#FFB627",
       "text": "📅 Gameweek 4 fixtures: Malhar vs Lash | Chase vs Nikhil | Adi vs Varun"
     },
     {
-      "handle": "@BigManBants",
-      "name": "Big Man Bants",
-      "color": "#8AA095",
-      "text": "nothing bonds six grown adults quite like mutual, deeply personal fantasy football resentment"
-    },
-    {
-      "handle": "@TripleCaptainTom",
-      "name": "Tom",
-      "color": "#37C871",
-      "text": "the sheer arrogance radiating off some of these picks could power a small city"
-    },
-    {
-      "handle": "@ShoutyFromTheSofa",
-      "name": "Shouty From The Sofa",
-      "color": "#E8543F",
-      "text": "this league runs on spite, screenshots and the faint smell of unresolved beef. wouldn't change a thing"
-    },
-    {
-      "handle": "@TripleCaptainTom",
-      "name": "Tom",
-      "color": "#37C871",
-      "text": "somebody screenshot the standings unprompted and posted it with zero context. we see you"
-    },
-    {
-      "handle": "@FPL_Degenerate",
-      "name": "FPL Degenerate",
-      "color": "#E8543F",
-      "text": "somebody in this league is about to get bullied for a full calendar year over one decision. build a bridge"
-    },
-    {
-      "handle": "@BenchWarmerBrian",
-      "name": "Brian",
-      "color": "#8AA095",
-      "text": "Chase and Nikhil this gameweek. one of these group chats is about to have a very bad week"
-    },
-    {
-      "handle": "@MalharUltras",
-      "name": "Malhar FC Ultras",
-      "color": "#E8543F",
-      "text": "Malhar FC sit above Lash FC in the table right now and we intend to keep it that way"
-    },
-    {
-      "handle": "@TripleCaptainTom",
-      "name": "Tom",
-      "color": "#37C871",
-      "text": "watched three squads get announced back to back and I need to lie down"
-    },
-    {
-      "handle": "@NikhilUltras",
-      "name": "Nikhil FC Ultras",
-      "color": "#8AA095",
-      "text": "Varun FC fans keep talking like they're not looking up at Nikhil FC in the table. someone show them the standings page"
-    },
-    {
-      "handle": "@TripleCaptainTom",
-      "name": "Tom",
-      "color": "#37C871",
-      "text": "the group chat has gone from banter to actual threats in under an hour. love this league"
-    },
-    {
-      "handle": "@VarunFCDiehard",
-      "name": "Varun FC Diehard",
+      "handle": "@LeagueOfItsOwn",
+      "name": "A League Of Its Own",
       "color": "#FFB627",
-      "text": "Varun sliding — 5th down to 6th. this is how a season quietly gets away from you"
-    },
-    {
-      "handle": "@BenchWarmerBrian",
-      "name": "Brian",
-      "color": "#8AA095",
-      "text": "can't stop thinking about Nikhil dropping 1m on Jeremy Jacquet. that's not a signing, that's a personality trait now"
-    },
-    {
-      "handle": "@BudgetBuzzUK",
-      "name": "Budget Buzz",
-      "color": "#FFB627",
-      "text": "Between them, Wilson Isidor and Yéremy Pino Santos have put up 24 points this season combined — and neither is owned in this league. That's a title's worth of points on the table."
-    },
-    {
-      "handle": "@TheAuctionInsider",
-      "name": "The Auction Insider",
-      "color": "#37C871",
-      "text": "Abdukodir Khusanov has racked up 9 points this season and is STILL a free agent in this league. Somebody is going to win a Gameweek off this and it's going to be humiliating for the rest of you."
-    },
-    {
-      "handle": "@ArmchairGaffer",
-      "name": "The Armchair Gaffer",
-      "color": "#FFB627",
-      "text": "Malhar has the waiver budget to go get Semi Ajayi (25 pts) right now and is instead just... not. incredible restraint or a genuine tactical error, no in-between"
-    },
-    {
-      "handle": "@LastPickLarry",
-      "name": "Last Pick Larry",
-      "color": "#8AA095",
-      "text": "Pedro Lomba Neto: 10 points this season, 1.3% selected in this league. Those two numbers should not both be true at the same time."
-    },
-    {
-      "handle": "@ProbablyWrongTakes",
-      "name": "Probably Wrong Takes",
-      "color": "#37C871",
-      "text": "reminder: whoever finishes bottom has to change their profile picture to the trophy for a month. no exceptions, no appeals"
+      "text": "Lash has the waiver budget to go get Emiliano Buendía Stati (7 pts) right now and is instead just... not. incredible restraint or a genuine tactical error, no in-between"
     },
     {
       "handle": "@WaiverWireWatch",
       "name": "Waiver Wire Watch",
       "color": "#E8543F",
-      "text": "Julio Enciso has racked up 11 points this season and is STILL a free agent in this league. Somebody is going to win a Gameweek off this and it's going to be humiliating for the rest of you."
-    },
-    {
-      "handle": "@ShoutyFromTheSofa",
-      "name": "Shouty From The Sofa",
-      "color": "#E8543F",
-      "text": "Lash straight up gave away Alexander Isak and Iliman Ndiaye in that trade. brave or insane, genuinely no in-between"
-    },
-    {
-      "handle": "@TripleCaptainTom",
-      "name": "Tom",
-      "color": "#37C871",
-      "text": "Kiernan Dewsbury-Hall to Malhar for 5m. bold. unhinged. slightly evil. I respect it 🔥"
-    },
-    {
-      "handle": "@LeagueOfItsOwn",
-      "name": "A League Of Its Own",
-      "color": "#FFB627",
-      "text": "player of the gameweek, no debate: Alexander Isak, 13 points, Nikhil. everyone else was just there"
-    },
-    {
-      "handle": "@DraftRoomLeaks",
-      "name": "Draft Room Leaks",
-      "color": "#37C871",
-      "text": "Form check: Varun sit 6th with a record of 1W-0D-2L and a points difference of -25."
-    },
-    {
-      "handle": "@BudgetBuzzUK",
-      "name": "Budget Buzz",
-      "color": "#FFB627",
-      "text": "Reinildo Mandava: 9 points this season, 0.4% selected in this league. Those two numbers should not both be true at the same time."
-    },
-    {
-      "handle": "@BenchWarmerBrian",
-      "name": "Brian",
-      "color": "#8AA095",
-      "text": "Alexander Isak absolutely hauled for Nikhil this gameweek — 13 points. that's not a pick, that's a whole personality now"
-    },
-    {
-      "handle": "@DraftRoomLeaks",
-      "name": "Draft Room Leaks",
-      "color": "#37C871",
-      "text": "Lukás Hornícek has racked up 10 points this season and is STILL a free agent in this league. Somebody is going to win a Gameweek off this and it's going to be humiliating for the rest of you."
-    },
-    {
-      "handle": "@BudgetBuzzUK",
-      "name": "Budget Buzz",
-      "color": "#FFB627",
-      "text": "Between them, Elliot Anderson and Daichi Kamada have put up 18 points this season combined — and neither is owned in this league. That's a title's worth of points on the table."
-    },
-    {
-      "handle": "@LastPickLarry",
-      "name": "Last Pick Larry",
-      "color": "#8AA095",
-      "text": "Alexander Isak was the standout performer of Gameweek 3, putting up 13 points for Nikhil. Everyone else was playing for second."
-    },
-    {
-      "handle": "@NikhilFCDiehard",
-      "name": "Nikhil FC Diehard",
-      "color": "#8AA095",
-      "text": "Nikhil still unbeaten through 3 gameweeks. the rest of the league would like a word, preferably in private"
-    },
-    {
-      "handle": "@ChaseFCDiehard",
-      "name": "Chase FC Diehard",
-      "color": "#37C871",
-      "text": "Varun FC fans have been quiet lately. we've noticed. we're keeping notes"
-    },
-    {
-      "handle": "@ArmchairGaffer",
-      "name": "The Armchair Gaffer",
-      "color": "#FFB627",
-      "text": "Reinildo Mandava (Sunderland) still a free agent. someone's waiver budget is just sat there doing absolutely nothing about it"
-    },
-    {
-      "handle": "@TripleCaptainTom",
-      "name": "Tom",
-      "color": "#37C871",
-      "text": "the confidence some of you are showing after the picks you made is genuinely inspiring behaviour"
-    },
-    {
-      "handle": "@FPL_Degenerate",
-      "name": "FPL Degenerate",
-      "color": "#E8543F",
-      "text": "somewhere in this league someone is drafting a strongly worded message they will absolutely still send"
-    },
-    {
-      "handle": "@ProbablyWrongTakes",
-      "name": "Probably Wrong Takes",
-      "color": "#37C871",
-      "text": "Cristhian Mosquera sitting on 12 points this season, owned by literally nobody in this league. we are all watching this happen in real time and choosing to do nothing"
-    },
-    {
-      "handle": "@FPL_Degenerate",
-      "name": "FPL Degenerate",
-      "color": "#E8543F",
-      "text": "Jack Hinshelwood blanked for Varun this gameweek. zero. nothing. an absolute non-event, and Varun paid for it in the table"
-    },
-    {
-      "handle": "@LeagueOfItsOwn",
-      "name": "A League Of Its Own",
-      "color": "#FFB627",
-      "text": "Malhar go into this gameweek against Lash with a lot more in the bank. money doesn't play football though, so we'll see"
-    },
-    {
-      "handle": "@BudgetBuzzUK",
-      "name": "Budget Buzz",
-      "color": "#FFB627",
-      "text": "Gameweek 4 headline act: Bryan Mbeumo (Adi) against Erling Haaland (Varun). Only one of these price tags gets to have a good week."
-    },
-    {
-      "handle": "@LastPickLarry",
-      "name": "Last Pick Larry",
-      "color": "#8AA095",
-      "text": "BREAKING: Adi land Pascal Groß for 8m — the biggest single outlay this league has seen in weeks."
-    },
-    {
-      "handle": "@ArmchairGaffer",
-      "name": "The Armchair Gaffer",
-      "color": "#FFB627",
-      "text": "Lash and Nikhil just pulled off a 2-for-2 trade and I have several questions 👀"
-    },
-    {
-      "handle": "@LeagueOfItsOwn",
-      "name": "A League Of Its Own",
-      "color": "#FFB627",
-      "text": "everyone in this league thinks they drafted the smart squad. statistically most of you are just wrong 💀"
-    },
-    {
-      "handle": "@DraftRoomLeaks",
-      "name": "Draft Room Leaks",
-      "color": "#37C871",
-      "text": "EXCLUSIVE: Gabriel Gudmundsson has been sitting on the waiver wire at 0.1% selected while every manager in this league pretends not to notice. Someone's about to look very smart."
-    },
-    {
-      "handle": "@FPL_Degenerate",
-      "name": "FPL Degenerate",
-      "color": "#E8543F",
-      "text": "watching grown adults refresh a fantasy football website every four minutes and honestly. same"
-    },
-    {
-      "handle": "@VarunFCDiehard",
-      "name": "Varun FC Diehard",
-      "color": "#E8543F",
-      "text": "Varun drop from 5th to 6th after this week. red arrow, and the group chat saw it happen live"
-    },
-    {
-      "handle": "@NikhilFCFaithful",
-      "name": "Nikhil FC Faithful",
-      "color": "#FFB627",
-      "text": "Nikhil unbeaten run continues — 3 gameweeks and counting. every other manager in this league is quietly furious about it"
-    },
-    {
-      "handle": "@WaiverWireWatch",
-      "name": "Waiver Wire Watch",
-      "color": "#E8543F",
-      "text": "Lash move up to 5th in the table after Gameweek 3. Quiet progress, but progress all the same."
+      "text": "FULL-TIME (GW3): Lash 32 - 26 Chase."
     },
     {
       "handle": "@ShoutyFromTheSofa",
@@ -12286,442 +12130,10 @@
       "text": "the way some of you talk about your squads versus what's actually on the pitch is a genuine crime against honesty"
     },
     {
-      "handle": "@BigManBants",
-      "name": "Big Man Bants",
-      "color": "#8AA095",
-      "text": "take away Cody Gakpo's 11 points and Malhar probably don't beat Adi. that's how this league works sometimes"
-    },
-    {
-      "handle": "@SquadShuffleHQ",
-      "name": "Squad Shuffle HQ",
-      "color": "#E8543F",
-      "text": "Between them, Wilson Isidor and Emiliano Buendía Stati have put up 20 points this season combined — and neither is owned in this league. That's a title's worth of points on the table."
-    },
-    {
-      "handle": "@ArmchairGaffer",
-      "name": "The Armchair Gaffer",
-      "color": "#FFB627",
-      "text": "Chase carried Bruno Guimarães Rodriguez Moura to a blank this week. these things happen, they just shouldn't happen this often"
-    },
-    {
-      "handle": "@FPL_Degenerate",
-      "name": "FPL Degenerate",
-      "color": "#E8543F",
-      "text": "I've decided who I'm rooting against and it's whoever's having the most fun doing well. sorry"
-    },
-    {
-      "handle": "@BigManBants",
-      "name": "Big Man Bants",
-      "color": "#8AA095",
-      "text": "Jérémy Doku returned absolutely nothing for Nikhil this gameweek. not injured, not benched, just quiet. deeply, expensively quiet"
-    },
-    {
-      "handle": "@DraftRoomLeaks",
-      "name": "Draft Room Leaks",
-      "color": "#37C871",
-      "text": "A source close to the situation (me, staring at the waiver list) confirms Jason Steele is a free hit sitting right there in plain sight. Baffling nobody's pulled the trigger."
-    },
-    {
-      "handle": "@TripleCaptainTom",
-      "name": "Tom",
-      "color": "#37C871",
-      "text": "nobody has apologised for anything yet but give it one bad gameweek"
-    },
-    {
-      "handle": "@BigManBants",
-      "name": "Big Man Bants",
-      "color": "#8AA095",
-      "text": "someone's captain pick is about to end a real friendship. calling it now"
-    },
-    {
-      "handle": "@LastPickLarry",
-      "name": "Last Pick Larry",
-      "color": "#8AA095",
-      "text": "Lash currently running 11 players deep. Fully loaded — for now. Ask again after the next waiver deadline."
-    },
-    {
-      "handle": "@ArmchairGaffer",
-      "name": "The Armchair Gaffer",
-      "color": "#FFB627",
-      "text": "this league has more storylines already than an actual Premier League season and we're not even a gameweek in"
-    },
-    {
-      "handle": "@TripleCaptainTom",
-      "name": "Tom",
-      "color": "#37C871",
-      "text": "genuinely baffled how Tyrique George (15 pts, Everton) hasn't been snapped up yet. this league has a blind spot and it has a name"
-    },
-    {
-      "handle": "@FPLGrapevine",
-      "name": "FPL Grapevine",
-      "color": "#FFB627",
-      "text": "431 players still unclaimed on the waiver wire. One of them wins somebody a title and this whole league is too busy scrolling to notice."
-    },
-    {
-      "handle": "@FPLGrapevine",
-      "name": "FPL Grapevine",
-      "color": "#FFB627",
-      "text": "Adi sitting on 18m right now. Basically down to loose change and vibes at this point."
-    },
-    {
-      "handle": "@LastPickLarry",
-      "name": "Last Pick Larry",
-      "color": "#8AA095",
-      "text": "Varun dropped 37m on Erling Haaland and there is no refund policy in this league. Committed now, for better or worse."
-    },
-    {
-      "handle": "@DraftRoomLeaks",
-      "name": "Draft Room Leaks",
-      "color": "#37C871",
-      "text": "⚽ Lash 32 - 26 Chase. Confirmed final score for Gameweek 3."
-    },
-    {
-      "handle": "@WaiverWireWatch",
-      "name": "Waiver Wire Watch",
-      "color": "#E8543F",
-      "text": "Form check: Lash sit 5th with a record of 1W-0D-2L and a points difference of -4."
-    },
-    {
-      "handle": "@LastPickLarry",
-      "name": "Last Pick Larry",
-      "color": "#8AA095",
-      "text": "Confirmed: Lash and Nikhil completed a trade this week. Full details still filtering through the league — sources say both sides are already calling it a win."
-    },
-    {
-      "handle": "@TheAuctionInsider",
-      "name": "The Auction Insider",
-      "color": "#37C871",
-      "text": "RESULT — Gameweek 3: Nikhil 36, Varun 26."
-    },
-    {
-      "handle": "@MalharFCFaithful",
-      "name": "Malhar FC Faithful",
-      "color": "#8AA095",
-      "text": "Lash FC fans have had all week to think about facing us this gameweek. hope they used the time well, because we didn't"
-    },
-    {
-      "handle": "@LeagueOfItsOwn",
-      "name": "A League Of Its Own",
-      "color": "#FFB627",
-      "text": "genuinely losing sleep over gameweek 1 and I don't think that counts as normal behaviour anymore"
-    },
-    {
-      "handle": "@LeagueOfItsOwn",
-      "name": "A League Of Its Own",
-      "color": "#FFB627",
-      "text": "Neco Williams sitting on 15 points this season, owned by literally nobody in this league. we are all watching this happen in real time and choosing to do nothing"
-    },
-    {
-      "handle": "@BenchWarmerBrian",
-      "name": "Brian",
-      "color": "#8AA095",
-      "text": "Chase go into this gameweek against Nikhil with a lot more in the bank. money doesn't play football though, so we'll see"
-    },
-    {
-      "handle": "@WaiverWireWatch",
-      "name": "Waiver Wire Watch",
-      "color": "#E8543F",
-      "text": "594m of a possible 600m spent league-wide. Every pound accounted for — nobody has anything left to hide behind."
-    },
-    {
-      "handle": "@DraftRoomLeaks",
-      "name": "Draft Room Leaks",
-      "color": "#37C871",
-      "text": "Told Lash have been \"circling\" Yehor Yarmoliuk (Brentford) for two straight weeks now. At what point does circling just become cowardice."
-    },
-    {
-      "handle": "@ShoutyFromTheSofa",
-      "name": "Shouty From The Sofa",
-      "color": "#E8543F",
-      "text": "nothing says 'healthy competition' quite like the group chat going silent for six hours after a bad result"
-    },
-    {
-      "handle": "@TheAuctionInsider",
-      "name": "The Auction Insider",
-      "color": "#37C871",
-      "text": "🏅 Gameweek 3 MVP: Alexander Isak (Nikhil) — 13 points."
-    },
-    {
-      "handle": "@BudgetBuzzUK",
-      "name": "Budget Buzz",
-      "color": "#FFB627",
-      "text": "Squad News: Nikhil have added Jeremy Jacquet for 1m. Roster now reflects the change league-wide."
-    },
-    {
-      "handle": "@LastPickLarry",
-      "name": "Last Pick Larry",
-      "color": "#8AA095",
-      "text": "A source close to the situation (me, staring at the waiver list) confirms Lucas Herrington is a free hit sitting right there in plain sight. Baffling nobody's pulled the trigger."
-    },
-    {
-      "handle": "@LeagueOfItsOwn",
-      "name": "A League Of Its Own",
-      "color": "#FFB627",
-      "text": "Lash and Nikhil both think they won that trade. one of them is objectively wrong and I have thoughts"
-    },
-    {
-      "handle": "@DraftRoomLeaks",
-      "name": "Draft Room Leaks",
-      "color": "#37C871",
-      "text": "Varun sitting on 19m right now. Basically down to loose change and vibes at this point."
-    },
-    {
-      "handle": "@FPL_Degenerate",
-      "name": "FPL Degenerate",
-      "color": "#E8543F",
-      "text": "reminder that talking a big game and having a big game are two completely different sports"
-    },
-    {
-      "handle": "@TheAuctionInsider",
-      "name": "The Auction Insider",
-      "color": "#37C871",
-      "text": "📊 Bottom of the table after Gameweek 3: 4. Adi (3pts) | 5. Lash (3pts) | 6. Varun (3pts)"
-    },
-    {
-      "handle": "@BudgetBuzzUK",
-      "name": "Budget Buzz",
-      "color": "#FFB627",
-      "text": "Between them, Sandro Tonali and James Trafford have put up 24 points this season combined — and neither is owned in this league. That's a title's worth of points on the table."
-    },
-    {
-      "handle": "@TripleCaptainTom",
-      "name": "Tom",
-      "color": "#37C871",
-      "text": "Malhar beat Adi mostly because Cody Gakpo decided to show up. 11 points from one player is doing a lot of heavy lifting"
-    },
-    {
-      "handle": "@ArmchairGaffer",
-      "name": "The Armchair Gaffer",
-      "color": "#FFB627",
-      "text": "Nikhil carried Richarlison de Andrade to a blank this week. these things happen, they just shouldn't happen this often"
-    },
-    {
-      "handle": "@DraftRoomLeaks",
-      "name": "Draft Room Leaks",
-      "color": "#37C871",
-      "text": "BREAKING: Lash land Kai Havertz for 10m — the biggest single outlay this league has seen in weeks."
-    },
-    {
-      "handle": "@ProbablyWrongTakes",
-      "name": "Probably Wrong Takes",
-      "color": "#37C871",
-      "text": "Malhar has the waiver budget to go get Jan Paul van Hecke (10 pts) right now and is instead just... not. incredible restraint or a genuine tactical error, no in-between"
-    },
-    {
-      "handle": "@FPLGrapevine",
-      "name": "FPL Grapevine",
-      "color": "#FFB627",
-      "text": "Luka Vušković: 18 points this season, 3.0% selected in this league. Those two numbers should not both be true at the same time."
-    },
-    {
-      "handle": "@ClipboardGossip",
-      "name": "Clipboard Gossip",
-      "color": "#37C871",
-      "text": "Between them, Ryan Giles and Roméo Lavia have put up 29 points this season combined — and neither is owned in this league. That's a title's worth of points on the table."
-    },
-    {
-      "handle": "@AdiUltras",
-      "name": "Adi FC Ultras",
-      "color": "#E8543F",
-      "text": "Adi FC fans have zero respect for Varun FC and it shows every single week"
-    },
-    {
-      "handle": "@MalharUltras",
-      "name": "Malhar FC Ultras",
-      "color": "#8AA095",
-      "text": "Varun FC really thought they could just exist near Malhar FC. adorable"
-    },
-    {
-      "handle": "@BigManBants",
-      "name": "Big Man Bants",
-      "color": "#8AA095",
-      "text": "not a single manager in this league has picked up Lewie Coyle yet and honestly at this point I'm starting to think it's a group project nobody wants to be first to touch"
-    },
-    {
-      "handle": "@ArmchairGaffer",
-      "name": "The Armchair Gaffer",
-      "color": "#FFB627",
-      "text": "not a single manager in this league has picked up Jarrad Branthwaite yet and honestly at this point I'm starting to think it's a group project nobody wants to be first to touch"
-    },
-    {
-      "handle": "@ClipboardGossip",
-      "name": "Clipboard Gossip",
-      "color": "#37C871",
-      "text": "Marcus Tavernier cost Lash just 1m. Absolute daylight robbery and everyone's too polite to say it out loud."
-    },
-    {
-      "handle": "@TripleCaptainTom",
-      "name": "Tom",
-      "color": "#37C871",
-      "text": "Alexander Isak single-handedly dragged Nikhil past Varun with 13 points. everyone else on that roster is just along for the ride at this point"
-    },
-    {
-      "handle": "@FPLGrapevine",
-      "name": "FPL Grapevine",
-      "color": "#FFB627",
-      "text": "A source close to the situation (me, staring at the waiver list) confirms Diogo Dalot Teixeira is a free hit sitting right there in plain sight. Baffling nobody's pulled the trigger."
-    },
-    {
-      "handle": "@TheAuctionInsider",
-      "name": "The Auction Insider",
-      "color": "#37C871",
-      "text": "Martin Ødegaard returned 10 points for Malhar in Gameweek 3 — comfortably a haul by any definition."
-    },
-    {
-      "handle": "@BenchWarmerBrian",
-      "name": "Brian",
-      "color": "#8AA095",
-      "text": "Cody Gakpo absolutely hauled for Malhar this gameweek — 11 points. that's not a pick, that's a whole personality now"
-    },
-    {
-      "handle": "@WaiverWireWatch",
-      "name": "Waiver Wire Watch",
-      "color": "#E8543F",
-      "text": "⚽ Malhar 52 - 50 Adi. Confirmed final score for Gameweek 3."
-    },
-    {
       "handle": "@AdiUltras",
       "name": "Adi FC Ultras",
       "color": "#FFB627",
-      "text": "Adi FC has a folder. it's called \"receipts\". most of it is Varun FC"
-    },
-    {
-      "handle": "@ClipboardGossip",
-      "name": "Clipboard Gossip",
-      "color": "#37C871",
-      "text": "Form check: Chase sit 3rd with a record of 1W-0D-2L and a points difference of +8."
-    },
-    {
-      "handle": "@BudgetBuzzUK",
-      "name": "Budget Buzz",
-      "color": "#FFB627",
-      "text": "Form check: Adi sit 4th with a record of 1W-0D-2L and a points difference of +0."
-    },
-    {
-      "handle": "@LeagueOfItsOwn",
-      "name": "A League Of Its Own",
-      "color": "#FFB627",
-      "text": "not me refreshing the fixture list for Chase vs Nikhil like it's a cup final. it's gameweek 4. get a grip, me"
-    },
-    {
-      "handle": "@ArmchairGaffer",
-      "name": "The Armchair Gaffer",
-      "color": "#FFB627",
-      "text": "Nikhil top, Malhar breathing down their neck by 3. one bad gameweek changes everything here"
-    },
-    {
-      "handle": "@WaiverWireWatch",
-      "name": "Waiver Wire Watch",
-      "color": "#E8543F",
-      "text": "EXCLUSIVE: Michael Keane has been sitting on the waiver wire at 0.9% selected while every manager in this league pretends not to notice. Someone's about to look very smart."
-    },
-    {
-      "handle": "@LastPickLarry",
-      "name": "Last Pick Larry",
-      "color": "#8AA095",
-      "text": "Cody Gakpo returned 11 points for Malhar in Gameweek 3 — comfortably a haul by any definition."
-    },
-    {
-      "handle": "@ShoutyFromTheSofa",
-      "name": "Shouty From The Sofa",
-      "color": "#E8543F",
-      "text": "not a single manager in this league has picked up Pascal Struijk yet and honestly at this point I'm starting to think it's a group project nobody wants to be first to touch"
-    },
-    {
-      "handle": "@DraftRoomLeaks",
-      "name": "Draft Room Leaks",
-      "color": "#37C871",
-      "text": "Told Lash have been \"circling\" Hugo Ekitiké (Liverpool) for two straight weeks now. At what point does circling just become cowardice."
-    },
-    {
-      "handle": "@LastPickLarry",
-      "name": "Last Pick Larry",
-      "color": "#8AA095",
-      "text": "A source close to the situation (me, staring at the waiver list) confirms Matz Sels is a free hit sitting right there in plain sight. Baffling nobody's pulled the trigger."
-    },
-    {
-      "handle": "@ProbablyWrongTakes",
-      "name": "Probably Wrong Takes",
-      "color": "#37C871",
-      "text": "Gameweek 4 preview: Chase vs Nikhil. mark the calendar, or don't, we'll remind you anyway"
-    },
-    {
-      "handle": "@FPL_Degenerate",
-      "name": "FPL Degenerate",
-      "color": "#E8543F",
-      "text": "not a single manager in this league has picked up Will Dennis yet and honestly at this point I'm starting to think it's a group project nobody wants to be first to touch"
-    },
-    {
-      "handle": "@LeagueOfItsOwn",
-      "name": "A League Of Its Own",
-      "color": "#FFB627",
-      "text": "Adi vs Varun up next. put your rivalries on hold for this one. actually, don't, that's the fun part"
-    },
-    {
-      "handle": "@ClipboardGossip",
-      "name": "Clipboard Gossip",
-      "color": "#37C871",
-      "text": "Mikkel Damsgaard: 12 points this season, 0.5% selected in this league. Those two numbers should not both be true at the same time."
-    },
-    {
-      "handle": "@NikhilFCDiehard",
-      "name": "Nikhil FC Diehard",
-      "color": "#E8543F",
-      "text": "3 gameweeks in, Nikhil still haven't lost. this is either sustainable or a countdown, and nobody knows which yet"
-    },
-    {
-      "handle": "@BigManBants",
-      "name": "Big Man Bants",
-      "color": "#8AA095",
-      "text": "Marcus Tavernier absolutely hauled for Lash this gameweek — 10 points. that's not a pick, that's a whole personality now"
-    },
-    {
-      "handle": "@TripleCaptainTom",
-      "name": "Tom",
-      "color": "#37C871",
-      "text": "Chase has the waiver budget to go get Michael Kayode (16 pts) right now and is instead just... not. incredible restraint or a genuine tactical error, no in-between"
-    },
-    {
-      "handle": "@WaiverWireWatch",
-      "name": "Waiver Wire Watch",
-      "color": "#E8543F",
-      "text": "Lash sitting on 22m right now. Basically down to loose change and vibes at this point."
-    },
-    {
-      "handle": "@LashUltras",
-      "name": "Lash FC Ultras",
-      "color": "#37C871",
-      "text": "Malhar FC fans have had all week to think about facing us this gameweek. hope they used the time well, because we didn't"
-    },
-    {
-      "handle": "@DraftRoomLeaks",
-      "name": "Draft Room Leaks",
-      "color": "#37C871",
-      "text": "📊 Standings after Gameweek 3: 1. Nikhil (9pts) | 2. Malhar (6pts) | 3. Chase (3pts)"
-    },
-    {
-      "handle": "@ShoutyFromTheSofa",
-      "name": "Shouty From The Sofa",
-      "color": "#E8543F",
-      "text": "not a single manager in this league has picked up Dário Luís Essugo yet and honestly at this point I'm starting to think it's a group project nobody wants to be first to touch"
-    },
-    {
-      "handle": "@LastPickLarry",
-      "name": "Last Pick Larry",
-      "color": "#8AA095",
-      "text": "Told Varun have been \"circling\" Julio Enciso (Ipswich Town) for two straight weeks now. At what point does circling just become cowardice."
-    },
-    {
-      "handle": "@BigManBants",
-      "name": "Big Man Bants",
-      "color": "#8AA095",
-      "text": "Oli McBurnie sitting on 8 points this season, owned by literally nobody in this league. we are all watching this happen in real time and choosing to do nothing"
-    },
-    {
-      "handle": "@LashFCFaithful",
-      "name": "Lash FC Faithful",
-      "color": "#FFB627",
-      "text": "Lash up to 5th after this week — from 6th. quietly building something over there"
+      "text": "imagine supporting Lash FC. couldn't be us. genuinely could never be us"
     },
     {
       "handle": "@WaiverWireWatch",
@@ -12730,316 +12142,994 @@
       "text": "Malhar currently running 11 players deep. Fully loaded — for now. Ask again after the next waiver deadline."
     },
     {
-      "handle": "@ShoutyFromTheSofa",
-      "name": "Shouty From The Sofa",
-      "color": "#E8543F",
-      "text": "there was actual cash changing hands in that Lash-Nikhil trade — 15m of it. this league runs on more than just banter apparently"
-    },
-    {
-      "handle": "@ShoutyFromTheSofa",
-      "name": "Shouty From The Sofa",
-      "color": "#E8543F",
-      "text": "Nikhil get the job done against Varun. not pretty, not dramatic, just three points and a quiet exit"
-    },
-    {
-      "handle": "@ClipboardGossip",
-      "name": "Clipboard Gossip",
-      "color": "#37C871",
-      "text": "Malick Thiaw: 8 points this season, 2.1% selected in this league. Those two numbers should not both be true at the same time."
-    },
-    {
-      "handle": "@ArmchairGaffer",
-      "name": "The Armchair Gaffer",
-      "color": "#FFB627",
-      "text": "Malhar picking up Christos Tzolis is either genius or a cry for help. genuinely could be both"
-    },
-    {
-      "handle": "@VarunFCDiehard",
-      "name": "Varun FC Diehard",
-      "color": "#E8543F",
-      "text": "Varun FC's Erling Haaland cost more than Lash FC's entire spending on Gabriel dos Santos Magalhães. spend accordingly next time, Lash FC"
-    },
-    {
-      "handle": "@MalharUltras",
-      "name": "Malhar FC Ultras",
-      "color": "#E8543F",
-      "text": "Malhar up to 2nd after this week — from 3rd. quietly building something over there"
-    },
-    {
       "handle": "@BigManBants",
       "name": "Big Man Bants",
       "color": "#8AA095",
-      "text": "not a single manager in this league has picked up Viktor Gyökeres yet and honestly at this point I'm starting to think it's a group project nobody wants to be first to touch"
-    },
-    {
-      "handle": "@NikhilFCDiehard",
-      "name": "Nikhil FC Diehard",
-      "color": "#FFB627",
-      "text": "Nikhil FC sit above Chase FC in the table right now and we intend to keep it that way"
-    },
-    {
-      "handle": "@WaiverWireWatch",
-      "name": "Waiver Wire Watch",
-      "color": "#E8543F",
-      "text": "Enzo Le Fée: 13 points this season, 5.0% selected in this league. Those two numbers should not both be true at the same time."
-    },
-    {
-      "handle": "@VarunFCDiehard",
-      "name": "Varun FC Diehard",
-      "color": "#8AA095",
-      "text": "sending this on behalf of every Varun FC supporter: Malhar FC, this is not the callout you think it is, please stop"
-    },
-    {
-      "handle": "@BudgetBuzzUK",
-      "name": "Budget Buzz",
-      "color": "#FFB627",
-      "text": "Nikhil currently running 11 players deep. Fully loaded — for now. Ask again after the next waiver deadline."
-    },
-    {
-      "handle": "@SquadShuffleHQ",
-      "name": "Squad Shuffle HQ",
-      "color": "#E8543F",
-      "text": "Between them, Pedro Lomba Neto and Sven Botman have put up 19 points this season combined — and neither is owned in this league. That's a title's worth of points on the table."
+      "text": "genuinely baffled how Trai Hume (9 pts, Sunderland) hasn't been snapped up yet. this league has a blind spot and it has a name"
     },
     {
       "handle": "@TripleCaptainTom",
       "name": "Tom",
       "color": "#37C871",
-      "text": "genuinely baffled how Josh King (19 pts, Fulham) hasn't been snapped up yet. this league has a blind spot and it has a name"
+      "text": "Lash and Nikhil just pulled off a 2-for-2 trade and I have several questions 👀"
     },
     {
       "handle": "@LeagueOfItsOwn",
       "name": "A League Of Its Own",
       "color": "#FFB627",
-      "text": "Lash has the waiver budget to go get Tyrique George (15 pts) right now and is instead just... not. incredible restraint or a genuine tactical error, no in-between"
-    },
-    {
-      "handle": "@LeagueOfItsOwn",
-      "name": "A League Of Its Own",
-      "color": "#FFB627",
-      "text": "James Rowswell (Spurs) still a free agent. someone's waiver budget is just sat there doing absolutely nothing about it"
-    },
-    {
-      "handle": "@ShoutyFromTheSofa",
-      "name": "Shouty From The Sofa",
-      "color": "#E8543F",
-      "text": "Nikhil sit 1st, Chase sit 3rd. on paper this is straightforward. this league does not play out on paper"
-    },
-    {
-      "handle": "@BenchWarmerBrian",
-      "name": "Brian",
-      "color": "#8AA095",
-      "text": "Malhar (2nd) welcome Lash (5th) this gameweek. form says one thing, this league says trust nothing"
-    },
-    {
-      "handle": "@LashUltras",
-      "name": "Lash FC Ultras",
-      "color": "#37C871",
-      "text": "Lash on the move — 6th to 5th in a single gameweek. put some respect on it"
-    },
-    {
-      "handle": "@TripleCaptainTom",
-      "name": "Tom",
-      "color": "#37C871",
-      "text": "somewhere in Varun's squad, Ismaïla Sarr contributed a hard zero this week. every fantasy league has one of these, apparently"
-    },
-    {
-      "handle": "@BudgetBuzzUK",
-      "name": "Budget Buzz",
-      "color": "#FFB627",
-      "text": "Told Varun have been \"circling\" Nathan Collins (Brentford) for two straight weeks now. At what point does circling just become cowardice."
-    },
-    {
-      "handle": "@ShoutyFromTheSofa",
-      "name": "Shouty From The Sofa",
-      "color": "#E8543F",
-      "text": "somewhere in Varun's squad, Jack Hinshelwood contributed a hard zero this week. every fantasy league has one of these, apparently"
-    },
-    {
-      "handle": "@SquadShuffleHQ",
-      "name": "Squad Shuffle HQ",
-      "color": "#E8543F",
-      "text": "Squad News: Malhar have added Maxim De Cuyper for 1m. Roster now reflects the change league-wide."
-    },
-    {
-      "handle": "@ShoutyFromTheSofa",
-      "name": "Shouty From The Sofa",
-      "color": "#E8543F",
-      "text": "the gap between 1st and 2nd is 3 points. nobody in this league gets to relax"
-    },
-    {
-      "handle": "@MalharFCDiehard",
-      "name": "Malhar FC Diehard",
-      "color": "#8AA095",
-      "text": "Malhar FC ultras would like to formally remind Lash FC that we exist, and we remember everything"
-    },
-    {
-      "handle": "@SquadShuffleHQ",
-      "name": "Squad Shuffle HQ",
-      "color": "#E8543F",
-      "text": "Squad News: Adi have added Pascal Groß for 8m. Roster now reflects the change league-wide."
-    },
-    {
-      "handle": "@FPLGrapevine",
-      "name": "FPL Grapevine",
-      "color": "#FFB627",
-      "text": "Told Varun have been \"circling\" Alex Cairns (Leeds) for two straight weeks now. At what point does circling just become cowardice."
-    },
-    {
-      "handle": "@ChaseFCDiehard",
-      "name": "Chase FC Diehard",
-      "color": "#8AA095",
-      "text": "every Varun FC supporter in this league needs to sit down and think about their choices"
-    },
-    {
-      "handle": "@ProbablyWrongTakes",
-      "name": "Probably Wrong Takes",
-      "color": "#37C871",
-      "text": "the confidence to price is currently at an all-time league high and reality has entered the chat"
-    },
-    {
-      "handle": "@ClipboardGossip",
-      "name": "Clipboard Gossip",
-      "color": "#37C871",
-      "text": "Rúben dos Santos Gato Alves Dias has racked up 10 points this season and is STILL a free agent in this league. Somebody is going to win a Gameweek off this and it's going to be humiliating for the rest of you."
-    },
-    {
-      "handle": "@ClipboardGossip",
-      "name": "Clipboard Gossip",
-      "color": "#37C871",
-      "text": "BREAKING: Adi land Christos Tzolis for 8m — the biggest single outlay this league has seen in weeks."
-    },
-    {
-      "handle": "@BudgetBuzzUK",
-      "name": "Budget Buzz",
-      "color": "#FFB627",
-      "text": "Gameweek 4 headline act: Cole Palmer (Malhar) against Gabriel dos Santos Magalhães (Lash). Only one of these price tags gets to have a good week."
-    },
-    {
-      "handle": "@VarunUltras",
-      "name": "Varun FC Ultras",
-      "color": "#8AA095",
-      "text": "Varun now 6th in the table. was 5th not that long ago. numbers don't forget"
-    },
-    {
-      "handle": "@TripleCaptainTom",
-      "name": "Tom",
-      "color": "#37C871",
-      "text": "not a single manager in this league has picked up Chris Rigg yet and honestly at this point I'm starting to think it's a group project nobody wants to be first to touch"
-    },
-    {
-      "handle": "@ShoutyFromTheSofa",
-      "name": "Shouty From The Sofa",
-      "color": "#E8543F",
-      "text": "Adi picking up Pascal Groß is either genius or a cry for help. genuinely could be both"
-    },
-    {
-      "handle": "@BenchWarmerBrian",
-      "name": "Brian",
-      "color": "#8AA095",
-      "text": "Xaver Schlager (Nott'm Forest) still a free agent. someone's waiver budget is just sat there doing absolutely nothing about it"
-    },
-    {
-      "handle": "@ChaseUltras",
-      "name": "Chase FC Ultras",
-      "color": "#37C871",
-      "text": "Chase sliding — 2nd down to 3rd. this is how a season quietly gets away from you"
-    },
-    {
-      "handle": "@ShoutyFromTheSofa",
-      "name": "Shouty From The Sofa",
-      "color": "#E8543F",
-      "text": "Granit Xhaka (Sunderland) still a free agent. someone's waiver budget is just sat there doing absolutely nothing about it"
-    },
-    {
-      "handle": "@BudgetBuzzUK",
-      "name": "Budget Buzz",
-      "color": "#FFB627",
-      "text": "Squad News: Malhar have added Alex Scott for 5m. Roster now reflects the change league-wide."
-    },
-    {
-      "handle": "@ProbablyWrongTakes",
-      "name": "Probably Wrong Takes",
-      "color": "#37C871",
-      "text": "🚨 BIG MONEY MOVE: Adi drop 8m on Christos Tzolis. this league just got a lot more interesting"
-    },
-    {
-      "handle": "@BigManBants",
-      "name": "Big Man Bants",
-      "color": "#8AA095",
-      "text": "Malhar survive Adi by the barest possible margin. nobody in either group chat is breathing normally yet"
-    },
-    {
-      "handle": "@WaiverWireWatch",
-      "name": "Waiver Wire Watch",
-      "color": "#E8543F",
-      "text": "Malhar sitting on 36m right now. Enough firepower to change this league and they're just... not."
-    },
-    {
-      "handle": "@ArmchairGaffer",
-      "name": "The Armchair Gaffer",
-      "color": "#FFB627",
-      "text": "Nikhil owning Alexander Isak this gameweek should honestly be illegal. 13 points and the rest of the league just had to watch"
-    },
-    {
-      "handle": "@LashUltras",
-      "name": "Lash FC Ultras",
-      "color": "#FFB627",
-      "text": "Lash FC supporters would like it on record that we called Varun FC's collapse weeks in advance"
-    },
-    {
-      "handle": "@ArmchairGaffer",
-      "name": "The Armchair Gaffer",
-      "color": "#FFB627",
-      "text": "Malhar has the waiver budget to go get Amar Dedic (13 pts) right now and is instead just... not. incredible restraint or a genuine tactical error, no in-between"
-    },
-    {
-      "handle": "@BenchWarmerBrian",
-      "name": "Brian",
-      "color": "#8AA095",
-      "text": "4th vs 6th this week: Adi against Varun. table position means nothing until kickoff"
-    },
-    {
-      "handle": "@FPLGrapevine",
-      "name": "FPL Grapevine",
-      "color": "#FFB627",
-      "text": "Cristhian Mosquera: 12 points this season, 3.3% selected in this league. Those two numbers should not both be true at the same time."
-    },
-    {
-      "handle": "@DraftRoomLeaks",
-      "name": "Draft Room Leaks",
-      "color": "#37C871",
-      "text": "A source close to the situation (me, staring at the waiver list) confirms Brian Madjo is a free hit sitting right there in plain sight. Baffling nobody's pulled the trigger."
+      "text": "10m. for Kai Havertz. by Lash. let that sink in for a second before you go back to scrolling"
     },
     {
       "handle": "@FPL_Degenerate",
       "name": "FPL Degenerate",
       "color": "#E8543F",
-      "text": "Cody Gakpo single-handedly dragged Malhar past Adi with 11 points. everyone else on that roster is just along for the ride at this point"
+      "text": "the sheer arrogance radiating off some of these picks could power a small city"
     },
     {
-      "handle": "@ProbablyWrongTakes",
-      "name": "Probably Wrong Takes",
+      "handle": "@BenchWarmerBrian",
+      "name": "Brian",
+      "color": "#8AA095",
+      "text": "the confidence to price is currently at an all-time league high and reality has entered the chat"
+    },
+    {
+      "handle": "@LastPickLarry",
+      "name": "Last Pick Larry",
+      "color": "#8AA095",
+      "text": "📋 All results, Gameweek 3: Lash 32-26 Chase | Malhar 52-50 Adi | Nikhil 36-26 Varun"
+    },
+    {
+      "handle": "@TripleCaptainTom",
+      "name": "Tom",
       "color": "#37C871",
+      "text": "just 3 points separates top from second right now. this table has commitment issues"
+    },
+    {
+      "handle": "@FPLGrapevine",
+      "name": "FPL Grapevine",
+      "color": "#FFB627",
+      "text": "Told Adi have been \"circling\" Harry Amass (Man Utd) for two straight weeks now. At what point does circling just become cowardice."
+    },
+    {
+      "handle": "@LeagueOfItsOwn",
+      "name": "A League Of Its Own",
+      "color": "#FFB627",
       "text": "take away Alexander Isak's 13 points and Nikhil probably don't beat Varun. that's how this league works sometimes"
     },
     {
-      "handle": "@BigManBants",
-      "name": "Big Man Bants",
-      "color": "#8AA095",
-      "text": "not a single manager in this league has picked up Brian Brobbey yet and honestly at this point I'm starting to think it's a group project nobody wants to be first to touch"
+      "handle": "@WaiverWireWatch",
+      "name": "Waiver Wire Watch",
+      "color": "#E8543F",
+      "text": "Charalampos Kostoulas has racked up 8 points this season and is STILL a free agent in this league. Somebody is going to win a Gameweek off this and it's going to be humiliating for the rest of you."
     },
     {
-      "handle": "@TheAuctionInsider",
-      "name": "The Auction Insider",
+      "handle": "@FPL_Degenerate",
+      "name": "FPL Degenerate",
+      "color": "#E8543F",
+      "text": "everyone in this league thinks they drafted the smart squad. statistically most of you are just wrong 💀"
+    },
+    {
+      "handle": "@LeagueOfItsOwn",
+      "name": "A League Of Its Own",
+      "color": "#FFB627",
+      "text": "Chase has the waiver budget to go get James Justin (16 pts) right now and is instead just... not. incredible restraint or a genuine tactical error, no in-between"
+    },
+    {
+      "handle": "@NikhilFCDiehard",
+      "name": "Nikhil FC Diehard",
       "color": "#37C871",
-      "text": "Nikhil sitting on 4m right now. Basically down to loose change and vibes at this point."
+      "text": "Adi FC fans keep talking like they're not looking up at Nikhil FC in the table. someone show them the standings page"
     },
     {
       "handle": "@BudgetBuzzUK",
       "name": "Budget Buzz",
       "color": "#FFB627",
-      "text": "EXCLUSIVE: Pape Matar Sarr has been sitting on the waiver wire at 0.1% selected while every manager in this league pretends not to notice. Someone's about to look very smart."
+      "text": "594m of a possible 600m spent league-wide. Every pound accounted for — nobody has anything left to hide behind."
+    },
+    {
+      "handle": "@VarunFCDiehard",
+      "name": "Varun FC Diehard",
+      "color": "#37C871",
+      "text": "Varun drop from 5th to 6th after this week. red arrow, and the group chat saw it happen live"
+    },
+    {
+      "handle": "@BenchWarmerBrian",
+      "name": "Brian",
+      "color": "#8AA095",
+      "text": "just did the maths on somebody's spending and I have never seen anyone go all in like that. reckless. iconic. reckless"
+    },
+    {
+      "handle": "@ProbablyWrongTakes",
+      "name": "Probably Wrong Takes",
+      "color": "#37C871",
+      "text": "nobody has apologised for anything yet but give it one bad gameweek"
+    },
+    {
+      "handle": "@FPL_Degenerate",
+      "name": "FPL Degenerate",
+      "color": "#E8543F",
+      "text": "the gap between 1st and 2nd is 3 points. nobody in this league gets to relax"
+    },
+    {
+      "handle": "@TripleCaptainTom",
+      "name": "Tom",
+      "color": "#37C871",
+      "text": "this league has more storylines already than an actual Premier League season and we're not even a gameweek in"
+    },
+    {
+      "handle": "@WaiverWireWatch",
+      "name": "Waiver Wire Watch",
+      "color": "#E8543F",
+      "text": "Marcus Tavernier cost Lash just 1m. Absolute daylight robbery and everyone's too polite to say it out loud."
+    },
+    {
+      "handle": "@SquadShuffleHQ",
+      "name": "Squad Shuffle HQ",
+      "color": "#E8543F",
+      "text": "Squad News: Malhar have added Kiernan Dewsbury-Hall for 5m. Roster now reflects the change league-wide."
+    },
+    {
+      "handle": "@ProbablyWrongTakes",
+      "name": "Probably Wrong Takes",
+      "color": "#37C871",
+      "text": "this league runs on spite, screenshots and the faint smell of unresolved beef. wouldn't change a thing"
+    },
+    {
+      "handle": "@LastPickLarry",
+      "name": "Last Pick Larry",
+      "color": "#8AA095",
+      "text": "Between them, John Egan and Ethan Ampadu have put up 32 points this season combined — and neither is owned in this league. That's a title's worth of points on the table."
+    },
+    {
+      "handle": "@LeagueOfItsOwn",
+      "name": "A League Of Its Own",
+      "color": "#FFB627",
+      "text": "someone just said 'trust the process' about their squad and I have never heard four words used more incorrectly"
+    },
+    {
+      "handle": "@LeagueOfItsOwn",
+      "name": "A League Of Its Own",
+      "color": "#FFB627",
+      "text": "Martin Ødegaard put up 10 points for Malhar. certified haul, no debate needed"
+    },
+    {
+      "handle": "@BenchWarmerBrian",
+      "name": "Brian",
+      "color": "#8AA095",
+      "text": "somebody screenshot the standings unprompted and posted it with zero context. we see you"
+    },
+    {
+      "handle": "@TripleCaptainTom",
+      "name": "Tom",
+      "color": "#37C871",
+      "text": "Malhar owe this gameweek to Martin Ødegaard. 10 points from one player is basically doing the job alone"
+    },
+    {
+      "handle": "@TripleCaptainTom",
+      "name": "Tom",
+      "color": "#37C871",
+      "text": "the confidence some of you are showing after the picks you made is genuinely inspiring behaviour"
+    },
+    {
+      "handle": "@ArmchairGaffer",
+      "name": "The Armchair Gaffer",
+      "color": "#FFB627",
+      "text": "Malhar edge Adi by the width of a single point. someone's heart genuinely stopped watching that live"
+    },
+    {
+      "handle": "@SquadShuffleHQ",
+      "name": "Squad Shuffle HQ",
+      "color": "#E8543F",
+      "text": "Varun dropped 37m on Erling Haaland and there is no refund policy in this league. Committed now, for better or worse."
+    },
+    {
+      "handle": "@BigManBants",
+      "name": "Big Man Bants",
+      "color": "#8AA095",
+      "text": "Malhar go into this gameweek against Lash with a lot more in the bank. money doesn't play football though, so we'll see"
+    },
+    {
+      "handle": "@WaiverWireWatch",
+      "name": "Waiver Wire Watch",
+      "color": "#E8543F",
+      "text": "Anton Stach: 19 points this season, 2.8% selected in this league. Those two numbers should not both be true at the same time."
+    },
+    {
+      "handle": "@ArmchairGaffer",
+      "name": "The Armchair Gaffer",
+      "color": "#FFB627",
+      "text": "watched Varun bring in Mamadou Sangaré and immediately had to put my phone down for a minute"
+    },
+    {
+      "handle": "@FPLGrapevine",
+      "name": "FPL Grapevine",
+      "color": "#FFB627",
+      "text": "Nikhil sitting on 4m right now. Basically down to loose change and vibes at this point."
+    },
+    {
+      "handle": "@BenchWarmerBrian",
+      "name": "Brian",
+      "color": "#8AA095",
+      "text": "not a single manager in this league has picked up Jaden Philogene yet and honestly at this point I'm starting to think it's a group project nobody wants to be first to touch"
+    },
+    {
+      "handle": "@BenchWarmerBrian",
+      "name": "Brian",
+      "color": "#8AA095",
+      "text": "Mamadou Sangaré blanked for Varun this gameweek. zero. nothing. an absolute non-event, and Varun paid for it in the table"
+    },
+    {
+      "handle": "@DraftRoomLeaks",
+      "name": "Draft Room Leaks",
+      "color": "#37C871",
+      "text": "FULL-TIME (GW3): Malhar 52 - 50 Adi."
+    },
+    {
+      "handle": "@BudgetBuzzUK",
+      "name": "Budget Buzz",
+      "color": "#FFB627",
+      "text": "A source close to the situation (me, staring at the waiver list) confirms Takehiro Tomiyasu is a free hit sitting right there in plain sight. Baffling nobody's pulled the trigger."
+    },
+    {
+      "handle": "@ProbablyWrongTakes",
+      "name": "Probably Wrong Takes",
+      "color": "#37C871",
+      "text": "the group chat has gone from banter to actual threats in under an hour. love this league"
+    },
+    {
+      "handle": "@LeagueOfItsOwn",
+      "name": "A League Of Its Own",
+      "color": "#FFB627",
+      "text": "Jason Steele (Brighton) still a free agent. someone's waiver budget is just sat there doing absolutely nothing about it"
+    },
+    {
+      "handle": "@WaiverWireWatch",
+      "name": "Waiver Wire Watch",
+      "color": "#E8543F",
+      "text": "EXCLUSIVE: Rico Lewis has been sitting on the waiver wire at 0.2% selected while every manager in this league pretends not to notice. Someone's about to look very smart."
+    },
+    {
+      "handle": "@BigManBants",
+      "name": "Big Man Bants",
+      "color": "#8AA095",
+      "text": "George Hemmings (Aston Villa) still a free agent. someone's waiver budget is just sat there doing absolutely nothing about it"
+    },
+    {
+      "handle": "@TheAuctionInsider",
+      "name": "The Auction Insider",
+      "color": "#37C871",
+      "text": "Form check: Lash sit 5th with a record of 1W-0D-2L and a points difference of -4."
+    },
+    {
+      "handle": "@LeagueOfItsOwn",
+      "name": "A League Of Its Own",
+      "color": "#FFB627",
+      "text": "I've decided who I'm rooting against and it's whoever's having the most fun doing well. sorry"
+    },
+    {
+      "handle": "@TripleCaptainTom",
+      "name": "Tom",
+      "color": "#37C871",
+      "text": "Adi adding Pascal Groß for 8m is either the signing of the season or the first domino. we'll find out together"
+    },
+    {
+      "handle": "@FPL_Degenerate",
+      "name": "FPL Degenerate",
+      "color": "#E8543F",
+      "text": "not a single manager in this league has picked up Charalampos Kostoulas yet and honestly at this point I'm starting to think it's a group project nobody wants to be first to touch"
+    },
+    {
+      "handle": "@VarunUltras",
+      "name": "Varun FC Ultras",
+      "color": "#E8543F",
+      "text": "not going to name names but someone dropped to 6th this week and it definitely rhymes with \"Varun\""
+    },
+    {
+      "handle": "@BigManBants",
+      "name": "Big Man Bants",
+      "color": "#8AA095",
+      "text": "Lash and Nikhil both think they won that trade. one of them is objectively wrong and I have thoughts"
+    },
+    {
+      "handle": "@ArmchairGaffer",
+      "name": "The Armchair Gaffer",
+      "color": "#FFB627",
+      "text": "reminder: whoever finishes bottom has to change their profile picture to the trophy for a month. no exceptions, no appeals"
+    },
+    {
+      "handle": "@NikhilFCDiehard",
+      "name": "Nikhil FC Diehard",
+      "color": "#8AA095",
+      "text": "Nikhil FC sit above Varun FC in the table right now and we intend to keep it that way"
+    },
+    {
+      "handle": "@ChaseFCFaithful",
+      "name": "Chase FC Faithful",
+      "color": "#37C871",
+      "text": "Nikhil FC talking a big game for a team that's one bad week from a full identity crisis"
+    },
+    {
+      "handle": "@AdiFCDiehard",
+      "name": "Adi FC Diehard",
+      "color": "#FFB627",
+      "text": "Adi FC sitting on 18m, Nikhil FC scraping by on 4m. we said what we said"
+    },
+    {
+      "handle": "@WaiverWireWatch",
+      "name": "Waiver Wire Watch",
+      "color": "#E8543F",
+      "text": "Alexander Isak was the standout performer of Gameweek 3, putting up 13 points for Nikhil. Everyone else was playing for second."
+    },
+    {
+      "handle": "@ProbablyWrongTakes",
+      "name": "Probably Wrong Takes",
+      "color": "#37C871",
+      "text": "Malhar scrape past Adi by the smallest possible margin. a win's a win, but that one needed a lie down after"
+    },
+    {
+      "handle": "@TripleCaptainTom",
+      "name": "Tom",
+      "color": "#37C871",
+      "text": "the gap between how confident people sound in the group chat and how their squads actually look is not adding up 🔥"
+    },
+    {
+      "handle": "@ClipboardGossip",
+      "name": "Clipboard Gossip",
+      "color": "#37C871",
+      "text": "EXCLUSIVE: Ronald Araujo has been sitting on the waiver wire at 2.3% selected while every manager in this league pretends not to notice. Someone's about to look very smart."
+    },
+    {
+      "handle": "@ShoutyFromTheSofa",
+      "name": "Shouty From The Sofa",
+      "color": "#E8543F",
+      "text": "nobody in this league respects a rebuild. everybody in this league is about to need one"
+    },
+    {
+      "handle": "@WaiverWireWatch",
+      "name": "Waiver Wire Watch",
+      "color": "#E8543F",
+      "text": "Alexander Isak returned 13 points for Nikhil in Gameweek 3 — comfortably a haul by any definition."
+    },
+    {
+      "handle": "@LastPickLarry",
+      "name": "Last Pick Larry",
+      "color": "#8AA095",
+      "text": "A source close to the situation (me, staring at the waiver list) confirms Regan Slater is a free hit sitting right there in plain sight. Baffling nobody's pulled the trigger."
+    },
+    {
+      "handle": "@FPL_Degenerate",
+      "name": "FPL Degenerate",
+      "color": "#E8543F",
+      "text": "Martin Ødegaard absolutely hauled for Malhar this gameweek — 10 points. that's not a pick, that's a whole personality now"
+    },
+    {
+      "handle": "@AdiFCFaithful",
+      "name": "Adi FC Faithful",
+      "color": "#E8543F",
+      "text": "Varun FC fans have had all week to think about facing us this gameweek. hope they used the time well, because we didn't"
+    },
+    {
+      "handle": "@ProbablyWrongTakes",
+      "name": "Probably Wrong Takes",
+      "color": "#37C871",
+      "text": "Adi were one lucky bounce away from taking that off Malhar. instead it's nothing, and that's brutal"
+    },
+    {
+      "handle": "@BenchWarmerBrian",
+      "name": "Brian",
+      "color": "#8AA095",
+      "text": "nothing bonds six grown adults quite like mutual, deeply personal fantasy football resentment"
+    },
+    {
+      "handle": "@ShoutyFromTheSofa",
+      "name": "Shouty From The Sofa",
+      "color": "#E8543F",
+      "text": "somebody in this league is about to get bullied for a full calendar year over one decision. build a bridge"
+    },
+    {
+      "handle": "@TripleCaptainTom",
+      "name": "Tom",
+      "color": "#37C871",
+      "text": "Nikhil beat Varun mostly because Alexander Isak decided to show up. 13 points from one player is doing a lot of heavy lifting"
+    },
+    {
+      "handle": "@ShoutyFromTheSofa",
+      "name": "Shouty From The Sofa",
+      "color": "#E8543F",
+      "text": "Nikhil coming away from that trade with Antoine Semenyo and Harry Wilson. quietly one of the better bits of business in this league so far"
+    },
+    {
+      "handle": "@VarunFCDiehard",
+      "name": "Varun FC Diehard",
+      "color": "#FFB627",
+      "text": "Adi FC fans have had all week to think about facing us this gameweek. hope they used the time well, because we didn't"
+    },
+    {
+      "handle": "@NikhilUltras",
+      "name": "Nikhil FC Ultras",
+      "color": "#37C871",
+      "text": "Nikhil FC did not come to make friends with Adi FC. Nikhil FC came to make a point, repeatedly, in writing"
+    },
+    {
+      "handle": "@ClipboardGossip",
+      "name": "Clipboard Gossip",
+      "color": "#37C871",
+      "text": "Cody Gakpo returned 11 points for Malhar in Gameweek 3 — comfortably a haul by any definition."
+    },
+    {
+      "handle": "@BudgetBuzzUK",
+      "name": "Budget Buzz",
+      "color": "#FFB627",
+      "text": "A source close to the situation (me, staring at the waiver list) confirms Joachim Andersen is a free hit sitting right there in plain sight. Baffling nobody's pulled the trigger."
+    },
+    {
+      "handle": "@ArmchairGaffer",
+      "name": "The Armchair Gaffer",
+      "color": "#FFB627",
+      "text": "not emotionally prepared for gameweek 1, my heart genuinely cannot take this league 😭"
+    },
+    {
+      "handle": "@AdiFCDiehard",
+      "name": "Adi FC Diehard",
+      "color": "#E8543F",
+      "text": "Adi FC has a folder. it's called \"receipts\". most of it is Varun FC"
+    },
+    {
+      "handle": "@BenchWarmerBrian",
+      "name": "Brian",
+      "color": "#8AA095",
+      "text": "Lash straight up gave away Alexander Isak and Iliman Ndiaye in that trade. brave or insane, genuinely no in-between"
+    },
+    {
+      "handle": "@TheAuctionInsider",
+      "name": "The Auction Insider",
+      "color": "#37C871",
+      "text": "EXCLUSIVE: Noah Okafor has been sitting on the waiver wire at 0.3% selected while every manager in this league pretends not to notice. Someone's about to look very smart."
+    },
+    {
+      "handle": "@FPLGrapevine",
+      "name": "FPL Grapevine",
+      "color": "#FFB627",
+      "text": "Form check: Varun sit 6th with a record of 1W-0D-2L and a points difference of -25."
+    },
+    {
+      "handle": "@AdiFCFaithful",
+      "name": "Adi FC Faithful",
+      "color": "#8AA095",
+      "text": "Adi FC would like to remind Lash FC that history remembers winners, and history has taken notes"
+    },
+    {
+      "handle": "@NikhilFCFaithful",
+      "name": "Nikhil FC Faithful",
+      "color": "#8AA095",
+      "text": "Nikhil still unbeaten through 3 gameweeks. the rest of the league would like a word, preferably in private"
+    },
+    {
+      "handle": "@AdiFCDiehard",
+      "name": "Adi FC Diehard",
+      "color": "#E8543F",
+      "text": "Adi FC did not come to make friends with Chase FC. Adi FC came to make a point, repeatedly, in writing"
+    },
+    {
+      "handle": "@BigManBants",
+      "name": "Big Man Bants",
+      "color": "#8AA095",
+      "text": "genuinely baffled how Lewie Coyle (12 pts, Hull City) hasn't been snapped up yet. this league has a blind spot and it has a name"
+    },
+    {
+      "handle": "@DraftRoomLeaks",
+      "name": "Draft Room Leaks",
+      "color": "#37C871",
+      "text": "EXCLUSIVE: Jorrel Hato has been sitting on the waiver wire at 0.9% selected while every manager in this league pretends not to notice. Someone's about to look very smart."
+    },
+    {
+      "handle": "@LeagueOfItsOwn",
+      "name": "A League Of Its Own",
+      "color": "#FFB627",
+      "text": "Nikhil top, Malhar breathing down their neck by 3. one bad gameweek changes everything here"
+    },
+    {
+      "handle": "@ProbablyWrongTakes",
+      "name": "Probably Wrong Takes",
+      "color": "#37C871",
+      "text": "Gabriel Martinelli Silva (Arsenal) still a free agent. someone's waiver budget is just sat there doing absolutely nothing about it"
+    },
+    {
+      "handle": "@BigManBants",
+      "name": "Big Man Bants",
+      "color": "#8AA095",
+      "text": "not me refreshing the fixture list for Malhar vs Lash like it's a cup final. it's gameweek 4. get a grip, me"
+    },
+    {
+      "handle": "@ShoutyFromTheSofa",
+      "name": "Shouty From The Sofa",
+      "color": "#E8543F",
+      "text": "Nikhil owning Alexander Isak this gameweek should honestly be illegal. 13 points and the rest of the league just had to watch"
+    },
+    {
+      "handle": "@DraftRoomLeaks",
+      "name": "Draft Room Leaks",
+      "color": "#37C871",
+      "text": "Varun sitting on 19m right now. Basically down to loose change and vibes at this point."
+    },
+    {
+      "handle": "@BudgetBuzzUK",
+      "name": "Budget Buzz",
+      "color": "#FFB627",
+      "text": "Between them, Oli McBurnie and Sven Botman have put up 17 points this season combined — and neither is owned in this league. That's a title's worth of points on the table."
+    },
+    {
+      "handle": "@LeagueOfItsOwn",
+      "name": "A League Of Its Own",
+      "color": "#FFB627",
+      "text": "James Trafford sitting on 15 points this season, owned by literally nobody in this league. we are all watching this happen in real time and choosing to do nothing"
+    },
+    {
+      "handle": "@ShoutyFromTheSofa",
+      "name": "Shouty From The Sofa",
+      "color": "#E8543F",
+      "text": "🚨 BIG MONEY MOVE: Adi drop 8m on Pascal Groß. this league just got a lot more interesting"
+    },
+    {
+      "handle": "@WaiverWireWatch",
+      "name": "Waiver Wire Watch",
+      "color": "#E8543F",
+      "text": "EXCLUSIVE: Aurèle Amenda has been sitting on the waiver wire at 0.8% selected while every manager in this league pretends not to notice. Someone's about to look very smart."
+    },
+    {
+      "handle": "@BenchWarmerBrian",
+      "name": "Brian",
+      "color": "#8AA095",
+      "text": "genuinely losing sleep over gameweek 1 and I don't think that counts as normal behaviour anymore"
+    },
+    {
+      "handle": "@BigManBants",
+      "name": "Big Man Bants",
+      "color": "#8AA095",
+      "text": "the amount of trash talk happening before a single ball has been kicked is genuinely unhinged and I am so here for it"
+    },
+    {
+      "handle": "@ChaseUltras",
+      "name": "Chase FC Ultras",
+      "color": "#8AA095",
+      "text": "there's a very specific kind of quiet that only Lash FC fans go the week after we play them"
+    },
+    {
+      "handle": "@BigManBants",
+      "name": "Big Man Bants",
+      "color": "#8AA095",
+      "text": "player of the gameweek, no debate: Alexander Isak, 13 points, Nikhil. everyone else was just there"
+    },
+    {
+      "handle": "@TripleCaptainTom",
+      "name": "Tom",
+      "color": "#37C871",
+      "text": "Jaka Bijol joins Nikhil for 1m. the rest of this league just got a lot more nervous, whether they admit it or not"
+    },
+    {
+      "handle": "@ChaseFCFaithful",
+      "name": "Chase FC Faithful",
+      "color": "#E8543F",
+      "text": "Nikhil FC fans have had all week to think about facing us this gameweek. hope they used the time well, because we didn't"
+    },
+    {
+      "handle": "@ShoutyFromTheSofa",
+      "name": "Shouty From The Sofa",
+      "color": "#E8543F",
+      "text": "Cody Gakpo absolutely hauled for Malhar this gameweek — 11 points. that's not a pick, that's a whole personality now"
+    },
+    {
+      "handle": "@ChaseFCDiehard",
+      "name": "Chase FC Diehard",
+      "color": "#37C871",
+      "text": "Chase now 3rd in the table. was 2nd not that long ago. numbers don't forget"
+    },
+    {
+      "handle": "@BenchWarmerBrian",
+      "name": "Brian",
+      "color": "#8AA095",
+      "text": "whoever drafted Martin Ødegaard for Malhar is feeling very smug right now, and honestly, 10 points earns it"
+    },
+    {
+      "handle": "@BenchWarmerBrian",
+      "name": "Brian",
+      "color": "#8AA095",
+      "text": "🚨 BIG MONEY MOVE: Adi drop 8m on Christos Tzolis. this league just got a lot more interesting"
+    },
+    {
+      "handle": "@ClipboardGossip",
+      "name": "Clipboard Gossip",
+      "color": "#37C871",
+      "text": "Gameweek 4 headline act: Cole Palmer (Malhar) against Gabriel dos Santos Magalhães (Lash). Only one of these price tags gets to have a good week."
+    },
+    {
+      "handle": "@ClipboardGossip",
+      "name": "Clipboard Gossip",
+      "color": "#37C871",
+      "text": "EXCLUSIVE: Jayden Lienou has been sitting on the waiver wire at 0.1% selected while every manager in this league pretends not to notice. Someone's about to look very smart."
+    },
+    {
+      "handle": "@LeagueOfItsOwn",
+      "name": "A League Of Its Own",
+      "color": "#FFB627",
+      "text": "Varun carried Mamadou Sangaré to a blank this week. these things happen, they just shouldn't happen this often"
+    },
+    {
+      "handle": "@DraftRoomLeaks",
+      "name": "Draft Room Leaks",
+      "color": "#37C871",
+      "text": "EXCLUSIVE: Moisés Caicedo Corozo has been sitting on the waiver wire at 1.6% selected while every manager in this league pretends not to notice. Someone's about to look very smart."
+    },
+    {
+      "handle": "@ClipboardGossip",
+      "name": "Clipboard Gossip",
+      "color": "#37C871",
+      "text": "BREAKING: Adi land Pascal Groß for 8m — the biggest single outlay this league has seen in weeks."
+    },
+    {
+      "handle": "@ClipboardGossip",
+      "name": "Clipboard Gossip",
+      "color": "#37C871",
+      "text": "A source close to the situation (me, staring at the waiver list) confirms Alejandro Garnacho Ferreyra is a free hit sitting right there in plain sight. Baffling nobody's pulled the trigger."
+    },
+    {
+      "handle": "@ArmchairGaffer",
+      "name": "The Armchair Gaffer",
+      "color": "#FFB627",
+      "text": "not a single manager in this league has picked up John McGinn yet and honestly at this point I'm starting to think it's a group project nobody wants to be first to touch"
+    },
+    {
+      "handle": "@VarunFCDiehard",
+      "name": "Varun FC Diehard",
+      "color": "#FFB627",
+      "text": "Varun rooted to the bottom of the table. it's giving relegation form in a league with no relegation, which is almost more embarrassing"
+    },
+    {
+      "handle": "@WaiverWireWatch",
+      "name": "Waiver Wire Watch",
+      "color": "#E8543F",
+      "text": "A source close to the situation (me, staring at the waiver list) confirms James Justin is a free hit sitting right there in plain sight. Baffling nobody's pulled the trigger."
+    },
+    {
+      "handle": "@SquadShuffleHQ",
+      "name": "Squad Shuffle HQ",
+      "color": "#E8543F",
+      "text": "Between them, Thierno Barry and Pedro Lomba Neto have put up 22 points this season combined — and neither is owned in this league. That's a title's worth of points on the table."
+    },
+    {
+      "handle": "@TheAuctionInsider",
+      "name": "The Auction Insider",
+      "color": "#37C871",
+      "text": "BREAKING: Adi land Christos Tzolis for 8m — the biggest single outlay this league has seen in weeks."
+    },
+    {
+      "handle": "@LastPickLarry",
+      "name": "Last Pick Larry",
+      "color": "#8AA095",
+      "text": "A source close to the situation (me, staring at the waiver list) confirms Joél Drakes-Thomas is a free hit sitting right there in plain sight. Baffling nobody's pulled the trigger."
+    },
+    {
+      "handle": "@AdiFCDiehard",
+      "name": "Adi FC Diehard",
+      "color": "#37C871",
+      "text": "Varun FC fans have been quiet lately. we've noticed. we're keeping notes"
+    },
+    {
+      "handle": "@TripleCaptainTom",
+      "name": "Tom",
+      "color": "#37C871",
+      "text": "Nikhil take care of business against Varun. nothing to see here, which is exactly how Nikhil likes it"
+    },
+    {
+      "handle": "@DraftRoomLeaks",
+      "name": "Draft Room Leaks",
+      "color": "#37C871",
+      "text": "Martin Ødegaard returned 10 points for Malhar in Gameweek 3 — comfortably a haul by any definition."
+    },
+    {
+      "handle": "@BudgetBuzzUK",
+      "name": "Budget Buzz",
+      "color": "#FFB627",
+      "text": "Malhar sitting on 36m right now. Enough firepower to change this league and they're just... not."
+    },
+    {
+      "handle": "@FPLGrapevine",
+      "name": "FPL Grapevine",
+      "color": "#FFB627",
+      "text": "A source close to the situation (me, staring at the waiver list) confirms Jair Paula da Cunha Filho is a free hit sitting right there in plain sight. Baffling nobody's pulled the trigger."
+    },
+    {
+      "handle": "@FPLGrapevine",
+      "name": "FPL Grapevine",
+      "color": "#FFB627",
+      "text": "🏅 Gameweek 3 MVP: Alexander Isak (Nikhil) — 13 points."
+    },
+    {
+      "handle": "@ProbablyWrongTakes",
+      "name": "Probably Wrong Takes",
+      "color": "#37C871",
+      "text": "Gameweek 4 preview: Malhar vs Lash. mark the calendar, or don't, we'll remind you anyway"
+    },
+    {
+      "handle": "@TripleCaptainTom",
+      "name": "Tom",
+      "color": "#37C871",
+      "text": "8m. for Christos Tzolis. by Adi. let that sink in for a second before you go back to scrolling"
+    },
+    {
+      "handle": "@WaiverWireWatch",
+      "name": "Waiver Wire Watch",
+      "color": "#E8543F",
+      "text": "Jayden Bogle: 22 points this season, 1.6% selected in this league. Those two numbers should not both be true at the same time."
+    },
+    {
+      "handle": "@TheAuctionInsider",
+      "name": "The Auction Insider",
+      "color": "#37C871",
+      "text": "Yéremy Pino Santos: 11 points this season, 0.4% selected in this league. Those two numbers should not both be true at the same time."
+    },
+    {
+      "handle": "@LashFCDiehard",
+      "name": "Lash FC Diehard",
+      "color": "#37C871",
+      "text": "Lash FC's Gabriel dos Santos Magalhães cost more than Chase FC's entire spending on Bruno Borges Fernandes. spend accordingly next time, Chase FC"
+    },
+    {
+      "handle": "@ProbablyWrongTakes",
+      "name": "Probably Wrong Takes",
+      "color": "#37C871",
+      "text": "watched Malhar bring in Martin Ødegaard and immediately had to put my phone down for a minute"
+    },
+    {
+      "handle": "@BenchWarmerBrian",
+      "name": "Brian",
+      "color": "#8AA095",
+      "text": "Chase carried Marcos Senesi Barón to a blank this week. these things happen, they just shouldn't happen this often"
+    },
+    {
+      "handle": "@BigManBants",
+      "name": "Big Man Bants",
+      "color": "#8AA095",
+      "text": "can't stop thinking about Adi vs Varun this week. absolutely nothing has happened yet and I'm already invested"
+    },
+    {
+      "handle": "@BenchWarmerBrian",
+      "name": "Brian",
+      "color": "#8AA095",
+      "text": "not a single manager in this league has picked up Viktor Gyökeres yet and honestly at this point I'm starting to think it's a group project nobody wants to be first to touch"
+    },
+    {
+      "handle": "@TripleCaptainTom",
+      "name": "Tom",
+      "color": "#37C871",
+      "text": "Chase has the waiver budget to go get Joe Willock (11 pts) right now and is instead just... not. incredible restraint or a genuine tactical error, no in-between"
+    },
+    {
+      "handle": "@FPL_Degenerate",
+      "name": "FPL Degenerate",
+      "color": "#E8543F",
+      "text": "genuinely baffled how Adam Wharton (8 pts, Crystal Palace) hasn't been snapped up yet. this league has a blind spot and it has a name"
+    },
+    {
+      "handle": "@ClipboardGossip",
+      "name": "Clipboard Gossip",
+      "color": "#37C871",
+      "text": "A source close to the situation (me, staring at the waiver list) confirms Sven Botman is a free hit sitting right there in plain sight. Baffling nobody's pulled the trigger."
+    },
+    {
+      "handle": "@FPLGrapevine",
+      "name": "FPL Grapevine",
+      "color": "#FFB627",
+      "text": "BREAKING: Lash land Kai Havertz for 10m — the biggest single outlay this league has seen in weeks."
+    },
+    {
+      "handle": "@NikhilUltras",
+      "name": "Nikhil FC Ultras",
+      "color": "#E8543F",
+      "text": "Nikhil unbeaten run continues — 3 gameweeks and counting. every other manager in this league is quietly furious about it"
+    },
+    {
+      "handle": "@FPL_Degenerate",
+      "name": "FPL Degenerate",
+      "color": "#E8543F",
+      "text": "Adi has the waiver budget to go get James Trafford (15 pts) right now and is instead just... not. incredible restraint or a genuine tactical error, no in-between"
+    },
+    {
+      "handle": "@VarunFCDiehard",
+      "name": "Varun FC Diehard",
+      "color": "#37C871",
+      "text": "Varun now 6th in the table. was 5th not that long ago. numbers don't forget"
+    },
+    {
+      "handle": "@ShoutyFromTheSofa",
+      "name": "Shouty From The Sofa",
+      "color": "#E8543F",
+      "text": "genuinely baffled how Wilson Isidor (13 pts, Sunderland) hasn't been snapped up yet. this league has a blind spot and it has a name"
+    },
+    {
+      "handle": "@ProbablyWrongTakes",
+      "name": "Probably Wrong Takes",
+      "color": "#37C871",
+      "text": "Chase go into this gameweek against Nikhil with a lot more in the bank. money doesn't play football though, so we'll see"
+    },
+    {
+      "handle": "@ShoutyFromTheSofa",
+      "name": "Shouty From The Sofa",
+      "color": "#E8543F",
+      "text": "Chase will point to the bigger picture after that loss to Lash. Lash will point to the table"
+    },
+    {
+      "handle": "@BigManBants",
+      "name": "Big Man Bants",
+      "color": "#8AA095",
+      "text": "Sidiki Cherif (Coventry City) still a free agent. someone's waiver budget is just sat there doing absolutely nothing about it"
+    },
+    {
+      "handle": "@ClipboardGossip",
+      "name": "Clipboard Gossip",
+      "color": "#37C871",
+      "text": "Chase currently running 11 players deep. Fully loaded — for now. Ask again after the next waiver deadline."
+    },
+    {
+      "handle": "@BudgetBuzzUK",
+      "name": "Budget Buzz",
+      "color": "#FFB627",
+      "text": "Lash move up to 5th in the table after Gameweek 3. Quiet progress, but progress all the same."
+    },
+    {
+      "handle": "@VarunFCDiehard",
+      "name": "Varun FC Diehard",
+      "color": "#E8543F",
+      "text": "Chase FC talking a big game for a team that's one bad week from a full identity crisis"
+    },
+    {
+      "handle": "@TripleCaptainTom",
+      "name": "Tom",
+      "color": "#37C871",
+      "text": "Lash just made the kind of signing that ends up on a highlight reel or a cautionary tale. Kai Havertz for 10m, no middle ground"
+    },
+    {
+      "handle": "@FPL_Degenerate",
+      "name": "FPL Degenerate",
+      "color": "#E8543F",
+      "text": "Óscar Zambrano (Hull City) still a free agent. someone's waiver budget is just sat there doing absolutely nothing about it"
+    },
+    {
+      "handle": "@LeagueOfItsOwn",
+      "name": "A League Of Its Own",
+      "color": "#FFB627",
+      "text": "watched Lash bring in Kai Havertz and immediately had to put my phone down for a minute"
+    },
+    {
+      "handle": "@TheAuctionInsider",
+      "name": "The Auction Insider",
+      "color": "#37C871",
+      "text": "A source close to the situation (me, staring at the waiver list) confirms Marco Bizot is a free hit sitting right there in plain sight. Baffling nobody's pulled the trigger."
+    },
+    {
+      "handle": "@FPL_Degenerate",
+      "name": "FPL Degenerate",
+      "color": "#E8543F",
+      "text": "nobody in this league has spent 10m on one player like Lash just did for Kai Havertz. respect the audacity"
+    },
+    {
+      "handle": "@DraftRoomLeaks",
+      "name": "Draft Room Leaks",
+      "color": "#37C871",
+      "text": "RESULT — Gameweek 3: Nikhil 36, Varun 26."
+    },
+    {
+      "handle": "@LastPickLarry",
+      "name": "Last Pick Larry",
+      "color": "#8AA095",
+      "text": "Form check: Adi sit 4th with a record of 1W-0D-2L and a points difference of +0."
+    },
+    {
+      "handle": "@TheAuctionInsider",
+      "name": "The Auction Insider",
+      "color": "#37C871",
+      "text": "Told Malhar have been \"circling\" Jaden Philogene (Ipswich Town) for two straight weeks now. At what point does circling just become cowardice."
+    },
+    {
+      "handle": "@NikhilFCDiehard",
+      "name": "Nikhil FC Diehard",
+      "color": "#E8543F",
+      "text": "Nikhil FC sit above Malhar FC in the table right now and we intend to keep it that way"
+    },
+    {
+      "handle": "@FPL_Degenerate",
+      "name": "FPL Degenerate",
+      "color": "#E8543F",
+      "text": "not a single manager in this league has picked up Nicolas Jackson yet and honestly at this point I'm starting to think it's a group project nobody wants to be first to touch"
+    },
+    {
+      "handle": "@ChaseUltras",
+      "name": "Chase FC Ultras",
+      "color": "#FFB627",
+      "text": "Chase drop from 2nd to 3rd after this week. red arrow, and the group chat saw it happen live"
+    },
+    {
+      "handle": "@FPLGrapevine",
+      "name": "FPL Grapevine",
+      "color": "#FFB627",
+      "text": "Myles Lewis-Skelly has racked up 8 points this season and is STILL a free agent in this league. Somebody is going to win a Gameweek off this and it's going to be humiliating for the rest of you."
+    },
+    {
+      "handle": "@TripleCaptainTom",
+      "name": "Tom",
+      "color": "#37C871",
+      "text": "🚨 BIG MONEY MOVE: Lash drop 10m on Kai Havertz. this league just got a lot more interesting"
+    },
+    {
+      "handle": "@NikhilFCFaithful",
+      "name": "Nikhil FC Faithful",
+      "color": "#E8543F",
+      "text": "not to be dramatic but Varun FC still owes us an apology for last season. still waiting"
+    },
+    {
+      "handle": "@ShoutyFromTheSofa",
+      "name": "Shouty From The Sofa",
+      "color": "#E8543F",
+      "text": "Semi Ajayi sitting on 25 points this season, owned by literally nobody in this league. we are all watching this happen in real time and choosing to do nothing"
+    },
+    {
+      "handle": "@LastPickLarry",
+      "name": "Last Pick Larry",
+      "color": "#8AA095",
+      "text": "A source close to the situation (me, staring at the waiver list) confirms Jack Rudoni is a free hit sitting right there in plain sight. Baffling nobody's pulled the trigger."
+    },
+    {
+      "handle": "@SquadShuffleHQ",
+      "name": "Squad Shuffle HQ",
+      "color": "#E8543F",
+      "text": "Emersonn Correia da Silva has racked up 12 points this season and is STILL a free agent in this league. Somebody is going to win a Gameweek off this and it's going to be humiliating for the rest of you."
+    },
+    {
+      "handle": "@TripleCaptainTom",
+      "name": "Tom",
+      "color": "#37C871",
+      "text": "Varun has the waiver budget to go get Ronald Araujo (9 pts) right now and is instead just... not. incredible restraint or a genuine tactical error, no in-between"
+    },
+    {
+      "handle": "@ProbablyWrongTakes",
+      "name": "Probably Wrong Takes",
+      "color": "#37C871",
+      "text": "not a single manager in this league has picked up Mykhailo Mudryk yet and honestly at this point I'm starting to think it's a group project nobody wants to be first to touch"
+    },
+    {
+      "handle": "@SquadShuffleHQ",
+      "name": "Squad Shuffle HQ",
+      "color": "#E8543F",
+      "text": "EXCLUSIVE: Lamare Bogarde has been sitting on the waiver wire at 0.1% selected while every manager in this league pretends not to notice. Someone's about to look very smart."
+    },
+    {
+      "handle": "@BudgetBuzzUK",
+      "name": "Budget Buzz",
+      "color": "#FFB627",
+      "text": "Told Adi have been \"circling\" Pep Chavarría (Chelsea) for two straight weeks now. At what point does circling just become cowardice."
+    },
+    {
+      "handle": "@TheAuctionInsider",
+      "name": "The Auction Insider",
+      "color": "#37C871",
+      "text": "A source close to the situation (me, staring at the waiver list) confirms Ibrahim Mbaye is a free hit sitting right there in plain sight. Baffling nobody's pulled the trigger."
+    },
+    {
+      "handle": "@BudgetBuzzUK",
+      "name": "Budget Buzz",
+      "color": "#FFB627",
+      "text": "EXCLUSIVE: Oscar Bobb has been sitting on the waiver wire at 0.3% selected while every manager in this league pretends not to notice. Someone's about to look very smart."
+    },
+    {
+      "handle": "@AdiFCDiehard",
+      "name": "Adi FC Diehard",
+      "color": "#FFB627",
+      "text": "every Lash FC supporter in this league needs to sit down and think about their choices"
+    },
+    {
+      "handle": "@ShoutyFromTheSofa",
+      "name": "Shouty From The Sofa",
+      "color": "#E8543F",
+      "text": "not a single manager in this league has picked up Pape Matar Sarr yet and honestly at this point I'm starting to think it's a group project nobody wants to be first to touch"
     },
     {
       "handle": "@NikhilFCDiehard",
@@ -13048,244 +13138,154 @@
       "text": "Chase FC fans have had all week to think about facing us this gameweek. hope they used the time well, because we didn't"
     },
     {
-      "handle": "@SquadShuffleHQ",
-      "name": "Squad Shuffle HQ",
-      "color": "#E8543F",
-      "text": "Squad News: Nikhil have added Jaka Bijol for 1m. Roster now reflects the change league-wide."
+      "handle": "@LashFCDiehard",
+      "name": "Lash FC Diehard",
+      "color": "#8AA095",
+      "text": "everyone slept on Lash and now they're 5th in the table. hope the nap was worth it"
     },
     {
       "handle": "@WaiverWireWatch",
       "name": "Waiver Wire Watch",
       "color": "#E8543F",
-      "text": "RESULT — Gameweek 3: Lash 32, Chase 26."
-    },
-    {
-      "handle": "@ClipboardGossip",
-      "name": "Clipboard Gossip",
-      "color": "#37C871",
-      "text": "Micky van de Ven has racked up 9 points this season and is STILL a free agent in this league. Somebody is going to win a Gameweek off this and it's going to be humiliating for the rest of you."
-    },
-    {
-      "handle": "@ArmchairGaffer",
-      "name": "The Armchair Gaffer",
-      "color": "#FFB627",
-      "text": "Malhar host Lash this gameweek. or don't host, it's fantasy football, but you know what I mean"
-    },
-    {
-      "handle": "@FPLGrapevine",
-      "name": "FPL Grapevine",
-      "color": "#FFB627",
-      "text": "Between them, John Egan and Matty Cash have put up 30 points this season combined — and neither is owned in this league. That's a title's worth of points on the table."
-    },
-    {
-      "handle": "@FPL_Degenerate",
-      "name": "FPL Degenerate",
-      "color": "#E8543F",
-      "text": "not a single manager in this league has picked up Michael Kayode yet and honestly at this point I'm starting to think it's a group project nobody wants to be first to touch"
-    },
-    {
-      "handle": "@TheAuctionInsider",
-      "name": "The Auction Insider",
-      "color": "#37C871",
-      "text": "Tyrone Mings has racked up 7 points this season and is STILL a free agent in this league. Somebody is going to win a Gameweek off this and it's going to be humiliating for the rest of you."
-    },
-    {
-      "handle": "@NikhilFCFaithful",
-      "name": "Nikhil FC Faithful",
-      "color": "#37C871",
-      "text": "Nikhil FC would like to remind Malhar FC that history remembers winners, and history has taken notes"
-    },
-    {
-      "handle": "@LeagueOfItsOwn",
-      "name": "A League Of Its Own",
-      "color": "#FFB627",
-      "text": "genuinely baffled how Rodrigo Bentancur (8 pts, Spurs) hasn't been snapped up yet. this league has a blind spot and it has a name"
-    },
-    {
-      "handle": "@FPL_Degenerate",
-      "name": "FPL Degenerate",
-      "color": "#E8543F",
-      "text": "Lash take care of business against Chase. nothing to see here, which is exactly how Lash likes it"
-    },
-    {
-      "handle": "@ClipboardGossip",
-      "name": "Clipboard Gossip",
-      "color": "#37C871",
-      "text": "Mikkel Damsgaard has racked up 12 points this season and is STILL a free agent in this league. Somebody is going to win a Gameweek off this and it's going to be humiliating for the rest of you."
-    },
-    {
-      "handle": "@ChaseFCDiehard",
-      "name": "Chase FC Diehard",
-      "color": "#8AA095",
-      "text": "nothing personal to Varun FC but also, respectfully, everything personal to Varun FC"
-    },
-    {
-      "handle": "@BigManBants",
-      "name": "Big Man Bants",
-      "color": "#8AA095",
-      "text": "Varun carried Nico O'Reilly to a blank this week. these things happen, they just shouldn't happen this often"
-    },
-    {
-      "handle": "@SquadShuffleHQ",
-      "name": "Squad Shuffle HQ",
-      "color": "#E8543F",
-      "text": "Jorrel Hato: 8 points this season, 0.9% selected in this league. Those two numbers should not both be true at the same time."
+      "text": "Boubacar Kamara has racked up 7 points this season and is STILL a free agent in this league. Somebody is going to win a Gameweek off this and it's going to be humiliating for the rest of you."
     },
     {
       "handle": "@ProbablyWrongTakes",
       "name": "Probably Wrong Takes",
       "color": "#37C871",
-      "text": "Nikhil beat Varun this gameweek. professional, unbothered, mildly boring. respect the process"
+      "text": "Cody Gakpo single-handedly dragged Malhar past Adi with 11 points. everyone else on that roster is just along for the ride at this point"
     },
     {
-      "handle": "@AdiFCFaithful",
-      "name": "Adi FC Faithful",
-      "color": "#8AA095",
-      "text": "sending this on behalf of every Adi FC supporter: Chase FC, this is not the callout you think it is, please stop"
-    },
-    {
-      "handle": "@ChaseUltras",
-      "name": "Chase FC Ultras",
+      "handle": "@FPLGrapevine",
+      "name": "FPL Grapevine",
       "color": "#FFB627",
-      "text": "Nikhil FC fans have had all week to think about facing us this gameweek. hope they used the time well, because we didn't"
+      "text": "Told Adi have been \"circling\" Callum Hudson-Odoi (Nott'm Forest) for two straight weeks now. At what point does circling just become cowardice."
+    },
+    {
+      "handle": "@LashFCDiehard",
+      "name": "Lash FC Diehard",
+      "color": "#E8543F",
+      "text": "Malhar FC fans have had all week to think about facing us this gameweek. hope they used the time well, because we didn't"
+    },
+    {
+      "handle": "@FPLGrapevine",
+      "name": "FPL Grapevine",
+      "color": "#FFB627",
+      "text": "Squad News: Nikhil have added Jaka Bijol for 1m. Roster now reflects the change league-wide."
+    },
+    {
+      "handle": "@SquadShuffleHQ",
+      "name": "Squad Shuffle HQ",
+      "color": "#E8543F",
+      "text": "EXCLUSIVE: Jacob Murphy has been sitting on the waiver wire at 0.1% selected while every manager in this league pretends not to notice. Someone's about to look very smart."
+    },
+    {
+      "handle": "@TripleCaptainTom",
+      "name": "Tom",
+      "color": "#37C871",
+      "text": "not a single manager in this league has picked up Joachim Andersen yet and honestly at this point I'm starting to think it's a group project nobody wants to be first to touch"
+    },
+    {
+      "handle": "@VarunFCDiehard",
+      "name": "Varun FC Diehard",
+      "color": "#37C871",
+      "text": "Varun sliding — 5th down to 6th. this is how a season quietly gets away from you"
+    },
+    {
+      "handle": "@SquadShuffleHQ",
+      "name": "Squad Shuffle HQ",
+      "color": "#E8543F",
+      "text": "Lash currently running 11 players deep. Fully loaded — for now. Ask again after the next waiver deadline."
+    },
+    {
+      "handle": "@LeagueOfItsOwn",
+      "name": "A League Of Its Own",
+      "color": "#FFB627",
+      "text": "genuinely baffled how Jorrel Hato (8 pts, Chelsea) hasn't been snapped up yet. this league has a blind spot and it has a name"
     },
     {
       "handle": "@NikhilFCDiehard",
       "name": "Nikhil FC Diehard",
       "color": "#FFB627",
-      "text": "Malhar FC fans in shambles again. some things never change, and honestly we hope they never do"
+      "text": "Nikhil FC's Bradley Barcola cost more than Lash FC's entire spending on Gabriel dos Santos Magalhães. spend accordingly next time, Lash FC"
     },
     {
-      "handle": "@LeagueOfItsOwn",
-      "name": "A League Of Its Own",
+      "handle": "@ChaseFCFaithful",
+      "name": "Chase FC Faithful",
       "color": "#FFB627",
-      "text": "everyone's very quiet about Malhar vs Lash this week. suspiciously quiet. somebody knows something"
-    },
-    {
-      "handle": "@ClipboardGossip",
-      "name": "Clipboard Gossip",
-      "color": "#37C871",
-      "text": "Between them, Neco Williams and James Trafford have put up 30 points this season combined — and neither is owned in this league. That's a title's worth of points on the table."
-    },
-    {
-      "handle": "@FPLGrapevine",
-      "name": "FPL Grapevine",
-      "color": "#FFB627",
-      "text": "A source close to the situation (me, staring at the waiver list) confirms Bazoumana Touré is a free hit sitting right there in plain sight. Baffling nobody's pulled the trigger."
-    },
-    {
-      "handle": "@FPLGrapevine",
-      "name": "FPL Grapevine",
-      "color": "#FFB627",
-      "text": "Told Malhar have been \"circling\" Sean Neave (Newcastle) for two straight weeks now. At what point does circling just become cowardice."
-    },
-    {
-      "handle": "@LastPickLarry",
-      "name": "Last Pick Larry",
-      "color": "#8AA095",
-      "text": "EXCLUSIVE: Shea Charles has been sitting on the waiver wire at 0.1% selected while every manager in this league pretends not to notice. Someone's about to look very smart."
-    },
-    {
-      "handle": "@TripleCaptainTom",
-      "name": "Tom",
-      "color": "#37C871",
-      "text": "whoever drafted Cody Gakpo for Malhar is feeling very smug right now, and honestly, 11 points earns it"
-    },
-    {
-      "handle": "@BenchWarmerBrian",
-      "name": "Brian",
-      "color": "#8AA095",
-      "text": "Ryan Giles (Hull City) still a free agent. someone's waiver budget is just sat there doing absolutely nothing about it"
-    },
-    {
-      "handle": "@ArmchairGaffer",
-      "name": "The Armchair Gaffer",
-      "color": "#FFB627",
-      "text": "Lash get the job done against Chase. not pretty, not dramatic, just three points and a quiet exit"
-    },
-    {
-      "handle": "@ShoutyFromTheSofa",
-      "name": "Shouty From The Sofa",
-      "color": "#E8543F",
-      "text": "nobody in this league has spent 8m on one player like Adi just did for Pascal Groß. respect the audacity"
-    },
-    {
-      "handle": "@LeagueOfItsOwn",
-      "name": "A League Of Its Own",
-      "color": "#FFB627",
-      "text": "Adi has the waiver budget to go get Thierno Barry (12 pts) right now and is instead just... not. incredible restraint or a genuine tactical error, no in-between"
-    },
-    {
-      "handle": "@ClipboardGossip",
-      "name": "Clipboard Gossip",
-      "color": "#37C871",
-      "text": "Squad News: Adi have added Christos Tzolis for 8m. Roster now reflects the change league-wide."
-    },
-    {
-      "handle": "@LastPickLarry",
-      "name": "Last Pick Larry",
-      "color": "#8AA095",
-      "text": "EXCLUSIVE: Braiden Graham has been sitting on the waiver wire at 0.1% selected while every manager in this league pretends not to notice. Someone's about to look very smart."
-    },
-    {
-      "handle": "@FPLGrapevine",
-      "name": "FPL Grapevine",
-      "color": "#FFB627",
-      "text": "Marcus Tavernier returned 10 points for Lash in Gameweek 3 — comfortably a haul by any definition."
-    },
-    {
-      "handle": "@TripleCaptainTom",
-      "name": "Tom",
-      "color": "#37C871",
-      "text": "Varun weren't outclassed by Nikhil, just out-executed. small margins, same three points"
-    },
-    {
-      "handle": "@BenchWarmerBrian",
-      "name": "Brian",
-      "color": "#8AA095",
-      "text": "genuinely baffled how Nathan Collins (10 pts, Brentford) hasn't been snapped up yet. this league has a blind spot and it has a name"
-    },
-    {
-      "handle": "@FPL_Degenerate",
-      "name": "FPL Degenerate",
-      "color": "#E8543F",
-      "text": "Chase has the waiver budget to go get Jaka Bijol (12 pts) right now and is instead just... not. incredible restraint or a genuine tactical error, no in-between"
-    },
-    {
-      "handle": "@ProbablyWrongTakes",
-      "name": "Probably Wrong Takes",
-      "color": "#37C871",
-      "text": "1st vs 3rd this week: Nikhil against Chase. table position means nothing until kickoff"
-    },
-    {
-      "handle": "@NikhilFCFaithful",
-      "name": "Nikhil FC Faithful",
-      "color": "#8AA095",
-      "text": "Nikhil FC would like to remind Adi FC that history remembers winners, and history has taken notes"
-    },
-    {
-      "handle": "@SquadShuffleHQ",
-      "name": "Squad Shuffle HQ",
-      "color": "#E8543F",
-      "text": "Between them, Amar Dedic and Tyrone Mings have put up 20 points this season combined — and neither is owned in this league. That's a title's worth of points on the table."
-    },
-    {
-      "handle": "@BudgetBuzzUK",
-      "name": "Budget Buzz",
-      "color": "#FFB627",
-      "text": "A source close to the situation (me, staring at the waiver list) confirms Taiwo Awoniyi is a free hit sitting right there in plain sight. Baffling nobody's pulled the trigger."
+      "text": "Chase FC supporters would like it on record that we called Lash FC's collapse weeks in advance"
     },
     {
       "handle": "@WaiverWireWatch",
       "name": "Waiver Wire Watch",
       "color": "#E8543F",
-      "text": "FULL-TIME (GW3): Nikhil 36 - 26 Varun."
+      "text": "Told Malhar have been \"circling\" Ellis Simms (Coventry City) for two straight weeks now. At what point does circling just become cowardice."
     },
     {
-      "handle": "@ShoutyFromTheSofa",
-      "name": "Shouty From The Sofa",
-      "color": "#E8543F",
+      "handle": "@LashFCFaithful",
+      "name": "Lash FC Faithful",
+      "color": "#8AA095",
+      "text": "Lash on the move — 6th to 5th in a single gameweek. put some respect on it"
+    },
+    {
+      "handle": "@TripleCaptainTom",
+      "name": "Tom",
+      "color": "#37C871",
       "text": "whoever drafted Marcus Tavernier for Lash is feeling very smug right now, and honestly, 10 points earns it"
+    },
+    {
+      "handle": "@TripleCaptainTom",
+      "name": "Tom",
+      "color": "#37C871",
+      "text": "John Egan (Hull City) still a free agent. someone's waiver budget is just sat there doing absolutely nothing about it"
+    },
+    {
+      "handle": "@BigManBants",
+      "name": "Big Man Bants",
+      "color": "#8AA095",
+      "text": "Lash beat Chase mostly because Marcus Tavernier decided to show up. 10 points from one player is doing a lot of heavy lifting"
+    },
+    {
+      "handle": "@ArmchairGaffer",
+      "name": "The Armchair Gaffer",
+      "color": "#FFB627",
+      "text": "not a single manager in this league has picked up Luka Lynch yet and honestly at this point I'm starting to think it's a group project nobody wants to be first to touch"
+    },
+    {
+      "handle": "@LastPickLarry",
+      "name": "Last Pick Larry",
+      "color": "#8AA095",
+      "text": "Varun slip to 6th after Gameweek 3, down from 5th."
+    },
+    {
+      "handle": "@MalharUltras",
+      "name": "Malhar FC Ultras",
+      "color": "#37C871",
+      "text": "Lash FC fans have had all week to think about facing us this gameweek. hope they used the time well, because we didn't"
+    },
+    {
+      "handle": "@DraftRoomLeaks",
+      "name": "Draft Room Leaks",
+      "color": "#37C871",
+      "text": "Gameweek 4 headline act: Bruno Borges Fernandes (Chase) against Bradley Barcola (Nikhil). Only one of these price tags gets to have a good week."
+    },
+    {
+      "handle": "@BudgetBuzzUK",
+      "name": "Budget Buzz",
+      "color": "#FFB627",
+      "text": "Victor Munoz has racked up 13 points this season and is STILL a free agent in this league. Somebody is going to win a Gameweek off this and it's going to be humiliating for the rest of you."
+    },
+    {
+      "handle": "@FPLGrapevine",
+      "name": "FPL Grapevine",
+      "color": "#FFB627",
+      "text": "RESULT — Gameweek 3: Lash 32, Chase 26."
+    },
+    {
+      "handle": "@SquadShuffleHQ",
+      "name": "Squad Shuffle HQ",
+      "color": "#E8543F",
+      "text": "Adi currently running 11 players deep. Fully loaded — for now. Ask again after the next waiver deadline."
     }
   ],
   "livePlayerPoints": null,
