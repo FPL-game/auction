@@ -407,6 +407,14 @@ const FAQ = [
     border-radius: 4px;
   }
   .news-block-tag.live-tag{ color: var(--turf); border-color: var(--turf); }
+  .news-block-tag.provisional-tag{ color: var(--amber); border-color: var(--amber); }
+  .match-row .vs.score{
+    color: var(--white);
+    font-family:'JetBrains Mono', monospace;
+    font-weight:700;
+    font-size: 15px;
+    padding: 0 14px;
+  }
   .recap-card{
     background: var(--card);
     border: 1px solid var(--line);
@@ -866,18 +874,40 @@ const FAQ = [
     <div class="section-eyebrow">Season Schedule</div>
     <div class="section-title">All 38 Gameweeks</div>
     <div>
-      {fixtures.map((gwObj: any) => (
+      {fixtures.map((gwObj: any) => {
+        const gwResults = gwObj.matches.map(([a, b]: [number, number]) => results[`${gwObj.gw}-${a}-${b}`]);
+        const gwPlayed = gwResults.some((r: any) => r);
+        const gwFinal = gwResults.length > 0 && gwResults.every((r: any) => r?.final);
+        return (
         <details class="gw-block">
-          <summary>Gameweek {gwObj.gw} <span class="chevron">+</span></summary>
-          {gwObj.matches.map((m: [number, number]) => (
-            <div class="match-row">
-              <div class="side">{teamName(teams, m[0])}</div>
-              <div class="vs">VS</div>
-              <div class="side right">{teamName(teams, m[1])}</div>
-            </div>
-          ))}
+          <summary>
+            <span>Gameweek {gwObj.gw}</span>
+            <span style="display:flex; align-items:center; gap:8px;">
+              {gwFinal ? (
+                <span class="news-block-tag live-tag">FT</span>
+              ) : gwPlayed ? (
+                <span class="news-block-tag provisional-tag">Provisional</span>
+              ) : null}
+              <span class="chevron">+</span>
+            </span>
+          </summary>
+          {gwObj.matches.map(([a, b]: [number, number]) => {
+            const res = results[`${gwObj.gw}-${a}-${b}`];
+            return (
+              <div class="match-row">
+                <div class={`side ${res && res.scoreA > res.scoreB ? "recap-winner" : ""}`}>{teamName(teams, a)}</div>
+                {res ? (
+                  <div class="vs score">{res.scoreA} &ndash; {res.scoreB}</div>
+                ) : (
+                  <div class="vs">VS</div>
+                )}
+                <div class={`side right ${res && res.scoreB > res.scoreA ? "recap-winner" : ""}`}>{teamName(teams, b)}</div>
+              </div>
+            );
+          })}
         </details>
-      ))}
+        );
+      })}
     </div>
   </section>
 
