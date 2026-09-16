@@ -10,6 +10,36 @@ const livePlayerPoints = state.livePlayerPoints || {};
 // feature ships.
 const rumours = state.rumours || [];
 
+// Real Premier League fixtures (not this fantasy league's own fixtures) — clubFixtures is
+// a short per-club lookahead for the Players tab's difficulty ticker, plMatches is the
+// full upcoming list for the standalone PL Matches tab. Both only ever contain fixtures
+// FPL hasn't marked finished yet, so a gameweek disappears on its own once it's over —
+// nothing here needs manual cleanup.
+const clubFixtures = state.clubFixtures || {};
+const plMatches = state.plMatches || [];
+const plMatchesByGw = new Map<number, any[]>();
+for (const m of plMatches) {
+  if (!plMatchesByGw.has(m.gw)) plMatchesByGw.set(m.gw, []);
+  plMatchesByGw.get(m.gw)!.push(m);
+}
+
+// FPL's Fixture Difficulty Rating is 1 (easiest) to 5 (hardest) — mapped onto the site's
+// existing turf/grey/red palette rather than FPL's own green-to-red scale, so it reads as
+// part of this site rather than a copy of the official one.
+function fdrClass(difficulty: number) {
+  if (difficulty <= 2) return "fdr-easy";
+  if (difficulty >= 4) return "fdr-hard";
+  return "fdr-medium";
+}
+
+function formatKickoff(iso: string) {
+  const d = new Date(iso);
+  const weekday = d.toLocaleDateString("en-GB", { weekday: "short", timeZone: "UTC" });
+  const day = d.toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
+  const time = d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "UTC" });
+  return `${weekday} ${day}, ${time} UTC`;
+}
+
 const standings = computeStandings(teams, results);
 
 const tickerItems = teams.map(
@@ -415,6 +445,37 @@ const FAQ = [
     font-size: 15px;
     padding: 0 14px;
   }
+
+  .fdr-row{ display:flex; gap:4px; flex-wrap:nowrap; }
+  .fdr-box{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight:700;
+    text-align:center;
+    padding: 3px 5px;
+    border-radius: 4px;
+    white-space:nowrap;
+    color: var(--white);
+  }
+  .fdr-box.fdr-easy{ background: var(--turf-dim); }
+  .fdr-box.fdr-medium{ background: var(--card-2); border: 1px solid var(--line); color: var(--grey); }
+  .fdr-box.fdr-hard{ background: var(--red); }
+  .pl-match-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 12px;
+    padding: 10px 4px;
+    border-top: 1px solid var(--line);
+    font-size: 14px;
+  }
+  .pl-match-row .pl-date{
+    color: var(--grey);
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px;
+    min-width: 150px;
+  }
+  .pl-match-row .pl-teams{ flex:1; text-align:right; }
   .recap-card{
     background: var(--card);
     border: 1px solid var(--line);
@@ -668,8 +729,10 @@ const FAQ = [
     font-family:'Work Sans', sans-serif;
     font-size: 14px;
   }
+  .table-scroll{ overflow-x:auto; }
   table.players{
     width:100%;
+    min-width: 640px;
     border-collapse: collapse;
   }
   table.players th{
@@ -783,6 +846,7 @@ const FAQ = [
   <button data-page="standings">Standings</button>
   <button data-page="live">Live Scores</button>
   <button data-page="players">Players</button>
+  <button data-page="pl-matches">PL Matches</button>
   <button data-page="faq">FAQ</button>
 </nav>
 
@@ -989,9 +1053,10 @@ const FAQ = [
     <div class="section-title">Unpicked Players (<span id="unpickedCount">{unpickedCount}</span>)</div>
     <p class="empty-note">Sorted by FPL points this season. Updates live the instant a player's drafted during the auction.</p>
     <div class="search-row"><input type="text" id="playerSearch" placeholder="Search a player, club or position..."></div>
+    <div class="table-scroll">
     <table class="players">
       <thead>
-        <tr><th>Player</th><th>Pos</th><th>Club</th><th>Sel %</th><th>FPL Pts</th></tr>
+        <tr><th>Player</th><th>Pos</th><th>Club</th><th>Sel %</th><th>FPL Pts</th><th>Next 5</th></tr>
       </thead>
       <tbody id="playersBody">
         {players
@@ -1012,11 +1077,45 @@ const FAQ = [
               <td>{p.club}</td>
               <td class="mono">{(p.selectedByPercent ?? 0).toFixed(1)}%</td>
               <td class="mono">{p.pts}</td>
+              <td>
+                <div class="fdr-row">
+                  {(clubFixtures[p.club] || []).map((f: any) => (
+                    <span class={`fdr-box ${fdrClass(f.difficulty)}`}>{f.opponent} {f.isHome ? "(H)" : "(A)"}</span>
+                  ))}
+                </div>
+              </td>
             </tr>
           ))}
       </tbody>
     </table>
+    </div>
     <p class="empty-note" id="noPlayersNote" style="display:none;">No players match that search.</p>
+  </section>
+
+  <!-- PL MATCHES -->
+  <section class="page" id="page-pl-matches">
+    <div class="section-eyebrow">Real Premier League</div>
+    <div class="section-title">Upcoming PL Matches</div>
+    <p class="empty-note">Every Premier League fixture FPL still has coming up. A gameweek drops off this list automatically once it's finished.</p>
+    <div>
+      {[...plMatchesByGw.keys()].sort((a, b) => a - b).map((gw) => (
+        <details class="gw-block">
+          <summary>
+            <span>Gameweek {gw}</span>
+            <span class="chevron">+</span>
+          </summary>
+          {plMatchesByGw.get(gw)!.map((m: any) => (
+            <div class="pl-match-row">
+              <div class="pl-date">{formatKickoff(m.kickoff)}</div>
+              <div class="pl-teams">{m.teamH} <span class="vs">vs</span> {m.teamA}</div>
+            </div>
+          ))}
+        </details>
+      ))}
+      {plMatchesByGw.size === 0 && (
+        <p class="empty-note">No upcoming fixtures — FPL hasn't published any yet, or the season's done.</p>
+      )}
+    </div>
   </section>
 
   <!-- FAQ -->
