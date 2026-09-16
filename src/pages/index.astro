@@ -40,6 +40,42 @@ function formatKickoff(iso: string) {
   return `${weekday} ${day}, ${time} UTC`;
 }
 
+// Sortable stats on the Players tab — mirrors FPL's own "sort by" list (minus price,
+// which this league doesn't track per-player in the same way). Each stat already sits
+// on the player object from scripts/update-fpl-data.mjs except lastSeasonPts, which is
+// fetched incrementally there and may briefly read null for a player it hasn't gotten to
+// yet. "value" is the key on each player object; every option sorts descending, same as
+// FPL's own tool (e.g. "goals conceded" surfaces who's conceded the MOST first).
+const PLAYER_SORT_OPTIONS = [
+  { value: "pts", label: "Total points" },
+  { value: "eventPoints", label: "Gameweek points" },
+  { value: "selectedByPercent", label: "Teams selected by %" },
+  { value: "minutes", label: "Minutes played" },
+  { value: "goalsScored", label: "Goals scored" },
+  { value: "assists", label: "Assists" },
+  { value: "cleanSheets", label: "Clean sheets" },
+  { value: "goalsConceded", label: "Goals conceded" },
+  { value: "ownGoals", label: "Own goals" },
+  { value: "penaltiesSaved", label: "Penalties saved" },
+  { value: "penaltiesMissed", label: "Penalties missed" },
+  { value: "yellowCards", label: "Yellow cards" },
+  { value: "redCards", label: "Red cards" },
+  { value: "saves", label: "Saves" },
+  { value: "bonus", label: "Bonus points" },
+  { value: "bps", label: "Bonus Points System" },
+  { value: "influence", label: "Influence" },
+  { value: "creativity", label: "Creativity" },
+  { value: "threat", label: "Threat" },
+  { value: "lastSeasonPts", label: "Last season's points" },
+];
+
+function formatStatValue(key: string, val: any) {
+  if (val == null) return "—";
+  if (key === "selectedByPercent") return `${val.toFixed(1)}%`;
+  if (key === "influence" || key === "creativity" || key === "threat") return val.toFixed(1);
+  return String(val);
+}
+
 const standings = computeStandings(teams, results);
 
 const tickerItems = teams.map(
@@ -718,9 +754,21 @@ const FAQ = [
     color: var(--turf);
   }
 
-  .search-row{ margin-bottom: 16px; }
+  .search-row{ margin-bottom: 16px; display:flex; gap:10px; flex-wrap:wrap; }
   .search-row input{
-    width:100%;
+    flex: 2;
+    min-width: 200px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--white);
+    font-family:'Work Sans', sans-serif;
+    font-size: 14px;
+  }
+  .search-row .sort-select{
+    flex: 1;
+    min-width: 180px;
     background: var(--card);
     border: 1px solid var(--line);
     border-radius: 8px;
@@ -1052,11 +1100,16 @@ const FAQ = [
     <div class="section-eyebrow">Free Agents</div>
     <div class="section-title">Unpicked Players (<span id="unpickedCount">{unpickedCount}</span>)</div>
     <p class="empty-note">Sorted by FPL points this season. Updates live the instant a player's drafted during the auction.</p>
-    <div class="search-row"><input type="text" id="playerSearch" placeholder="Search a player, club or position..."></div>
+    <div class="search-row">
+      <input type="text" id="playerSearch" placeholder="Search a player, club or position...">
+      <select id="playerSortSelect" class="sort-select">
+        {PLAYER_SORT_OPTIONS.map((opt) => <option value={opt.value}>{opt.label}</option>)}
+      </select>
+    </div>
     <div class="table-scroll">
     <table class="players">
       <thead>
-        <tr><th>Player</th><th>Pos</th><th>Club</th><th>Sel %</th><th>FPL Pts</th><th>Next 5</th></tr>
+        <tr><th>Player</th><th>Pos</th><th>Club</th><th>Sel %</th><th id="statColHeader">Total points</th><th>Next 5</th></tr>
       </thead>
       <tbody id="playersBody">
         {players
@@ -1066,17 +1119,21 @@ const FAQ = [
             (b.selectedByPercent ?? 0) - (a.selectedByPercent ?? 0) ||
             a.name.localeCompare(b.name),
           )
-          .map((p: any) => (
+          .map((p: any) => {
+            const stats: Record<string, any> = {};
+            for (const opt of PLAYER_SORT_OPTIONS) stats[opt.value] = p[opt.value] ?? null;
+            return (
             <tr
               data-search={`${p.name} ${p.club} ${p.pos}`.toLowerCase()}
               data-player-id={p.id ?? ""}
               data-drafted="0"
+              data-stats={JSON.stringify(stats)}
             >
               <td>{p.name}</td>
               <td><span class="pos-badge">{p.pos}</span></td>
               <td>{p.club}</td>
               <td class="mono">{(p.selectedByPercent ?? 0).toFixed(1)}%</td>
-              <td class="mono">{p.pts}</td>
+              <td class="mono stat-cell">{p.pts}</td>
               <td>
                 <div class="fdr-row">
                   {(clubFixtures[p.club] || []).map((f: any) => (
@@ -1085,7 +1142,8 @@ const FAQ = [
                 </div>
               </td>
             </tr>
-          ))}
+            );
+          })}
       </tbody>
     </table>
     </div>
@@ -1173,6 +1231,42 @@ const FAQ = [
   }
   (window as any).updateRowVisibility = updateRowVisibility;
   searchInput?.addEventListener('input', updateRowVisibility);
+
+  // ---- Players tab: sort by any FPL stat, mirroring FPL's own "sort by" list ----
+  const PLAYER_SORT_LABELS: Record<string, string> = {
+    pts: 'Total points', eventPoints: 'Gameweek points', selectedByPercent: 'Teams selected by %',
+    minutes: 'Minutes played', goalsScored: 'Goals scored', assists: 'Assists',
+    cleanSheets: 'Clean sheets', goalsConceded: 'Goals conceded', ownGoals: 'Own goals',
+    penaltiesSaved: 'Penalties saved', penaltiesMissed: 'Penalties missed', yellowCards: 'Yellow cards',
+    redCards: 'Red cards', saves: 'Saves', bonus: 'Bonus points', bps: 'Bonus Points System',
+    influence: 'Influence', creativity: 'Creativity', threat: 'Threat', lastSeasonPts: "Last season's points",
+  };
+  function formatStatValueClient(key: string, val: any) {
+    if (val == null) return '—';
+    if (key === 'selectedByPercent') return `${Number(val).toFixed(1)}%`;
+    if (key === 'influence' || key === 'creativity' || key === 'threat') return Number(val).toFixed(1);
+    return String(val);
+  }
+  const sortSelect = document.getElementById('playerSortSelect') as HTMLSelectElement | null;
+  const statColHeader = document.getElementById('statColHeader');
+  function applyPlayerSort() {
+    const key = sortSelect?.value || 'pts';
+    const tbody = document.getElementById('playersBody');
+    if (!tbody) return;
+    const sorted = [...rows].sort((a, b) => {
+      const sa = JSON.parse(a.dataset.stats || '{}')[key];
+      const sb = JSON.parse(b.dataset.stats || '{}')[key];
+      return (sb ?? -Infinity) - (sa ?? -Infinity);
+    });
+    sorted.forEach((row) => {
+      const stats = JSON.parse(row.dataset.stats || '{}');
+      const cell = row.querySelector('.stat-cell');
+      if (cell) cell.textContent = formatStatValueClient(key, stats[key]);
+      tbody.appendChild(row);
+    });
+    if (statColHeader) statColHeader.textContent = PLAYER_SORT_LABELS[key] || key;
+  }
+  sortSelect?.addEventListener('change', applyPlayerSort);
 </script>
 
 <script type="application/json" id="teamsSeed" set:html={JSON.stringify(teams)}></script>
