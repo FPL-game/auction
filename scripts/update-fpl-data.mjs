@@ -106,6 +106,63 @@ async function fetchLatestKickoff(gwId) {
   }
 }
 
+// Real Premier League fixtures for every club, with FPL's own Fixture Difficulty Rating
+// (1 = easiest, 5 = hardest) — the whole season's list in one call, not scoped to a
+// gameweek like fetchLatestKickoff above. Used to show upcoming-fixture difficulty next
+// to unpicked players on the Players tab.
+async function fetchAllPLFixtures() {
+  try {
+    return await fetchJson(`${API_BASE}/fixtures/`);
+  } catch {
+    return [];
+  }
+}
+
+// Builds, for every real PL club, its next N unplayed fixtures (soonest first) with
+// opponent short code, home/away and difficulty — dropped automatically once a fixture
+// is marked finished by FPL, so the list is always "what's left to come".
+function buildClubFixtures(plFixtures, teams, count = 5) {
+  const shortNameById = new Map(teams.map((t) => [t.id, t.short_name]));
+  const upcoming = plFixtures
+    .filter((f) => !f.finished && f.event != null)
+    .sort((a, b) => a.event - b.event || new Date(a.kickoff_time) - new Date(b.kickoff_time));
+
+  const byClub = {};
+  for (const t of teams) {
+    byClub[t.name] = upcoming
+      .filter((f) => f.team_h === t.id || f.team_a === t.id)
+      .slice(0, count)
+      .map((f) => {
+        const isHome = f.team_h === t.id;
+        const opponentId = isHome ? f.team_a : f.team_h;
+        return {
+          gw: f.event,
+          opponent: shortNameById.get(opponentId) || "?",
+          isHome,
+          difficulty: (isHome ? f.team_h_difficulty : f.team_a_difficulty) ?? 3,
+        };
+      });
+  }
+  return byClub;
+}
+
+// Full real Premier League fixture list for the "PL Matches" tab — every not-yet-finished
+// match league-wide, grouped by gameweek client-side. A gameweek simply stops appearing
+// here the moment FPL marks its last fixture finished, since this only ever looks at what
+// hasn't been played yet — no separate cleanup step needed.
+function buildUpcomingPLMatches(plFixtures, teams) {
+  const nameById = new Map(teams.map((t) => [t.id, t.name]));
+  return plFixtures
+    .filter((f) => !f.finished && f.event != null)
+    .sort((a, b) => a.event - b.event || new Date(a.kickoff_time) - new Date(b.kickoff_time))
+    .map((f) => ({
+      gw: f.event,
+      kickoff: f.kickoff_time,
+      teamH: nameById.get(f.team_h) || "?",
+      teamA: nameById.get(f.team_a) || "?",
+    }));
+}
+
 function gwScoreForRoster(roster, liveById) {
   let score = 0;
   let matched = 0;
@@ -126,12 +183,15 @@ function gwScoreForRoster(roster, liveById) {
 async function main() {
   const state = JSON.parse(await readFile(DATA_PATH, "utf8"));
 
-  const [bootstrap, liveTeamsById, recentMoves] = await Promise.all([
+  const [bootstrap, liveTeamsById, recentMoves, plFixtures] = await Promise.all([
     fetchJson(`${API_BASE}/bootstrap-static/`),
     fetchLiveTeams(),
     fetchRecentDraftLog(),
+    fetchAllPLFixtures(),
   ]);
   const clubById = new Map(bootstrap.teams.map((t) => [t.id, t.name]));
+  state.clubFixtures = buildClubFixtures(plFixtures, bootstrap.teams);
+  state.plMatches = buildUpcomingPLMatches(plFixtures, bootstrap.teams);
 
   // ---- Sync live rosters/budgets from Firestore into the static teams array ----
   // The admin panel writes drafted rosters straight to Firestore for instant updates;
