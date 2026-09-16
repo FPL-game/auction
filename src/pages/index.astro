@@ -987,17 +987,18 @@ const FAQ = [
   <section class="page" id="page-players">
     <div class="section-eyebrow">Free Agents</div>
     <div class="section-title">Unpicked Players (<span id="unpickedCount">{unpickedCount}</span>)</div>
-    <p class="empty-note">Sorted by ownership (Selected %). Updates live the instant a player's drafted during the auction.</p>
+    <p class="empty-note">Sorted by FPL points this season. Updates live the instant a player's drafted during the auction.</p>
     <div class="search-row"><input type="text" id="playerSearch" placeholder="Search a player, club or position..."></div>
     <table class="players">
       <thead>
         <tr><th>Player</th><th>Pos</th><th>Club</th><th>Sel %</th><th>FPL Pts</th></tr>
       </thead>
       <tbody id="playersBody">
-        {[...players]
+        {players
+          .filter((p: any) => p.draftedBy === null)
           .sort((a: any, b: any) =>
-            (b.selectedByPercent ?? 0) - (a.selectedByPercent ?? 0) ||
             b.pts - a.pts ||
+            (b.selectedByPercent ?? 0) - (a.selectedByPercent ?? 0) ||
             a.name.localeCompare(b.name),
           )
           .map((p: any) => (
