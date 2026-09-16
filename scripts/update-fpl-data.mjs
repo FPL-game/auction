@@ -163,6 +163,39 @@ function buildUpcomingPLMatches(plFixtures, teams) {
     }));
 }
 
+// ---- Last season's total points: fetched incrementally, cached forever once known ----
+// Unlike everything else on a player (goals, assists, cards, bonus, etc. — all sitting
+// right in bootstrap-static's elements array), a player's PRIOR season total only comes
+// from the per-player element-summary/{id}/ endpoint's history_past array. Doing that for
+// every one of ~650 players on every sync would be 650+ extra API calls per run — slow,
+// and pointless since a finished season's total never changes. So this only fetches for
+// players no earlier sync has already resolved (tracked by carrying `lastSeasonPts`
+// forward on the player object below), capped per run so a single sync stays fast; full
+// coverage fills in gradually over the next several runs instead of one giant burst.
+const LAST_SEASON_FETCH_CAP = 120;
+const LAST_SEASON_CONCURRENCY = 10;
+
+async function fetchLastSeasonPoints(playerId) {
+  try {
+    const summary = await fetchJson(`${API_BASE}/element-summary/${playerId}/`);
+    const past = summary.history_past || [];
+    return past.length ? past[past.length - 1].total_points : 0;
+  } catch {
+    return null; // leave unresolved — picked up again on a later sync
+  }
+}
+
+async function fillLastSeasonPoints(playerIds) {
+  const results = new Map();
+  const queue = playerIds.slice(0, LAST_SEASON_FETCH_CAP);
+  for (let i = 0; i < queue.length; i += LAST_SEASON_CONCURRENCY) {
+    const batch = queue.slice(i, i + LAST_SEASON_CONCURRENCY);
+    const batchResults = await Promise.all(batch.map(fetchLastSeasonPoints));
+    batch.forEach((id, idx) => results.set(id, batchResults[idx]));
+  }
+  return results;
+}
+
 function gwScoreForRoster(roster, liveById) {
   let score = 0;
   let matched = 0;
@@ -216,6 +249,11 @@ async function main() {
   // selectedByPercent and expectedPoints (FPL's own next-gameweek projection) let the
   // Unpicked Players page default-sort by "likely to matter" rather than raw season
   // points, which is near-meaningless in the first few gameweeks of a season.
+  // Carry lastSeasonPts forward from whatever the previous sync already resolved — see
+  // fillLastSeasonPoints above for why this isn't just re-fetched every run.
+  const previousLastSeasonById = new Map(
+    (state.players || []).filter((p) => p.lastSeasonPts != null).map((p) => [p.id, p.lastSeasonPts]),
+  );
   state.players = bootstrap.elements.map((el) => {
     const name = `${el.first_name} ${el.second_name}`;
     return {
@@ -232,8 +270,38 @@ async function main() {
       newsAdded: el.news_added || null,
       chanceOfPlaying: el.chance_of_playing_next_round,
       draftedBy: draftedIdToTeamId.get(el.id) ?? null,
+      minutes: el.minutes ?? 0,
+      goalsScored: el.goals_scored ?? 0,
+      assists: el.assists ?? 0,
+      cleanSheets: el.clean_sheets ?? 0,
+      goalsConceded: el.goals_conceded ?? 0,
+      ownGoals: el.own_goals ?? 0,
+      penaltiesSaved: el.penalties_saved ?? 0,
+      penaltiesMissed: el.penalties_missed ?? 0,
+      yellowCards: el.yellow_cards ?? 0,
+      redCards: el.red_cards ?? 0,
+      saves: el.saves ?? 0,
+      bonus: el.bonus ?? 0,
+      bps: el.bps ?? 0,
+      influence: parseFloat(el.influence) || 0,
+      creativity: parseFloat(el.creativity) || 0,
+      threat: parseFloat(el.threat) || 0,
+      lastSeasonPts: previousLastSeasonById.get(el.id) ?? null,
     };
   });
+
+  // Fill in lastSeasonPts for a capped batch of players still missing it — see
+  // fillLastSeasonPoints above. Runs after the main player list is built so it only ever
+  // has to fetch for players genuinely unresolved, not the whole pool every time.
+  const stillMissing = state.players.filter((p) => p.lastSeasonPts == null).map((p) => p.id);
+  if (stillMissing.length) {
+    const resolved = await fillLastSeasonPoints(stillMissing);
+    for (const p of state.players) {
+      if (p.lastSeasonPts == null && resolved.has(p.id)) {
+        p.lastSeasonPts = resolved.get(p.id);
+      }
+    }
+  }
 
   // ---- Work out which gameweek is current / live ----
   const events = bootstrap.events;
