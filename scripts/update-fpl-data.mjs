@@ -941,7 +941,12 @@ function generateRumours(state, recentMoves = [], liveScores = null, livePerform
     });
   }
 
-  // ---- Fan reactions to real recent squad moves ----
+  // ---- Fan reactions and official-wire headlines for real recent squad moves ----
+  // Upweighted (2.5x default) across this whole section: a real signing or trade is the
+  // single most concrete, newsworthy thing that happens in this league — more so than a
+  // budget comparison or a generic mood post — and at equal odds with everything else it
+  // was getting buried in the feed instead of leading it.
+  const MOVEMENT_WEIGHT = 2.5;
   const recentAdds = recentMoves.filter((m) => m.type === "add");
   const recentTrades = recentMoves.filter((m) => m.type === "trade");
 
@@ -957,15 +962,26 @@ function generateRumours(state, recentMoves = [], liveScores = null, livePerform
       (m) => `watched ${m.teamName} bring in ${m.playerName} and immediately had to put my phone down for a minute`,
       (m) => `${m.playerName} joins ${m.teamName} for ${m.price}m. the rest of this league just got a lot more nervous, whether they admit it or not`,
       (m) => `${m.teamName} clearly have a plan with ${m.playerName}. nobody else can see it yet. that's usually how the good ones go`,
+      (m) => `${m.teamName} really went and got ${m.playerName} for ${m.price}m. didn't see that one coming but I respect it`,
+      (m) => `not ${m.teamName} spending ${m.price}m on ${m.playerName} like it's nothing. some of us have budgets. apparently not them`,
+      (m) => `${m.playerName} landing at ${m.teamName} for ${m.price}m just reset the whole vibe of this league`,
+      (m) => `${m.teamName} adding ${m.playerName} is the kind of move that gets replayed in the group chat for weeks`,
     ];
-    templates.push(() => {
+    templates.push({ weight: MOVEMENT_WEIGHT, fn: () => {
       const m = pick(recentAdds);
       return { fan: true, text: pick(addLines)(m) };
-    });
-    templates.push(() => {
+    } });
+    const addOfficialLines = [
+      (m) => `Squad News: ${m.teamName} have added ${m.playerName} for ${m.price}m. Roster now reflects the change league-wide.`,
+      (m) => `🚨 TRANSFER ALERT: ${m.teamName} confirm the signing of ${m.playerName} for ${m.price}m.`,
+      (m) => `📝 SIGNED: ${m.playerName} joins ${m.teamName} in a deal worth ${m.price}m. Roster confirmed league-wide.`,
+      (m) => `Ins & Outs — ${m.teamName} add ${m.playerName} (${m.price}m) to the roster this week.`,
+      (m) => `Waiver Wire Wrap-Up: ${m.teamName} were the most active side this week, landing ${m.playerName} for ${m.price}m.`,
+    ];
+    templates.push({ weight: MOVEMENT_WEIGHT, fn: () => {
       const m = pick(recentAdds);
-      return { fan: false, text: `Squad News: ${m.teamName} have added ${m.playerName} for ${m.price}m. Roster now reflects the change league-wide.` };
-    });
+      return { fan: false, text: pick(addOfficialLines)(m) };
+    } });
 
     // ---- Big-money signings: only the actually expensive ones get the full headline treatment ----
     const bigAdds = recentAdds.filter((m) => m.price >= 8);
@@ -976,51 +992,61 @@ function generateRumours(state, recentMoves = [], liveScores = null, livePerform
         (m) => `${m.teamName} just made the kind of signing that ends up on a highlight reel or a cautionary tale. ${m.playerName} for ${m.price}m, no middle ground`,
         (m) => `nobody in this league has spent ${m.price}m on one player like ${m.teamName} just did for ${m.playerName}. respect the audacity`,
       ];
-      templates.push(() => {
+      templates.push({ weight: MOVEMENT_WEIGHT, fn: () => {
         const m = pick(bigAdds);
         return { fan: true, text: pick(bigAddLines)(m) };
-      });
-      templates.push(() => {
+      } });
+      const bigAddOfficialLines = [
+        (m) => `BREAKING: ${m.teamName} land ${m.playerName} for ${m.price}m — the biggest single outlay this league has seen in weeks.`,
+        (m) => `📰 HEADLINE: ${m.playerName} to ${m.teamName}, ${m.price}m. The league's transfer record has a new entry.`,
+      ];
+      templates.push({ weight: MOVEMENT_WEIGHT, fn: () => {
         const m = pick(bigAdds);
-        return { fan: false, text: `BREAKING: ${m.teamName} land ${m.playerName} for ${m.price}m — the biggest single outlay this league has seen in weeks.` };
-      });
+        return { fan: false, text: pick(bigAddOfficialLines)(m) };
+      } });
     }
   }
 
-  // ---- Fan and insider reactions to real recent trades ----
+  // ---- Fan and official-wire reactions to real recent trades ----
   if (recentTrades.length) {
-    templates.push(() => {
+    const tradeFanLines = [
+      (t) => {
+        const aCount = (t.playersAToB || []).length;
+        const bCount = (t.playersBToA || []).length;
+        return `${t.teamAName} and ${t.teamBName} just pulled off a ${aCount}-for-${bCount} trade and I have several questions 👀`;
+      },
+      (t) => {
+        const names = (t.playersAToB || []).map((p) => p.name).join(" and ");
+        if (!names) return `${t.teamAName} and ${t.teamBName} just completed a trade and nobody in the group chat can stop talking about it`;
+        return `${t.teamAName} straight up gave away ${names} in that trade. brave or insane, genuinely no in-between`;
+      },
+      (t) => {
+        const names = (t.playersBToA || []).map((p) => p.name).join(" and ");
+        if (!names) return `${t.teamBName} walk away from that trade with ${t.teamAName} looking very pleased with themselves. we'll see who's right by the run-in`;
+        return `${t.teamBName} coming away from that trade with ${names}. quietly one of the better bits of business in this league so far`;
+      },
+      (t) => `${t.teamAName} and ${t.teamBName} both think they won that trade. one of them is objectively wrong and I have thoughts`,
+      (t) => {
+        if (!t.budgetAToB && !t.budgetBToA) return `${t.teamAName} and ${t.teamBName} swapped players straight up, no cash involved. a rare display of mutual respect in this league`;
+        const amt = t.budgetAToB || t.budgetBToA;
+        return `there was actual cash changing hands in that ${t.teamAName}-${t.teamBName} trade — ${amt}m of it. this league runs on more than just banter apparently`;
+      },
+      (t) => `${t.teamAName} and ${t.teamBName} actually went through with that trade. bold from both sides, we'll see who blinks first come results day`,
+      (t) => `trade goes through between ${t.teamAName} and ${t.teamBName} and both group chats immediately went silent. tells you everything`,
+    ];
+    templates.push({ weight: MOVEMENT_WEIGHT, fn: () => {
       const t = pick(recentTrades);
-      const aCount = (t.playersAToB || []).length;
-      const bCount = (t.playersBToA || []).length;
-      return { fan: true, text: `${t.teamAName} and ${t.teamBName} just pulled off a ${aCount}-for-${bCount} trade and I have several questions 👀` };
-    });
-    templates.push(() => {
+      return { fan: true, text: pick(tradeFanLines)(t) };
+    } });
+    const tradeOfficialLines = [
+      (t) => `Confirmed: ${t.teamAName} and ${t.teamBName} completed a trade this week. Full details still filtering through the league — sources say both sides are already calling it a win.`,
+      (t) => `TRADE CONFIRMED: ${t.teamAName} and ${t.teamBName} have completed a deal. Full breakdown to follow as rosters update.`,
+      (t) => `Deal Sheet: ${t.teamAName} ⇄ ${t.teamBName} trade now official across the league.`,
+    ];
+    templates.push({ weight: MOVEMENT_WEIGHT, fn: () => {
       const t = pick(recentTrades);
-      const names = (t.playersAToB || []).map((p) => p.name).join(" and ");
-      if (!names) return { fan: true, text: `${t.teamAName} and ${t.teamBName} just completed a trade and nobody in the group chat can stop talking about it` };
-      return { fan: true, text: `${t.teamAName} straight up gave away ${names} in that trade. brave or insane, genuinely no in-between` };
-    });
-    templates.push(() => {
-      const t = pick(recentTrades);
-      return { fan: false, text: `Confirmed: ${t.teamAName} and ${t.teamBName} completed a trade this week. Full details still filtering through the league — sources say both sides are already calling it a win.` };
-    });
-    templates.push(() => {
-      const t = pick(recentTrades);
-      const names = (t.playersBToA || []).map((p) => p.name).join(" and ");
-      if (!names) return { fan: true, text: `${t.teamBName} walk away from that trade with ${t.teamAName} looking very pleased with themselves. we'll see who's right by the run-in` };
-      return { fan: true, text: `${t.teamBName} coming away from that trade with ${names}. quietly one of the better bits of business in this league so far` };
-    });
-    templates.push(() => {
-      const t = pick(recentTrades);
-      return { fan: true, text: `${t.teamAName} and ${t.teamBName} both think they won that trade. one of them is objectively wrong and I have thoughts` };
-    });
-    templates.push(() => {
-      const t = pick(recentTrades);
-      if (!t.budgetAToB && !t.budgetBToA) return { fan: true, text: `${t.teamAName} and ${t.teamBName} swapped players straight up, no cash involved. a rare display of mutual respect in this league` };
-      const amt = t.budgetAToB || t.budgetBToA;
-      return { fan: true, text: `there was actual cash changing hands in that ${t.teamAName}-${t.teamBName} trade — ${amt}m of it. this league runs on more than just banter apparently` };
-    });
+      return { fan: false, text: pick(tradeOfficialLines)(t) };
+    } });
   }
 
   // ---- Live-gameweek reactions: real, currently in-progress scores and standout player performances ----
