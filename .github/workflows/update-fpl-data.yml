@@ -4,8 +4,20 @@ on:
   schedule:
     # Every 5 minutes — GitHub Actions' practical floor for scheduled workflows.
     # The script is cheap to run off-season/off-gameweek — it just refreshes the
-    # player pool and no-ops on live scores.
+    # player pool and no-ops on live scores. In practice GitHub deprioritizes
+    # frequent schedules under load, so runs can land hours apart — the push
+    # trigger below is what actually gets a feed-wording change live quickly.
     - cron: "*/5 * * * *"
+  push:
+    branches:
+      - main
+    paths:
+      # Files that generate the Social Media feed's wording. A push touching
+      # these regenerates the data immediately (instead of waiting on the
+      # unreliable schedule above), and that commit's workflow_run then
+      # triggers deploy-pages.yml so the new wording goes live on its own.
+      - "scripts/update-fpl-data.mjs"
+      - "src/lib/auctionLeagueUtils.mjs"
   workflow_dispatch: {}
 
 permissions:
