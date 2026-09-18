@@ -529,6 +529,23 @@ function pick(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
+// `templates` entries are normally bare generator functions (implicit weight 1). A few
+// blocks are entirely static text with no real data behind them, so they're pushed as
+// `{ weight, fn }` instead — weighted below 1 so they don't compete head-to-head, at equal
+// odds, against templates that are actually grounded in the league's current state.
+function pickTemplate(arr) {
+  let total = 0;
+  for (const t of arr) total += typeof t === "function" ? 1 : t.weight;
+  let r = Math.random() * total;
+  for (const t of arr) {
+    const w = typeof t === "function" ? 1 : t.weight;
+    r -= w;
+    if (r <= 0) return typeof t === "function" ? t : t.fn;
+  }
+  const last = arr[arr.length - 1];
+  return typeof last === "function" ? last : last.fn;
+}
+
 function ordinal(n) {
   const s = ["th", "st", "nd", "rd"];
   const v = n % 100;
@@ -701,7 +718,11 @@ function generateRumours(state, recentMoves = [], liveScores = null, livePerform
     "somewhere in this league someone is drafting a strongly worded message they will absolutely still send",
     "the trash talk to actual football knowledge ratio in this group chat should be studied academically",
   ];
-  for (const line of hypeLines) templates.push(() => ({ fan: true, text: line }));
+  // Downweighted: these 31 lines are entirely static, with zero real data behind them — at
+  // the default weight of 1 they'd draw exactly as often as posts grounded in this league's
+  // actual budgets, rosters, and results, and 31 fixed strings at equal odds is most of why
+  // the feed has read as repetitive no matter how many data-driven templates get added.
+  for (const line of hypeLines) templates.push({ weight: 0.3, fn: () => ({ fan: true, text: line }) });
 
   // ---- Club rivalry banter: every team gets a fictional fanbase trash-talking another ----
   // Real-football-style rivalry, not just spreadsheet comparisons — team-name permutations
@@ -1345,18 +1366,44 @@ function generateRumours(state, recentMoves = [], liveScores = null, livePerform
   // team pair + line on every pick, so the real space of unique strings they can produce is
   // in the hundreds, and a big baked-in pool is what lets the homepage's Refresh button
   // serve many clicks in a row without repeating a post (see renderRumours() client-side).
+  //
+  // Cross-sync memory: this whole batch regenerates from scratch, fully at random, on every
+  // scheduled sync — with no memory of what the last sync already posted. A visitor checking
+  // back after a sync could land on largely the same lines purely by chance. Seeding the
+  // dedup set with recently-shown texts (persisted in state.meta, rolled forward below) makes
+  // each sync actively avoid repeating what was just posted, not just what's in its own batch.
   const count = Math.min(250, templates.length * 6);
+  const recentTexts = state.meta.recentRumourTexts || [];
   const rumours = [];
-  const seenTexts = new Set();
+  const seenTexts = new Set(recentTexts);
   let attempts = 0;
   while (rumours.length < count && attempts < count * 12) {
     attempts++;
-    const entry = pick(templates)();
+    const entry = pickTemplate(templates)();
     if (seenTexts.has(entry.text)) continue;
     seenTexts.add(entry.text);
     const persona = entry.persona || pick(entry.fan ? FAN_PERSONAS : PERSONAS);
     rumours.push({ handle: persona.handle, name: persona.name, color: persona.color, text: entry.text });
   }
+  // A quiet data day (few teams, no results yet) can leave the achievable pool of unique
+  // text smaller than the recent-memory window itself — rather than serve a thin feed, fall
+  // back to within-batch-only dedup once recent-memory exclusion has been exhausted.
+  if (rumours.length < Math.min(60, count)) {
+    const seenOnly = new Set(rumours.map((r) => r.text));
+    attempts = 0;
+    while (rumours.length < count && attempts < count * 12) {
+      attempts++;
+      const entry = pickTemplate(templates)();
+      if (seenOnly.has(entry.text)) continue;
+      seenOnly.add(entry.text);
+      const persona = entry.persona || pick(entry.fan ? FAN_PERSONAS : PERSONAS);
+      rumours.push({ handle: persona.handle, name: persona.name, color: persona.color, text: entry.text });
+    }
+  }
+  // Roll the memory window forward: this run's texts plus enough of the prior window to span
+  // a couple of sync cycles, so a line won't resurface immediately but the achievable pool
+  // (in the many hundreds once team-name and player permutations are counted) never runs dry.
+  state.meta.recentRumourTexts = [...rumours.map((r) => r.text), ...recentTexts].slice(0, 500);
   return rumours;
 }
 
