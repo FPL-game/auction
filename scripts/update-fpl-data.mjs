@@ -22,6 +22,18 @@ const FETCH_HEADERS = { "User-Agent": "auction-league-bot/1.0 (+https://nikhilde
 const FIRESTORE_PROJECT = "fpl-auction";
 const FIRESTORE_BASE = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT}/databases/(default)/documents`;
 
+// Same TypeSafe account as typesafe-guard.mjs's budgets/rosters check, reused here to catch
+// Social Media feed posts that read as repetitive despite passing the exact-text dedup below
+// (same idea/structure, different player or team name). Fails open on any error or missing
+// key, same as the guard — never worth blocking a sync over.
+const TYPESAFE_API_KEY = process.env.TYPESAFE_API_KEY;
+const REPETITION_THRESHOLD = 0.7;
+// Capped so a sync run makes exactly one bounded TypeSafe request no matter how large the
+// rumour pool gets — not a per-post call, and no retry/regenerate-on-reject loop (a flagged
+// post is just dropped; the pool this draws from is generous enough that losing a handful of
+// near-duplicates never runs the feed dry).
+const MAX_REPETITION_CHECKS = 40;
+
 async function fetchJson(url) {
   const res = await fetch(url, { headers: FETCH_HEADERS });
   if (!res.ok) throw new Error(`${url} -> HTTP ${res.status}`);
@@ -368,7 +380,7 @@ async function main() {
   if (!rostersInPlay) {
     state.liveScores = null;
     state.livePlayerPoints = null;
-    state.rumours = generateRumours(state, recentMoves);
+    state.rumours = await generateRumours(state, recentMoves);
     await writeFile(DATA_PATH, JSON.stringify(state, null, 2) + "\n");
     console.log("No rosters drafted yet — refreshed player pool only.");
     return;
@@ -489,7 +501,7 @@ async function main() {
     if (allFinal) state.meta.gwFinalizedAt[ev.id] = new Date().toISOString();
   }
 
-  state.rumours = generateRumours(state, recentMoves, state.liveScores, livePerformers);
+  state.rumours = await generateRumours(state, recentMoves, state.liveScores, livePerformers);
 
   state.meta.lastUpdated = new Date().toISOString();
   await writeFile(DATA_PATH, JSON.stringify(state, null, 2) + "\n");
@@ -577,7 +589,61 @@ function teamFanPersona(team) {
   return { handle: v.handle, name: v.name, color: pick(RIVAL_FAN_COLORS) };
 }
 
-function generateRumours(state, recentMoves = [], liveScores = null, livePerformers = []) {
+// Asks TypeSafe, in a single batched call, whether each of the first
+// MAX_REPETITION_CHECKS posts in the final feed order reads as the same idea/structure as
+// the post immediately before it — the "different player name, same joke" repeats that the
+// exact-text dedup above can't see. Not a per-post API call: every candidate pair goes into
+// one request as separate named questions, same "questions" object shape typesafe-guard.mjs
+// already uses with a single question, just with several keys instead of one.
+async function filterRepetitiveRumours(rumours) {
+  if (!TYPESAFE_API_KEY || rumours.length < 2) return rumours;
+
+  const checkCount = Math.min(MAX_REPETITION_CHECKS, rumours.length - 1);
+  const questions = {};
+  for (let i = 1; i <= checkCount; i++) {
+    questions[`pair_${i}`] = {
+      type: "noul",
+      instructions:
+        "Two consecutive posts from a fantasy football league's social media feed. Ignoring " +
+        "which specific player, team, or number is named, does Post B read as the same idea, " +
+        "structure, or joke as Post A — the kind of back-to-back repeat that would make a " +
+        `reader feel like they just saw this? Post A: "${rumours[i - 1].text}" Post B: "${rumours[i].text}"`,
+    };
+  }
+
+  let result;
+  try {
+    const res = await fetch("https://api.typesafe.ai/v1/systemone", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${TYPESAFE_API_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "jev-latest",
+        state: "social-media-feed-repetition-batch",
+        questions,
+      }),
+    });
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error(`HTTP ${res.status}: ${body}`);
+    }
+    result = await res.json();
+  } catch (err) {
+    console.log(`TypeSafe repetition check failed (${err.message}) — leaving feed order as generated.`);
+    return rumours;
+  }
+
+  const dropIndices = new Set();
+  for (let i = 1; i <= checkCount; i++) {
+    const probability = result?.answers?.[`pair_${i}`]?.noul ?? 0;
+    if (probability >= REPETITION_THRESHOLD) dropIndices.add(i);
+  }
+  if (!dropIndices.size) return rumours;
+
+  console.log(`TypeSafe flagged ${dropIndices.size} feed post(s) as repetitive — dropping them.`);
+  return rumours.filter((_, idx) => !dropIndices.has(idx));
+}
+
+async function generateRumours(state, recentMoves = [], liveScores = null, livePerformers = []) {
   const unpicked = state.players.filter((p) => p.draftedBy === null && p.selectedByPercent > 0);
   const ownedPlayers = state.teams.flatMap((t) =>
     t.roster.map((p) => ({ ...p, teamName: t.name })),
@@ -717,11 +783,32 @@ function generateRumours(state, recentMoves = [], liveScores = null, livePerform
     "this league runs on spite, screenshots and the faint smell of unresolved beef. wouldn't change a thing",
     "somewhere in this league someone is drafting a strongly worded message they will absolutely still send",
     "the trash talk to actual football knowledge ratio in this group chat should be studied academically",
+    "somebody's going to lose their captain armband over a decision made at 11pm on a Tuesday and deserve every bit of it",
+    "the group chat has more tactical analysis in it than actual football knowledge and somehow that's still an upgrade on most pundits",
+    "watching people defend a squad they haven't looked at in three days like it's their firstborn",
+    "the sheer audacity of some of these transfers has me taking notes, not because they're good, purely for the audacity",
+    "someone's about to discover that vibes are not a valid fantasy football strategy, live, in real time",
+    "the group chat consensus on 'best squad' changes every four minutes depending on who posted last",
+    "there is a very specific kind of confidence that only exists before the first whistle of gameweek 1",
+    "somebody just said their squad 'picks itself' and I would like to formally enter that into evidence for later",
+    "this league has already produced more drama than most reality shows and nobody's even lost yet",
+    "the energy in this group chat could power a small stadium and none of it is going toward actual research",
+    "every manager in this league thinks they're the quiet genius. statistically at most one of you is right",
+    "somebody's about to eat a very public 'told you so' and honestly they've earned it",
+    "the gap between preseason hype and gameweek 1 reality is where dreams go to be gently corrected",
+    "nobody has lost yet and the trash talk is already at mid-season levels. love to see the ambition",
+    "this league's group chat has main character energy for six different people simultaneously",
+    "somebody screenshot their own squad unprompted like it's a birth announcement",
+    "the confidence to actual transfer activity ratio in this league is deeply, deeply unbalanced",
+    "every manager swears they're not superstitious right up until their lucky formation gets benched",
+    "somebody's about to learn that talking about a rebuild and actually rebuilding are very different hobbies 💀",
+    "the group chat has entered its 'everyone's an expert' phase and gameweek 1 hasn't even started",
   ];
-  // Downweighted: these 31 lines are entirely static, with zero real data behind them — at
+  // Downweighted: these lines are entirely static, with zero real data behind them — at
   // the default weight of 1 they'd draw exactly as often as posts grounded in this league's
-  // actual budgets, rosters, and results, and 31 fixed strings at equal odds is most of why
-  // the feed has read as repetitive no matter how many data-driven templates get added.
+  // actual budgets, rosters, and results, and a big pool of fixed strings at equal odds is
+  // most of why the feed has read as repetitive no matter how many data-driven templates get
+  // added.
   for (const line of hypeLines) templates.push({ weight: 0.3, fn: () => ({ fan: true, text: line }) });
 
   // ---- Club rivalry banter: every team gets a fictional fanbase trash-talking another ----
@@ -751,6 +838,16 @@ function generateRumours(state, recentMoves = [], liveScores = null, livePerform
       (us, rival) => `${us.name} FC has a folder. it's called "receipts". most of it is ${rival.name} FC`,
       (us, rival) => `${rival.name} FC talking a big game for a team that's one bad week from a full identity crisis`,
       (us, rival) => `${us.name} FC would like to remind ${rival.name} FC that history remembers winners, and history has taken notes`,
+      (us, rival) => `${rival.name} FC talk a big game for a team that hasn't done anything to back it up yet. we're watching, ${rival.name} FC. we're always watching`,
+      (us, rival) => `${us.name} FC would like to thank ${rival.name} FC for the motivation. genuinely, couldn't have done it without you`,
+      (us, rival) => `every time ${rival.name} FC opens their mouth, ${us.name} FC gets a little more motivated. keep going, honestly`,
+      (us, rival) => `${rival.name} FC fans have a lot to say for a team that hasn't earned the microphone yet`,
+      (us, rival) => `${us.name} FC didn't start anything with ${rival.name} FC. ${us.name} FC just refuses to lose to them, which apparently reads as personal`,
+      (us, rival) => `somewhere, a ${rival.name} FC fan is drafting a response to this and ${us.name} FC would like to say: take your time, we'll wait`,
+      (us, rival) => `${rival.name} FC keeps finding new ways to almost be a problem for ${us.name} FC. almost`,
+      (us, rival) => `${us.name} FC has never once thought about ${rival.name} FC outside of matchweeks. this is one of those weeks`,
+      (us, rival) => `respect to ${rival.name} FC for showing up every week to lose to ${us.name} FC with a straight face`,
+      (us, rival) => `${rival.name} FC fans keep saying this is the year. ${us.name} FC has heard that before. from ${rival.name} FC. last year`,
     ];
     templates.push(() => {
       const [us, rival] = pickTwoDistinct(state.teams);
@@ -771,6 +868,16 @@ function generateRumours(state, recentMoves = [], liveScores = null, livePerform
         const rivalTop = [...rival.roster].sort((a, b) => b.price - a.price)[0];
         if (!usTop || !rivalTop || usTop.price <= rivalTop.price) return null;
         return `${us.name} FC's ${usTop.name} cost more than ${rival.name} FC's entire spending on ${rivalTop.name}. spend accordingly next time, ${rival.name} FC`;
+      },
+      (us, rival) => us.waiverBudget - rival.waiverBudget > 0
+        ? `${us.name} FC still holding ${us.waiverBudget}m in waiver budget to ${rival.name} FC's ${rival.waiverBudget}m. options matter, ${rival.name} FC`
+        : null,
+      (us, rival) => {
+        if (!us.roster.length || !rival.roster.length) return null;
+        const usAvg = us.roster.reduce((sum, p) => sum + p.price, 0) / us.roster.length;
+        const rivalAvg = rival.roster.reduce((sum, p) => sum + p.price, 0) / rival.roster.length;
+        if (usAvg <= rivalAvg) return null;
+        return `${us.name} FC spending an average of ${usAvg.toFixed(1)}m per player, ${rival.name} FC down at ${rivalAvg.toFixed(1)}m. class shows, ${rival.name} FC`;
       },
     ];
     templates.push(() => {
@@ -1426,11 +1533,13 @@ function generateRumours(state, recentMoves = [], liveScores = null, livePerform
       rumours.push({ handle: persona.handle, name: persona.name, color: persona.color, text: entry.text });
     }
   }
+  const filtered = await filterRepetitiveRumours(rumours);
+
   // Roll the memory window forward: this run's texts plus enough of the prior window to span
   // a couple of sync cycles, so a line won't resurface immediately but the achievable pool
   // (in the many hundreds once team-name and player permutations are counted) never runs dry.
-  state.meta.recentRumourTexts = [...rumours.map((r) => r.text), ...recentTexts].slice(0, 500);
-  return rumours;
+  state.meta.recentRumourTexts = [...filtered.map((r) => r.text), ...recentTexts].slice(0, 500);
+  return filtered;
 }
 
 main().catch((err) => {
