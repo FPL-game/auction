@@ -42,6 +42,11 @@ jobs:
       - name: Sync FPL data
         run: node scripts/update-fpl-data.mjs
 
+      - name: TypeSafe sanity check (budgets & rosters)
+        env:
+          TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
+        run: node scripts/typesafe-guard.mjs
+
       - name: Commit and push if changed
         run: |
           if git diff --quiet -- src/data/auctionLeague.json; then
