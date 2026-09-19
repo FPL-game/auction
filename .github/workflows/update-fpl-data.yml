@@ -40,6 +40,11 @@ jobs:
           node-version: "22"
 
       - name: Sync FPL data
+        env:
+          # The Social Media feed's TypeSafe repetition check (in update-fpl-data.mjs
+          # itself, not the separate guard below) needs this too — it fails open without
+          # it, so this isn't optional the way it might look at a glance.
+          TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
         run: node scripts/update-fpl-data.mjs
 
       - name: TypeSafe sanity check (budgets & rosters)
