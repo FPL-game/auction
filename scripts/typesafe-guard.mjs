@@ -70,20 +70,23 @@ async function main() {
         questions: {
           looksCorrupted: {
             type: "noul",
-            question:
+            instructions:
               "This is a before/after summary of an auction fantasy football league's team budgets and roster sizes after an automated data sync. Ignoring plausible in-season changes (budgets going down, rosters growing), does the 'after' state look corrupted or wrong — e.g. a team's budget or roster wiped to zero/null when it wasn't before, a budget that went sharply negative, or a roster size that dropped without any transfer explaining it?",
           },
         },
       }),
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error(`HTTP ${res.status}: ${body}`);
+    }
     result = await res.json();
   } catch (err) {
     console.log(`TypeSafe check failed (${err.message}) — failing open, proceeding with commit.`);
     return;
   }
 
-  const probability = result?.answers?.looksCorrupted?.probability ?? 0;
+  const probability = result?.answers?.looksCorrupted?.noul ?? 0;
   console.log(`TypeSafe corruption-likelihood: ${probability}`);
   if (probability >= CORRUPTION_THRESHOLD) {
     console.error(
