@@ -257,21 +257,21 @@ const FAQ = [
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style is:global>
   :root{
-    --pitch: #17082E;
-    --pitch-2: #200D40;
-    --card: #241143;
-    --card-2: #2E1655;
-    --line: #4A2E80;
-    --turf: #00FF87;
-    --turf-dim: #0B8F52;
-    --amber: #E90052;
-    --white: #F5F2FF;
-    --grey: #9C8FD4;
-    --red: #FF5A36;
+    --pitch: #0B0F1A;
+    --pitch-2: #121A2C;
+    --card: #151D30;
+    --card-2: #1C2640;
+    --line: #2B3654;
+    --turf: #4A90D9;
+    --turf-dim: #2C5C8A;
+    --amber: #C9A227;
+    --white: #EDEFF5;
+    --grey: #8892A6;
+    --red: #E15554;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   body{
-    background: radial-gradient(ellipse at top, #3A1470 0%, var(--pitch) 55%);
+    background: radial-gradient(ellipse at top, #1A2740 0%, var(--pitch) 55%);
     color: var(--white);
     font-family: 'Work Sans', sans-serif;
     min-height: 100vh;
@@ -927,9 +927,21 @@ const FAQ = [
     cursor: pointer;
     border-radius: 6px;
   }
+  .player-cell::after{
+    content: '\203a';
+    color: var(--grey);
+    opacity: 0.55;
+    font-size: 15px;
+    font-weight: 700;
+    margin-left: 1px;
+  }
   .player-cell:hover, .player-cell:focus-visible{
     background: var(--card-2);
     outline: none;
+  }
+  .player-cell:hover::after, .player-cell:focus-visible::after{
+    opacity: 1;
+    color: var(--turf);
   }
 
   .player-modal-backdrop{
@@ -1543,12 +1555,12 @@ const FAQ = [
 
   // ---- Live reactions: as soon as the admin logs a real move, the crowd starts talking ----
   const LIVE_FAN_PERSONAS = [
-    { handle: '@BenchWarmerBrian', name: 'Brian', color: '#9C8FD4' },
-    { handle: '@ArmchairGaffer', name: 'The Armchair Gaffer', color: '#E90052' },
-    { handle: '@TripleCaptainTom', name: 'Tom', color: '#00FF87' },
-    { handle: '@FPL_Degenerate', name: 'FPL Degenerate', color: '#FF5A36' },
-    { handle: '@BigManBants', name: 'Big Man Bants', color: '#9C8FD4' },
-    { handle: '@ShoutyFromTheSofa', name: 'Shouty From The Sofa', color: '#FF5A36' },
+    { handle: '@BenchWarmerBrian', name: 'Brian', color: '#8892A6' },
+    { handle: '@ArmchairGaffer', name: 'The Armchair Gaffer', color: '#C9A227' },
+    { handle: '@TripleCaptainTom', name: 'Tom', color: '#4A90D9' },
+    { handle: '@FPL_Degenerate', name: 'FPL Degenerate', color: '#E15554' },
+    { handle: '@BigManBants', name: 'Big Man Bants', color: '#8892A6' },
+    { handle: '@ShoutyFromTheSofa', name: 'Shouty From The Sofa', color: '#E15554' },
   ];
 
   function liveMoveText(d) {
@@ -1667,7 +1679,7 @@ const FAQ = [
     feed.innerHTML = items.length
       ? items.slice(0, 5).map((n) => `
           <div class="tweet-card">
-            <div class="tweet-avatar" style="background:#FF5A36">${randomAvatarIcon()}</div>
+            <div class="tweet-avatar" style="background:#E15554">${randomAvatarIcon()}</div>
             <div class="tweet-body">
               <div class="tweet-meta"><span class="tweet-name">${n.name}</span><span class="tweet-handle">${n.club} &middot; owned by ${n.team}</span></div>
               <div class="tweet-text">${n.news}</div>
@@ -1703,7 +1715,7 @@ const FAQ = [
         const when = d.ts ? timeAgo(d.ts.toDate()) : 'just now';
         return `
           <div class="tweet-card">
-            <div class="tweet-avatar" style="background:#E90052">${randomAvatarIcon()}</div>
+            <div class="tweet-avatar" style="background:#C9A227">${randomAvatarIcon()}</div>
             <div class="tweet-body">
               <div class="tweet-meta">
                 <span class="tweet-name">Trade Confirmed</span>
@@ -1718,7 +1730,7 @@ const FAQ = [
       }
       const isRemove = d.type === 'remove';
       const verb = isRemove ? 'release' : 'sign';
-      const color = isRemove ? '#FF5A36' : '#00FF87';
+      const color = isRemove ? '#E15554' : '#4A90D9';
       const when = d.ts ? timeAgo(d.ts.toDate()) : 'just now';
       return `
         <div class="tweet-card">
