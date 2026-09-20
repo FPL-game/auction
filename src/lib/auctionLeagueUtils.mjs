@@ -87,4 +87,27 @@ export function computeStandings(teams, results) {
   );
 }
 
+// Maps each team id to its standings rank (1-indexed) as of the gameweek before the most
+// recently finalized one, so the standings table can show how far a team has moved since
+// last week. `results` only ever holds finalized gameweeks (scripts/update-fpl-data.mjs
+// writes a result once its FPL fixtures are all final), so the most recent gameweek number
+// present in `results` is "this week" and everything before it is "last week". Returns {}
+// when fewer than two gameweeks have finished yet, since there's no prior week to compare.
+export function computePreviousRanks(teams, results) {
+  const gwNumbers = Object.keys(results || {}).map((key) => Number(key.split("-")[0]));
+  if (gwNumbers.length === 0) return {};
+  const mostRecentGw = Math.max(...gwNumbers);
+  if (!gwNumbers.some((gw) => gw !== mostRecentGw)) return {};
+  const previousResults = {};
+  Object.keys(results).forEach((key) => {
+    if (Number(key.split("-")[0]) !== mostRecentGw) previousResults[key] = results[key];
+  });
+  const previousStandings = computeStandings(teams, previousResults);
+  const ranks = {};
+  previousStandings.forEach((row, i) => {
+    ranks[row.id] = i + 1;
+  });
+  return ranks;
+}
+
 export const POSITION_BY_ELEMENT_TYPE = { 1: "GK", 2: "DEF", 3: "MID", 4: "FWD" };
