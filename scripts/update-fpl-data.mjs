@@ -263,6 +263,8 @@ async function main() {
   // points, which is near-meaningless in the first few gameweeks of a season.
   // Carry lastSeasonPts forward from whatever the previous sync already resolved — see
   // fillLastSeasonPoints above for why this isn't just re-fetched every run.
+  // `code` is FPL's own opta-style player code, not the element id — it's what the site's
+  // player headshots (resources.premierleague.com/premierleague/photos/players/...) key on.
   const previousLastSeasonById = new Map(
     (state.players || []).filter((p) => p.lastSeasonPts != null).map((p) => [p.id, p.lastSeasonPts]),
   );
@@ -270,6 +272,7 @@ async function main() {
     const name = `${el.first_name} ${el.second_name}`;
     return {
       id: el.id,
+      code: el.code,
       name,
       pos: POSITION_BY_ELEMENT_TYPE[el.element_type] || "?",
       club: clubById.get(el.team) || "?",
