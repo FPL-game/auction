@@ -259,11 +259,19 @@ function teamRemainingProjection(roster, liveById, clubGwStatus, expectedPointsB
     if (p.playerId == null) continue;
     const status = clubGwStatus.get(p.club);
     if (!status || status.finished) continue;
+    // The fixture-level `started` flag (and the kickoff_time fallback above it) can
+    // still lag or miss an edge case (e.g. a fixture with no confirmed kickoff_time
+    // yet). A player's own live minutes are ground truth straight from FPL's live
+    // scoring feed and can't be stale the same way, so they win whenever they
+    // disagree — this is what was still counting an already-playing player as "yet
+    // to play" on a club whose fixture-level flag hadn't caught up.
+    const live = liveById.get(p.playerId);
+    const started = status.started || (live?.stats.minutes ?? 0) > 0;
     uncertain++;
-    if (!status.started) remaining++;
+    if (!started) remaining++;
     const ep = Math.max(expectedPointsByPlayerId.get(p.playerId) ?? 2, 0);
-    const livePts = liveById.get(p.playerId)?.stats.total_points ?? 0;
-    const mean = status.started ? Math.max(ep - livePts, 0.5) : Math.max(ep, 0.5);
+    const livePts = live?.stats.total_points ?? 0;
+    const mean = started ? Math.max(ep - livePts, 0.5) : Math.max(ep, 0.5);
     expectedRemaining += mean;
     // A real FPL score is far more volatile than a Poisson-ish variance≈mean model
     // suggests — bonus points, clean sheets and goal/assist combos routinely swing a
