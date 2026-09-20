@@ -32,14 +32,17 @@ function fdrClass(difficulty: number) {
   return "fdr-medium";
 }
 
-// FPL's own player headshot CDN, keyed on the `code` field (not the element id) —
-// every player has one, whether drafted or not. Falls back to FPL's own generic
-// "no photo" shirt graphic for the rare player missing a code.
+// FPL's own player headshot CDN, keyed on the `code` field (not the element id). Falls
+// back to FPL's own generic "no photo" shirt graphic both here (a missing code) and via
+// each <img>'s onerror (a code that has no actual headshot on the CDN — common for
+// fringe/lower-profile players, and not something knowable in advance from the data).
+const MISSING_PHOTO_URL = "https://resources.premierleague.com/premierleague/photos/players/110x140/Photo-Missing.png";
 function playerPhotoUrl(code: any) {
   return code
     ? `https://resources.premierleague.com/premierleague/photos/players/110x140/p${code}.png`
-    : "https://resources.premierleague.com/premierleague/photos/players/110x140/Photo-Missing.png";
+    : MISSING_PHOTO_URL;
 }
+const photoOnError = `this.onerror=null;this.src='${MISSING_PHOTO_URL}';`;
 
 function formatKickoff(iso: string) {
   const d = new Date(iso);
@@ -587,9 +590,7 @@ const FAQ = [
     display:flex;
     align-items:center;
     justify-content:center;
-    font-family:'Poppins', sans-serif;
-    font-size: 15px;
-    color: var(--pitch);
+    font-size: 18px;
     flex-shrink: 0;
   }
   .tweet-body{ flex: 1; min-width: 0; }
@@ -720,6 +721,29 @@ const FAQ = [
     padding: 0 24px;
     min-width: 110px;
     text-align:center;
+  }
+
+  .match-meta{
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--grey);
+  }
+  .match-meta-side.right{ text-align: right; }
+  .win-prob-bar{
+    height: 6px;
+    margin: 0 20px 14px;
+    background: var(--card-2);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .win-prob-fill{
+    height: 100%;
+    background: linear-gradient(90deg, var(--turf), var(--amber));
   }
 
   .score-card-wrap{
@@ -1016,7 +1040,7 @@ const FAQ = [
             {t.roster.length ? t.roster.map((p: any) => (
               <li>
                 <span class="player-cell">
-                  <img class="player-photo" src={playerPhotoUrl(codeByPlayerId.get(p.playerId))} loading="lazy" alt="" />
+                  <img class="player-photo" src={playerPhotoUrl(codeByPlayerId.get(p.playerId))} loading="lazy" alt="" onerror={photoOnError} />
                   {p.name}
                 </span>
                 <span>{p.price}m</span>
@@ -1111,6 +1135,9 @@ const FAQ = [
         const initialB = finalMatch?.scoreB ?? lsMatch?.scoreB ?? 0;
         const breakdownA = finalMatch?.breakdownA;
         const breakdownB = finalMatch?.breakdownB;
+        // Only shown for a match still in progress (or pre-kickoff) — once it's final,
+        // there's nothing left to be uncertain about, so remaining/win-prob just disappears.
+        const showMatchMeta = !finalMatch && lsMatch && lsMatch.remainingA != null;
         return (
         <div class="score-card-wrap">
           <div class="score-card">
@@ -1118,6 +1145,17 @@ const FAQ = [
             <div class="score" id={`live-score-${m[0]}-${m[1]}`}>{initialA} &ndash; {initialB}</div>
             <div class="team-name right">{teamName(teams, m[1])}</div>
           </div>
+          {showMatchMeta && (
+            <div class="match-meta" id={`match-meta-${m[0]}-${m[1]}`}>
+              <span class="match-meta-side">{lsMatch.remainingA} to play &middot; {lsMatch.winProbA}% to win</span>
+              <span class="match-meta-side right">{lsMatch.remainingB} to play &middot; {lsMatch.winProbB}% to win</span>
+            </div>
+          )}
+          {showMatchMeta && (
+            <div class="win-prob-bar" id={`win-prob-bar-${m[0]}-${m[1]}`} title="Estimated win probability — a heuristic, not an official stat">
+              <div class="win-prob-fill" style={`width:${lsMatch.winProbA}%`}></div>
+            </div>
+          )}
           <div class="score-breakdown">
             <details>
               <summary>Points overview <span class="chevron">+</span></summary>
@@ -1126,7 +1164,7 @@ const FAQ = [
                   ? breakdownA.map((p: any) => (
                       <li>
                         <span class="player-cell">
-                          <img class="player-photo" src={playerPhotoUrl(codeByPlayerId.get(p.playerId))} loading="lazy" alt="" />
+                          <img class="player-photo" src={playerPhotoUrl(codeByPlayerId.get(p.playerId))} loading="lazy" alt="" onerror={photoOnError} />
                           {p.name}
                         </span>
                         <span class="pts">{p.points}</span>
@@ -1142,7 +1180,7 @@ const FAQ = [
                   ? breakdownB.map((p: any) => (
                       <li>
                         <span class="player-cell">
-                          <img class="player-photo" src={playerPhotoUrl(codeByPlayerId.get(p.playerId))} loading="lazy" alt="" />
+                          <img class="player-photo" src={playerPhotoUrl(codeByPlayerId.get(p.playerId))} loading="lazy" alt="" onerror={photoOnError} />
                           {p.name}
                         </span>
                         <span class="pts">{p.points}</span>
@@ -1192,7 +1230,7 @@ const FAQ = [
               data-drafted="0"
               data-stats={JSON.stringify(stats)}
             >
-              <td><span class="player-cell"><img class="player-photo" src={playerPhotoUrl(p.code)} loading="lazy" alt="" />{p.name}</span></td>
+              <td><span class="player-cell"><img class="player-photo" src={playerPhotoUrl(p.code)} loading="lazy" alt="" onerror={photoOnError} />{p.name}</span></td>
               <td><span class="pos-badge">{p.pos}</span></td>
               <td>{p.club}</td>
               <td class="mono">{(p.selectedByPercent ?? 0).toFixed(1)}%</td>
@@ -1342,8 +1380,11 @@ const FAQ = [
   const rumours = JSON.parse(document.getElementById('rumoursSeed').textContent);
   const TIMES = ['now', '2m', '5m', '11m', '23m', '38m', '1h', '2h', '4h', '6h', 'yesterday'];
 
-  function initials(name) {
-    return name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase();
+  // A random glyph per post beats every avatar being the same two letters — these are
+  // fake accounts anyway, so there's no "real" photo to be faithful to.
+  const AVATAR_ICONS = ['⚽','🔥','🎯','🏆','💬','📣','🐐','👑','🚀','💥','🎙️','🌟','🔍','🧠','🗣️','🚨','🥅','🎉','🍿','🧢','👀','😤','🙌','📈'];
+  function randomAvatarIcon() {
+    return AVATAR_ICONS[Math.floor(Math.random() * AVATAR_ICONS.length)];
   }
 
   function shuffled(arr) {
@@ -1371,7 +1412,7 @@ const FAQ = [
     const picks = rumoursQueue.splice(0, 9);
     feed.innerHTML = picks.map((r) => `
       <div class="tweet-card">
-        <div class="tweet-avatar" style="background:${r.color}">${initials(r.name)}</div>
+        <div class="tweet-avatar" style="background:${r.color}">${randomAvatarIcon()}</div>
         <div class="tweet-body">
           <div class="tweet-meta">
             <span class="tweet-name">${r.name}</span>
@@ -1429,7 +1470,7 @@ const FAQ = [
     const card = document.createElement('div');
     card.className = 'tweet-card';
     card.innerHTML = `
-      <div class="tweet-avatar" style="background:${persona.color}">${initials(persona.name)}</div>
+      <div class="tweet-avatar" style="background:${persona.color}">${randomAvatarIcon()}</div>
       <div class="tweet-body">
         <div class="tweet-meta">
           <span class="tweet-name">${persona.name}</span>
@@ -1471,10 +1512,16 @@ const FAQ = [
   const playerPointsSeedData = JSON.parse(document.getElementById('playerPointsSeed').textContent);
   const playerPoints = new Map(playerPointsSeedData.map((p) => [String(p.id), p.eventPoints]));
   const playerCodes = new Map(playerPointsSeedData.map((p) => [String(p.id), p.code]));
+  const MISSING_PHOTO_URL = 'https://resources.premierleague.com/premierleague/photos/players/110x140/Photo-Missing.png';
   function playerPhotoUrl(code) {
     return code
       ? `https://resources.premierleague.com/premierleague/photos/players/110x140/p${code}.png`
-      : 'https://resources.premierleague.com/premierleague/photos/players/110x140/Photo-Missing.png';
+      : MISSING_PHOTO_URL;
+  }
+  const PHOTO_ONERROR = `this.onerror=null;this.src='${MISSING_PHOTO_URL}';`;
+  const AVATAR_ICONS = ['⚽','🔥','🎯','🏆','💬','📣','🐐','👑','🚀','💥','🎙️','🌟','🔍','🧠','🗣️','🚨','🥅','🎉','🍿','🧢','👀','😤','🙌','📈'];
+  function randomAvatarIcon() {
+    return AVATAR_ICONS[Math.floor(Math.random() * AVATAR_ICONS.length)];
   }
   const playersNews = new Map(
     JSON.parse(document.getElementById('playersNewsSeed').textContent).map((p) => [String(p.id), p]),
@@ -1508,7 +1555,7 @@ const FAQ = [
     feed.innerHTML = items.length
       ? items.slice(0, 5).map((n) => `
           <div class="tweet-card">
-            <div class="tweet-avatar" style="background:#FF5A36">${n.pos}</div>
+            <div class="tweet-avatar" style="background:#FF5A36">${randomAvatarIcon()}</div>
             <div class="tweet-body">
               <div class="tweet-meta"><span class="tweet-name">${n.name}</span><span class="tweet-handle">${n.club} &middot; owned by ${n.team}</span></div>
               <div class="tweet-text">${n.news}</div>
@@ -1544,7 +1591,7 @@ const FAQ = [
         const when = d.ts ? timeAgo(d.ts.toDate()) : 'just now';
         return `
           <div class="tweet-card">
-            <div class="tweet-avatar" style="background:#E90052">${d.teamAName.slice(0, 2).toUpperCase()}</div>
+            <div class="tweet-avatar" style="background:#E90052">${randomAvatarIcon()}</div>
             <div class="tweet-body">
               <div class="tweet-meta">
                 <span class="tweet-name">Trade Confirmed</span>
@@ -1563,7 +1610,7 @@ const FAQ = [
       const when = d.ts ? timeAgo(d.ts.toDate()) : 'just now';
       return `
         <div class="tweet-card">
-          <div class="tweet-avatar" style="background:${color}">${d.teamName.slice(0, 2).toUpperCase()}</div>
+          <div class="tweet-avatar" style="background:${color}">${randomAvatarIcon()}</div>
           <div class="tweet-body">
             <div class="tweet-meta">
               <span class="tweet-name">${d.teamName}</span>
@@ -1601,7 +1648,7 @@ const FAQ = [
     if (frozenBreakdown) {
       if (breakdownEl) {
         breakdownEl.innerHTML = frozenBreakdown.length
-          ? frozenBreakdown.map((p) => `<li><span class="player-cell"><img class="player-photo" src="${playerPhotoUrl(playerCodes.get(String(p.playerId)))}" loading="lazy" alt="">${p.name}</span><span class="pts">${p.points}</span></li>`).join('')
+          ? frozenBreakdown.map((p) => `<li><span class="player-cell"><img class="player-photo" src="${playerPhotoUrl(playerCodes.get(String(p.playerId)))}" loading="lazy" alt="" onerror="${PHOTO_ONERROR}">${p.name}</span><span class="pts">${p.points}</span></li>`).join('')
           : '<li class="empty-note">Squad not drafted yet.</li>';
       }
       return frozenBreakdown.reduce((sum, p) => sum + p.points, 0);
@@ -1613,13 +1660,26 @@ const FAQ = [
         ? live.roster.map((p) => {
             const pts = pointsFor(p.playerId);
             total += pts;
-            return `<li><span class="player-cell"><img class="player-photo" src="${playerPhotoUrl(playerCodes.get(String(p.playerId)))}" loading="lazy" alt="">${p.name}</span><span class="pts">${pts}</span></li>`;
+            return `<li><span class="player-cell"><img class="player-photo" src="${playerPhotoUrl(playerCodes.get(String(p.playerId)))}" loading="lazy" alt="" onerror="${PHOTO_ONERROR}">${p.name}</span><span class="pts">${pts}</span></li>`;
           }).join('')
         : '<li class="empty-note">Squad not drafted yet.</li>';
     } else {
       total = live.roster.reduce((sum, p) => sum + pointsFor(p.playerId), 0);
     }
     return total;
+  }
+
+  function renderMatchMeta(a, b, serverMatch) {
+    const metaEl = document.getElementById(`match-meta-${a}-${b}`);
+    const barEl = document.getElementById(`win-prob-bar-${a}-${b}`);
+    if (!metaEl || !barEl) return;
+    if (!serverMatch || serverMatch.remainingA == null) {
+      metaEl.remove();
+      barEl.remove();
+      return;
+    }
+    metaEl.innerHTML = `<span class="match-meta-side">${serverMatch.remainingA} to play &middot; ${serverMatch.winProbA}% to win</span><span class="match-meta-side right">${serverMatch.remainingB} to play &middot; ${serverMatch.winProbB}% to win</span>`;
+    barEl.innerHTML = `<div class="win-prob-fill" style="width:${serverMatch.winProbA}%"></div>`;
   }
 
   function renderAllLiveScores() {
@@ -1632,6 +1692,7 @@ const FAQ = [
         renderLiveScoreFor(a, finalMatch.breakdownA);
         renderLiveScoreFor(b, finalMatch.breakdownB);
         scoreEl.textContent = `${finalMatch.scoreA} – ${finalMatch.scoreB}`;
+        renderMatchMeta(a, b, null);
         return;
       }
       // renderLiveScoreFor() also fills in the per-player breakdown as a side effect —
@@ -1643,6 +1704,7 @@ const FAQ = [
       const scoreA = serverMatch ? serverMatch.scoreA : breakdownTotalA;
       const scoreB = serverMatch ? serverMatch.scoreB : breakdownTotalB;
       scoreEl.textContent = `${scoreA} – ${scoreB}`;
+      renderMatchMeta(a, b, serverMatch);
     });
   }
 
@@ -1680,7 +1742,7 @@ const FAQ = [
     if (budgetEl) budgetEl.textContent = `${data.remainingBudget + data.waiverBudget}M`;
     if (rosterEl) {
       rosterEl.innerHTML = data.roster.length
-        ? data.roster.map((p) => `<li><span>${p.name}</span><span>${p.price}m</span></li>`).join('')
+        ? data.roster.map((p) => `<li><span class="player-cell"><img class="player-photo" src="${playerPhotoUrl(playerCodes.get(String(p.playerId)))}" loading="lazy" alt="" onerror="${PHOTO_ONERROR}">${p.name}</span><span>${p.price}m</span></li>`).join('')
         : '<li class="empty-note">Squad not drafted yet.</li>';
     }
   }
