@@ -1,6 +1,6 @@
 ---
 import auctionLeagueData from "../data/auctionLeague.json";
-import { computeStandings, teamName } from "../lib/auctionLeagueUtils.mjs";
+import { computeStandings, computePreviousRanks, teamName } from "../lib/auctionLeagueUtils.mjs";
 
 const state = auctionLeagueData as any;
 const { teams, fixtures, results, players, meta, liveScores } = state;
@@ -89,6 +89,7 @@ function formatStatValue(key: string, val: any) {
 }
 
 const standings = computeStandings(teams, results);
+const previousRankByTeamId = computePreviousRanks(teams, results);
 
 // Roster and live-score-breakdown entries only carry a player's id (as `playerId`), not
 // their FPL `code` — this cross-references back into the full player pool for photos.
@@ -268,6 +269,7 @@ const FAQ = [
     --white: #EDEFF5;
     --grey: #8892A6;
     --red: #E15554;
+    --green: #3FA34D;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   body{
@@ -675,6 +677,18 @@ const FAQ = [
   }
   table.standings tbody tr:nth-child(1) td:first-child{ color: var(--turf); font-weight:700; }
   .pts-col{ color: var(--amber); font-family:'JetBrains Mono', monospace; font-weight:700; }
+  .move-col{ width:1%; white-space:nowrap; }
+  .move-up, .move-down, .move-flat{
+    display:inline-flex;
+    align-items:center;
+    gap:3px;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight:700;
+  }
+  .move-up{ color: var(--green); }
+  .move-down{ color: var(--red); }
+  .move-flat{ color: var(--grey); font-weight:400; }
 
   .live-banner{
     display:flex;
@@ -1193,18 +1207,31 @@ const FAQ = [
     <div class="section-title">Standings</div>
     <table class="standings">
       <thead>
-        <tr><th>#</th><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>PF</th><th>PA</th><th>Diff</th><th>Pts</th></tr>
+        <tr><th>#</th><th></th><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>PF</th><th>PA</th><th>Diff</th><th>Pts</th></tr>
       </thead>
       <tbody>
-        {standings.map((r: any, i: number) => (
-          <tr>
-            <td>{i + 1}</td>
-            <td>{r.name}</td>
-            <td>{r.P}</td><td>{r.W}</td><td>{r.D}</td><td>{r.L}</td>
-            <td>{r.PF}</td><td>{r.PA}</td><td>{r.PF - r.PA}</td>
-            <td class="pts-col">{r.Pts}</td>
-          </tr>
-        ))}
+        {standings.map((r: any, i: number) => {
+          const prevRank = previousRankByTeamId[r.id];
+          const movement = prevRank != null ? prevRank - (i + 1) : null;
+          return (
+            <tr>
+              <td>{i + 1}</td>
+              <td class="move-col">
+                {movement == null || movement === 0 ? (
+                  <span class="move-flat" title="No change since last gameweek">&mdash;</span>
+                ) : movement > 0 ? (
+                  <span class="move-up" title={`Up ${movement} since last gameweek`}>&#9650;{movement}</span>
+                ) : (
+                  <span class="move-down" title={`Down ${-movement} since last gameweek`}>&#9660;{-movement}</span>
+                )}
+              </td>
+              <td>{r.name}</td>
+              <td>{r.P}</td><td>{r.W}</td><td>{r.D}</td><td>{r.L}</td>
+              <td>{r.PF}</td><td>{r.PA}</td><td>{r.PF - r.PA}</td>
+              <td class="pts-col">{r.Pts}</td>
+            </tr>
+          );
+        })}
       </tbody>
     </table>
   </section>
