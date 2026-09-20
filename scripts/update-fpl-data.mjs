@@ -245,27 +245,34 @@ function buildClubGwStatus(plFixtures, teams, gwId) {
 // estimates each side's remaining scoring upside from FPL's own next-gameweek point
 // projection (ep_next, already carried on every player as `expectedPoints`) for whichever
 // roster players' clubs haven't finished playing yet, and models each remaining player's
-// contribution as Poisson-ish (variance ≈ mean) — good enough for a rough live indicator,
-// not a real statistical model. `remaining` (the "X to play" count) is strictly players
-// whose club hasn't kicked off yet — a player mid-match is no longer "yet to play", even
-// though they still count toward the expected/variance totals below since they still have
-// scoring upside left.
+// contribution with a variance well above its mean (see winProbabilities below for why) —
+// good enough for a rough live indicator, not a real statistical model. `remaining` (the
+// "X to play" count) is strictly players whose club hasn't kicked off yet — a player
+// mid-match is no longer "yet to play", even though they still count toward the
+// expected/variance totals below (via `uncertain`) since they still have scoring upside left.
 function teamRemainingProjection(roster, liveById, clubGwStatus, expectedPointsByPlayerId) {
   let remaining = 0;
+  let uncertain = 0;
   let expectedRemaining = 0;
   let varianceRemaining = 0;
   for (const p of roster) {
     if (p.playerId == null) continue;
     const status = clubGwStatus.get(p.club);
     if (!status || status.finished) continue;
+    uncertain++;
     if (!status.started) remaining++;
     const ep = Math.max(expectedPointsByPlayerId.get(p.playerId) ?? 2, 0);
     const livePts = liveById.get(p.playerId)?.stats.total_points ?? 0;
     const mean = status.started ? Math.max(ep - livePts, 0.5) : Math.max(ep, 0.5);
     expectedRemaining += mean;
-    varianceRemaining += Math.max(mean, 1);
+    // A real FPL score is far more volatile than a Poisson-ish variance≈mean model
+    // suggests — bonus points, clean sheets and goal/assist combos routinely swing a
+    // single player's return by 8-15+ points either way. Variance≈mean was making the
+    // model falsely confident once a score gap opened up (e.g. reporting a flat 0%/100%
+    // with several players still to play), so it's scaled up well past the mean here.
+    varianceRemaining += Math.max(mean * 3, 3);
   }
-  return { remaining, expectedRemaining, varianceRemaining };
+  return { remaining, uncertain, expectedRemaining, varianceRemaining };
 }
 
 // Standard normal CDF (Abramowitz & Stegun approximation) — used to turn the projected
@@ -278,10 +285,21 @@ function normalCdf(z) {
   return prob;
 }
 
+// Probability a side's win is ever truly "decided" only once nobody on either roster
+// has any scoring upside left (uncertain === 0 for both) — until then, a single bonus
+// point or a late goal can still move the result, so the reported probability is kept
+// away from a false-certainty 0%/100% (clamped to [2, 98]) whenever anyone's still in
+// play. This is what was showing a flat 0% for a team with 6 players still to go.
+const LIVE_WIN_PROB_FLOOR = 2;
+
 function winProbabilities(scoreA, scoreB, projA, projB) {
   const margin = scoreA + projA.expectedRemaining - (scoreB + projB.expectedRemaining);
   const sd = Math.sqrt(Math.max(projA.varianceRemaining + projB.varianceRemaining, 0.25));
-  const probA = Math.round(normalCdf(margin / sd) * 100);
+  let probA = normalCdf(margin / sd) * 100;
+  if (projA.uncertain > 0 || projB.uncertain > 0) {
+    probA = Math.min(100 - LIVE_WIN_PROB_FLOOR, Math.max(LIVE_WIN_PROB_FLOOR, probA));
+  }
+  probA = Math.round(probA);
   return { winProbA: probA, winProbB: 100 - probA };
 }
 

@@ -733,18 +733,18 @@ const FAQ = [
     letter-spacing: 0.05em;
     color: var(--grey);
   }
-  .match-meta-side.right{ text-align: right; }
+  .match-meta-side{ display: flex; flex-direction: column; gap: 2px; }
+  .match-meta-side.right{ text-align: right; align-items: flex-end; }
   .win-prob-bar{
+    display: flex;
     height: 6px;
     margin: 0 20px 14px;
     background: var(--card-2);
     border-radius: 999px;
     overflow: hidden;
   }
-  .win-prob-fill{
-    height: 100%;
-    background: linear-gradient(90deg, var(--turf), var(--amber));
-  }
+  .win-prob-fill-a{ height: 100%; background: var(--turf); }
+  .win-prob-fill-b{ height: 100%; background: var(--amber); }
 
   .score-card-wrap{
     background: var(--card);
@@ -1147,13 +1147,20 @@ const FAQ = [
           </div>
           {showMatchMeta && (
             <div class="match-meta" id={`match-meta-${m[0]}-${m[1]}`}>
-              <span class="match-meta-side">{lsMatch.remainingA} yet to play &middot; {lsMatch.winProbA}% to win</span>
-              <span class="match-meta-side right">{lsMatch.remainingB} yet to play &middot; {lsMatch.winProbB}% to win</span>
+              <span class="match-meta-side">
+                <span class="match-meta-line">{lsMatch.remainingA} yet to play</span>
+                <span class="match-meta-line">{lsMatch.winProbA}% to win</span>
+              </span>
+              <span class="match-meta-side right">
+                <span class="match-meta-line">{lsMatch.remainingB} yet to play</span>
+                <span class="match-meta-line">{lsMatch.winProbB}% to win</span>
+              </span>
             </div>
           )}
           {showMatchMeta && (
             <div class="win-prob-bar" id={`win-prob-bar-${m[0]}-${m[1]}`} title="Estimated win probability — a heuristic, not an official stat">
-              <div class="win-prob-fill" style={`width:${lsMatch.winProbA}%`}></div>
+              <div class="win-prob-fill-a" style={`width:${lsMatch.winProbA}%`}></div>
+              <div class="win-prob-fill-b" style={`width:${lsMatch.winProbB}%`}></div>
             </div>
           )}
           <div class="score-breakdown">
@@ -1678,8 +1685,8 @@ const FAQ = [
       barEl.remove();
       return;
     }
-    metaEl.innerHTML = `<span class="match-meta-side">${serverMatch.remainingA} yet to play &middot; ${serverMatch.winProbA}% to win</span><span class="match-meta-side right">${serverMatch.remainingB} yet to play &middot; ${serverMatch.winProbB}% to win</span>`;
-    barEl.innerHTML = `<div class="win-prob-fill" style="width:${serverMatch.winProbA}%"></div>`;
+    metaEl.innerHTML = `<span class="match-meta-side"><span class="match-meta-line">${serverMatch.remainingA} yet to play</span><span class="match-meta-line">${serverMatch.winProbA}% to win</span></span><span class="match-meta-side right"><span class="match-meta-line">${serverMatch.remainingB} yet to play</span><span class="match-meta-line">${serverMatch.winProbB}% to win</span></span>`;
+    barEl.innerHTML = `<div class="win-prob-fill-a" style="width:${serverMatch.winProbA}%"></div><div class="win-prob-fill-b" style="width:${serverMatch.winProbB}%"></div>`;
   }
 
   function renderAllLiveScores() {
