@@ -1147,8 +1147,8 @@ const FAQ = [
           </div>
           {showMatchMeta && (
             <div class="match-meta" id={`match-meta-${m[0]}-${m[1]}`}>
-              <span class="match-meta-side">{lsMatch.remainingA} to play &middot; {lsMatch.winProbA}% to win</span>
-              <span class="match-meta-side right">{lsMatch.remainingB} to play &middot; {lsMatch.winProbB}% to win</span>
+              <span class="match-meta-side">{lsMatch.remainingA} yet to play &middot; {lsMatch.winProbA}% to win</span>
+              <span class="match-meta-side right">{lsMatch.remainingB} yet to play &middot; {lsMatch.winProbB}% to win</span>
             </div>
           )}
           {showMatchMeta && (
@@ -1678,7 +1678,7 @@ const FAQ = [
       barEl.remove();
       return;
     }
-    metaEl.innerHTML = `<span class="match-meta-side">${serverMatch.remainingA} to play &middot; ${serverMatch.winProbA}% to win</span><span class="match-meta-side right">${serverMatch.remainingB} to play &middot; ${serverMatch.winProbB}% to win</span>`;
+    metaEl.innerHTML = `<span class="match-meta-side">${serverMatch.remainingA} yet to play &middot; ${serverMatch.winProbA}% to win</span><span class="match-meta-side right">${serverMatch.remainingB} yet to play &middot; ${serverMatch.winProbB}% to win</span>`;
     barEl.innerHTML = `<div class="win-prob-fill" style="width:${serverMatch.winProbA}%"></div>`;
   }
 
