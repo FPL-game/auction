@@ -1,6 +1,6 @@
 import{initializeApp as e}from"https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";import{collection as t,doc as n,getFirestore as r,limit as i,onSnapshot as a,orderBy as o,query as s}from"https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";var c=e({apiKey:`AIzaSyApmHdW9Jj__ejTY6jKu2j-TG_KyTQYVN4`,authDomain:`fpl-auction.firebaseapp.com`,projectId:`fpl-auction`,storageBucket:`fpl-auction.firebasestorage.app`,messagingSenderId:`113884648410`,appId:`1:113884648410:web:ede97721bcf2c57aa3e6e3`}),l=r(c),u=JSON.parse(document.getElementById(`teamsSeed`).textContent),d=new Map(JSON.parse(document.getElementById(`playerPointsSeed`).textContent).map(e=>[String(e.id),e.eventPoints])),f=new Map(JSON.parse(document.getElementById(`playersNewsSeed`).textContent).map(e=>[String(e.id),e])),p=JSON.parse(document.getElementById(`liveScoresSeed`).textContent),m=p.liveScores,h=new Map(Object.entries(p.livePlayerPoints||{})),g=new Map((p.finalMatches||[]).map(e=>[`${e.a}-${e.b}`,e])),_={remainingBudget:100,waiverBudget:20,roster:[]},v={},y=!1;function b(e){let t=String(e);return h.has(t)?h.get(t):d.get(t)??0}function x(){let e=document.getElementById(`injuryWireFeed`);if(!e)return;let t=[];for(let e of u){let n=v[e.id]||_;for(let r of n.roster){let n=f.get(String(r.playerId));n&&t.push({team:e.name,...n})}}e.innerHTML=t.length?t.slice(0,5).map(e=>`
           <div class="tweet-card">
-            <div class="tweet-avatar" style="background:#E8543F">${e.pos}</div>
+            <div class="tweet-avatar" style="background:#FF5A36">${e.pos}</div>
             <div class="tweet-body">
               <div class="tweet-meta"><span class="tweet-name">${e.name}</span><span class="tweet-handle">${e.club} &middot; owned by ${e.team}</span></div>
               <div class="tweet-text">${e.news}</div>
@@ -8,7 +8,7 @@ import{initializeApp as e}from"https://www.gstatic.com/firebasejs/10.13.0/fireba
           </div>
         `).join(``):`<p class="empty-note">No injury concerns for owned players right now.</p>`}function S(e){let t=Math.max(0,Math.floor((Date.now()-e.getTime())/1e3));return t<60?`just now`:t<3600?`${Math.floor(t/60)}m ago`:t<86400?`${Math.floor(t/3600)}h ago`:`${Math.floor(t/86400)}d ago`}function C(e){let t=document.getElementById(`squadMovesFeed`);if(t){if(!e.length){t.innerHTML=`<p class="empty-note">No moves logged yet — they'll appear here the moment the admin makes one.</p>`;return}t.innerHTML=e.map(e=>{if(e.type===`trade`){let t=(e.playersAToB||[]).map(e=>e.name).join(`, `)||`nothing`,n=(e.playersBToA||[]).map(e=>e.name).join(`, `)||`nothing`,r=[];e.budgetAToB&&r.push(`${e.budgetAToB}m to ${e.teamBName}`),e.budgetBToA&&r.push(`${e.budgetBToA}m to ${e.teamAName}`);let i=r.length?` Plus ${r.join(` and `)}.`:``,a=e.ts?S(e.ts.toDate()):`just now`;return`
           <div class="tweet-card">
-            <div class="tweet-avatar" style="background:#FFB627">${e.teamAName.slice(0,2).toUpperCase()}</div>
+            <div class="tweet-avatar" style="background:#E90052">${e.teamAName.slice(0,2).toUpperCase()}</div>
             <div class="tweet-body">
               <div class="tweet-meta">
                 <span class="tweet-name">Trade Confirmed</span>
@@ -19,7 +19,7 @@ import{initializeApp as e}from"https://www.gstatic.com/firebasejs/10.13.0/fireba
               <div class="tweet-text">${e.teamAName} send ${t} to ${e.teamBName} in exchange for ${n}.${i}</div>
             </div>
           </div>
-        `}let t=e.type===`remove`,n=t?`release`:`sign`,r=t?`#E8543F`:`#37C871`,i=e.ts?S(e.ts.toDate()):`just now`;return`
+        `}let t=e.type===`remove`,n=t?`release`:`sign`,r=t?`#FF5A36`:`#00FF87`,i=e.ts?S(e.ts.toDate()):`just now`;return`
         <div class="tweet-card">
           <div class="tweet-avatar" style="background:${r}">${e.teamName.slice(0,2).toUpperCase()}</div>
           <div class="tweet-body">
