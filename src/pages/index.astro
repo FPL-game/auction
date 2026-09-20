@@ -924,7 +924,88 @@ const FAQ = [
     display: flex;
     align-items: center;
     gap: 8px;
+    cursor: pointer;
+    border-radius: 6px;
   }
+  .player-cell:hover, .player-cell:focus-visible{
+    background: var(--card-2);
+    outline: none;
+  }
+
+  .player-modal-backdrop{
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 100;
+    padding: 20px;
+    overflow-y: auto;
+  }
+  .player-modal-backdrop.open{ display: flex; align-items: flex-start; justify-content: center; }
+  .player-modal{
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 420px;
+    width: 100%;
+    margin-top: 40px;
+  }
+  .player-modal-close{
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--card-2);
+    border: 1px solid var(--line);
+    color: var(--grey);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .player-modal-head{
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .player-modal-photo{
+    width: 64px;
+    height: 82px;
+    object-fit: cover;
+    object-position: top center;
+    background: var(--card-2);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+  .player-modal-name{ font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 18px; }
+  .player-modal-sub{ color: var(--grey); font-size: 13px; margin-top: 2px; }
+  .player-modal-news{ color: var(--amber); font-size: 12px; margin-top: 6px; }
+  .player-modal-headline{
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 16px 0;
+    padding: 12px;
+    background: var(--card-2);
+    border-radius: 8px;
+    text-align: center;
+  }
+  .player-modal-headline .stat{ flex: 1; }
+  .player-modal-headline .stat .num{ font-family: 'JetBrains Mono', monospace; font-size: 18px; color: var(--turf); }
+  .player-modal-headline .stat .lbl{ font-size: 10px; color: var(--grey); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+  .player-modal-stats{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+  .player-modal-stats .row{ display: flex; justify-content: space-between; border-bottom: 1px solid var(--line); padding: 4px 0; }
+  .player-modal-stats .row span:first-child{ color: var(--grey); }
 
   .matchday-stripe{
     height: 4px;
@@ -1039,7 +1120,7 @@ const FAQ = [
           <ul class="roster-list" id={`roster-${t.id}`}>
             {t.roster.length ? t.roster.map((p: any) => (
               <li>
-                <span class="player-cell">
+                <span class="player-cell" data-player-id={p.playerId} tabindex="0">
                   <img class="player-photo" src={playerPhotoUrl(codeByPlayerId.get(p.playerId))} loading="lazy" alt="" onerror={photoOnError} />
                   {p.name}
                 </span>
@@ -1170,7 +1251,7 @@ const FAQ = [
                 {breakdownA
                   ? breakdownA.map((p: any) => (
                       <li>
-                        <span class="player-cell">
+                        <span class="player-cell" data-player-id={p.playerId} tabindex="0">
                           <img class="player-photo" src={playerPhotoUrl(codeByPlayerId.get(p.playerId))} loading="lazy" alt="" onerror={photoOnError} />
                           {p.name}
                         </span>
@@ -1186,7 +1267,7 @@ const FAQ = [
                 {breakdownB
                   ? breakdownB.map((p: any) => (
                       <li>
-                        <span class="player-cell">
+                        <span class="player-cell" data-player-id={p.playerId} tabindex="0">
                           <img class="player-photo" src={playerPhotoUrl(codeByPlayerId.get(p.playerId))} loading="lazy" alt="" onerror={photoOnError} />
                           {p.name}
                         </span>
@@ -1237,7 +1318,7 @@ const FAQ = [
               data-drafted="0"
               data-stats={JSON.stringify(stats)}
             >
-              <td><span class="player-cell"><img class="player-photo" src={playerPhotoUrl(p.code)} loading="lazy" alt="" onerror={photoOnError} />{p.name}</span></td>
+              <td><span class="player-cell" data-player-id={p.id} tabindex="0"><img class="player-photo" src={playerPhotoUrl(p.code)} loading="lazy" alt="" onerror={photoOnError} />{p.name}</span></td>
               <td><span class="pos-badge">{p.pos}</span></td>
               <td>{p.club}</td>
               <td class="mono">{(p.selectedByPercent ?? 0).toFixed(1)}%</td>
@@ -1310,6 +1391,22 @@ const FAQ = [
   {meta.lastFplSync && <> Last FPL sync: {new Date(meta.lastFplSync).toUTCString()}.</>}
 </footer>
 
+<div class="player-modal-backdrop" id="playerModalBackdrop">
+  <div class="player-modal" role="dialog" aria-modal="true" aria-labelledby="playerModalName">
+    <button class="player-modal-close" id="playerModalClose" aria-label="Close">&times;</button>
+    <div class="player-modal-head">
+      <img class="player-modal-photo" id="playerModalPhoto" alt="" />
+      <div>
+        <div class="player-modal-name" id="playerModalName"></div>
+        <div class="player-modal-sub" id="playerModalSub"></div>
+        <div class="player-modal-news" id="playerModalNews" style="display:none;"></div>
+      </div>
+    </div>
+    <div class="player-modal-headline" id="playerModalHeadline"></div>
+    <div class="player-modal-stats" id="playerModalStats"></div>
+  </div>
+</div>
+
 <script>
   const buttons = document.querySelectorAll<HTMLButtonElement>('nav.tabs button');
   buttons.forEach((btn) => {
@@ -1380,6 +1477,14 @@ const FAQ = [
 <script type="application/json" id="teamsSeed" set:html={JSON.stringify(teams)}></script>
 <script type="application/json" id="playersNewsSeed" set:html={JSON.stringify(playersWithNews)}></script>
 <script type="application/json" id="playerPointsSeed" set:html={JSON.stringify(players.map((p: any) => ({ id: p.id, eventPoints: p.eventPoints ?? 0, code: p.code })))}></script>
+<script type="application/json" id="playerDetailSeed" set:html={JSON.stringify(players.map((p: any) => ({
+  id: p.id, code: p.code, name: p.name, pos: p.pos, club: p.club, pts: p.pts,
+  eventPoints: p.eventPoints, expectedPoints: p.expectedPoints, selectedByPercent: p.selectedByPercent,
+  nowCost: p.nowCost, news: p.news, chanceOfPlaying: p.chanceOfPlaying, minutes: p.minutes,
+  goalsScored: p.goalsScored, assists: p.assists, cleanSheets: p.cleanSheets, goalsConceded: p.goalsConceded,
+  yellowCards: p.yellowCards, redCards: p.redCards, saves: p.saves, bonus: p.bonus, bps: p.bps,
+  influence: p.influence, creativity: p.creativity, threat: p.threat, lastSeasonPts: p.lastSeasonPts,
+})))}></script>
 <script type="application/json" id="liveScoresSeed" set:html={JSON.stringify({ liveScores, livePlayerPoints, finalMatches: finalMatchesForCurrentGw, currentGameweek: meta.currentGameweek })}></script>
 <script type="application/json" id="rumoursSeed" set:html={JSON.stringify(rumours)}></script>
 
@@ -1655,7 +1760,7 @@ const FAQ = [
     if (frozenBreakdown) {
       if (breakdownEl) {
         breakdownEl.innerHTML = frozenBreakdown.length
-          ? frozenBreakdown.map((p) => `<li><span class="player-cell"><img class="player-photo" src="${playerPhotoUrl(playerCodes.get(String(p.playerId)))}" loading="lazy" alt="" onerror="${PHOTO_ONERROR}">${p.name}</span><span class="pts">${p.points}</span></li>`).join('')
+          ? frozenBreakdown.map((p) => `<li><span class="player-cell" data-player-id="${p.playerId}" tabindex="0"><img class="player-photo" src="${playerPhotoUrl(playerCodes.get(String(p.playerId)))}" loading="lazy" alt="" onerror="${PHOTO_ONERROR}">${p.name}</span><span class="pts">${p.points}</span></li>`).join('')
           : '<li class="empty-note">Squad not drafted yet.</li>';
       }
       return frozenBreakdown.reduce((sum, p) => sum + p.points, 0);
@@ -1667,7 +1772,7 @@ const FAQ = [
         ? live.roster.map((p) => {
             const pts = pointsFor(p.playerId);
             total += pts;
-            return `<li><span class="player-cell"><img class="player-photo" src="${playerPhotoUrl(playerCodes.get(String(p.playerId)))}" loading="lazy" alt="" onerror="${PHOTO_ONERROR}">${p.name}</span><span class="pts">${pts}</span></li>`;
+            return `<li><span class="player-cell" data-player-id="${p.playerId}" tabindex="0"><img class="player-photo" src="${playerPhotoUrl(playerCodes.get(String(p.playerId)))}" loading="lazy" alt="" onerror="${PHOTO_ONERROR}">${p.name}</span><span class="pts">${pts}</span></li>`;
           }).join('')
         : '<li class="empty-note">Squad not drafted yet.</li>';
     } else {
@@ -1749,7 +1854,7 @@ const FAQ = [
     if (budgetEl) budgetEl.textContent = `${data.remainingBudget + data.waiverBudget}M`;
     if (rosterEl) {
       rosterEl.innerHTML = data.roster.length
-        ? data.roster.map((p) => `<li><span class="player-cell"><img class="player-photo" src="${playerPhotoUrl(playerCodes.get(String(p.playerId)))}" loading="lazy" alt="" onerror="${PHOTO_ONERROR}">${p.name}</span><span>${p.price}m</span></li>`).join('')
+        ? data.roster.map((p) => `<li><span class="player-cell" data-player-id="${p.playerId}" tabindex="0"><img class="player-photo" src="${playerPhotoUrl(playerCodes.get(String(p.playerId)))}" loading="lazy" alt="" onerror="${PHOTO_ONERROR}">${p.name}</span><span>${p.price}m</span></li>`).join('')
         : '<li class="empty-note">Squad not drafted yet.</li>';
     }
   }
@@ -1798,6 +1903,66 @@ const FAQ = [
       if (banner) banner.style.display = anyLive ? 'flex' : 'none';
     });
   });
+</script>
+
+<script>
+  // Player detail pop-up: click any player name/photo anywhere on the site (Squads,
+  // Live Scores breakdowns, Players tab — server-rendered or client re-rendered, since
+  // this listens on document rather than binding per-element) to see their real FPL
+  // stats for the season. Not a copy of FPL's own page (that's not something this site
+  // can pull in), just the same underlying numbers this site already syncs from FPL.
+  const playerDetails = new Map(
+    JSON.parse(document.getElementById('playerDetailSeed').textContent).map((p) => [String(p.id), p])
+  );
+  const PLAYER_MODAL_STAT_LABELS = [
+    ['minutes', 'Minutes'], ['goalsScored', 'Goals'], ['assists', 'Assists'],
+    ['cleanSheets', 'Clean sheets'], ['goalsConceded', 'Conceded'], ['saves', 'Saves'],
+    ['bonus', 'Bonus'], ['bps', 'BPS'], ['yellowCards', 'Yellow cards'], ['redCards', 'Red cards'],
+    ['influence', 'Influence'], ['creativity', 'Creativity'], ['threat', 'Threat'],
+    ['lastSeasonPts', "Last season's pts"],
+  ];
+  function playerModalPhotoUrl(code) {
+    return code
+      ? `https://resources.premierleague.com/premierleague/photos/players/110x140/p${code}.png`
+      : 'https://resources.premierleague.com/premierleague/photos/players/110x140/Photo-Missing.png';
+  }
+  const modalBackdrop = document.getElementById('playerModalBackdrop');
+  function openPlayerModal(id) {
+    const p = playerDetails.get(String(id));
+    if (!p || !modalBackdrop) return;
+    const photoEl = document.getElementById('playerModalPhoto');
+    photoEl.src = playerModalPhotoUrl(p.code);
+    photoEl.onerror = () => { photoEl.onerror = null; photoEl.src = 'https://resources.premierleague.com/premierleague/photos/players/110x140/Photo-Missing.png'; };
+    document.getElementById('playerModalName').textContent = p.name;
+    document.getElementById('playerModalSub').textContent = `${p.pos} · ${p.club} · £${(p.nowCost ?? 0).toFixed(1)}m`;
+    const newsEl = document.getElementById('playerModalNews');
+    if (p.news) { newsEl.textContent = p.news; newsEl.style.display = ''; } else { newsEl.style.display = 'none'; }
+    document.getElementById('playerModalHeadline').innerHTML = [
+      ['pts', 'Total pts'], ['eventPoints', 'GW pts'], ['expectedPoints', 'Next GW (proj)'], ['selectedByPercent', 'Selected by'],
+    ].map(([key, label]) => {
+      const val = key === 'selectedByPercent' ? `${(p[key] ?? 0).toFixed(1)}%` : (p[key] ?? '—');
+      return `<div class="stat"><div class="num">${val}</div><div class="lbl">${label}</div></div>`;
+    }).join('');
+    document.getElementById('playerModalStats').innerHTML = PLAYER_MODAL_STAT_LABELS.map(([key, label]) => {
+      const raw = p[key];
+      const val = raw == null ? '—' : (['influence', 'creativity', 'threat'].includes(key) ? Number(raw).toFixed(1) : raw);
+      return `<div class="row"><span>${label}</span><span>${val}</span></div>`;
+    }).join('');
+    modalBackdrop.classList.add('open');
+  }
+  function closePlayerModal() {
+    modalBackdrop?.classList.remove('open');
+  }
+  document.addEventListener('click', (e) => {
+    const cell = e.target.closest('[data-player-id]');
+    if (cell && cell.dataset.playerId) { openPlayerModal(cell.dataset.playerId); return; }
+    if (e.target === modalBackdrop) closePlayerModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closePlayerModal();
+    if (e.key === 'Enter' && document.activeElement?.dataset?.playerId) openPlayerModal(document.activeElement.dataset.playerId);
+  });
+  document.getElementById('playerModalClose')?.addEventListener('click', closePlayerModal);
 </script>
 </body>
 </html>
