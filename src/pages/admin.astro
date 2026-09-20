@@ -23,22 +23,24 @@ const playerOptions = players.map((p: any) => ({
 <meta name="robots" content="noindex, nofollow" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;500;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style is:global>
   :root{
-    --pitch: #0A1712;
-    --card: #12271D;
-    --card-2: #163024;
-    --line: #24402F;
-    --turf: #37C871;
-    --amber: #FFB627;
-    --white: #F3F6F1;
-    --grey: #8AA095;
-    --red: #E8543F;
+    --pitch: #17082E;
+    --pitch-2: #200D40;
+    --card: #241143;
+    --card-2: #2E1655;
+    --line: #4A2E80;
+    --turf: #00FF87;
+    --turf-dim: #0B8F52;
+    --amber: #E90052;
+    --white: #F5F2FF;
+    --grey: #9C8FD4;
+    --red: #FF5A36;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   body{
-    background: radial-gradient(ellipse at top, #12281D 0%, var(--pitch) 55%);
+    background: radial-gradient(ellipse at top, #3A1470 0%, var(--pitch) 55%);
     color: var(--white);
     font-family: 'Work Sans', sans-serif;
     min-height: 100vh;
@@ -46,7 +48,7 @@ const playerOptions = players.map((p: any) => ({
   }
   .mono{ font-family:'JetBrains Mono', monospace; }
   h1{
-    font-family:'Anton', sans-serif;
+    font-family:'Poppins', sans-serif;
     text-transform:uppercase;
     letter-spacing:0.02em;
     font-size: clamp(24px, 5vw, 36px);
@@ -63,7 +65,7 @@ const playerOptions = players.map((p: any) => ({
     margin-bottom: 16px;
   }
   .card h2{
-    font-family:'Anton', sans-serif;
+    font-family:'Poppins', sans-serif;
     text-transform:uppercase;
     font-size: 16px;
     color: var(--turf);
@@ -96,7 +98,7 @@ const playerOptions = players.map((p: any) => ({
     border: none;
     border-radius: 8px;
     padding: 12px 18px;
-    font-family:'Anton', sans-serif;
+    font-family:'Poppins', sans-serif;
     text-transform: uppercase;
     letter-spacing: 0.03em;
     font-size: 14px;
