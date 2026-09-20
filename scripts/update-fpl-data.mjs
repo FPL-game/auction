@@ -208,6 +208,64 @@ async function fillLastSeasonPoints(playerIds) {
   return results;
 }
 
+// Per real-life club, whether every one of its fixtures in a given gameweek is finished
+// (no fixture that gameweek — a blank gameweek for that club — counts as finished, since
+// nobody on that club can add points regardless), and whether any of them has kicked off.
+// Keyed by club name to match the `club` field already carried on every player/roster entry.
+function buildClubGwStatus(plFixtures, teams, gwId) {
+  const gwFixtures = plFixtures.filter((f) => f.event === gwId);
+  const status = new Map();
+  for (const t of teams) {
+    const clubFixtures = gwFixtures.filter((f) => f.team_h === t.id || f.team_a === t.id);
+    status.set(t.name, {
+      finished: clubFixtures.length === 0 || clubFixtures.every((f) => f.finished),
+      started: clubFixtures.some((f) => f.started),
+    });
+  }
+  return status;
+}
+
+// Heuristic-only: FPL gives no real win-probability feed for a private mini-league, so this
+// estimates each side's remaining scoring upside from FPL's own next-gameweek point
+// projection (ep_next, already carried on every player as `expectedPoints`) for whichever
+// roster players' clubs haven't finished playing yet, and models each remaining player's
+// contribution as Poisson-ish (variance ≈ mean) — good enough for a rough live indicator,
+// not a real statistical model.
+function teamRemainingProjection(roster, liveById, clubGwStatus, expectedPointsByPlayerId) {
+  let remaining = 0;
+  let expectedRemaining = 0;
+  let varianceRemaining = 0;
+  for (const p of roster) {
+    if (p.playerId == null) continue;
+    const status = clubGwStatus.get(p.club);
+    if (!status || status.finished) continue;
+    remaining++;
+    const ep = Math.max(expectedPointsByPlayerId.get(p.playerId) ?? 2, 0);
+    const livePts = liveById.get(p.playerId)?.stats.total_points ?? 0;
+    const mean = status.started ? Math.max(ep - livePts, 0.5) : Math.max(ep, 0.5);
+    expectedRemaining += mean;
+    varianceRemaining += Math.max(mean, 1);
+  }
+  return { remaining, expectedRemaining, varianceRemaining };
+}
+
+// Standard normal CDF (Abramowitz & Stegun approximation) — used to turn the projected
+// final-score margin and its variance into a win probability for the two sides.
+function normalCdf(z) {
+  const t = 1 / (1 + 0.2316419 * Math.abs(z));
+  const d = 0.3989423 * Math.exp((-z * z) / 2);
+  let prob = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+  if (z > 0) prob = 1 - prob;
+  return prob;
+}
+
+function winProbabilities(scoreA, scoreB, projA, projB) {
+  const margin = scoreA + projA.expectedRemaining - (scoreB + projB.expectedRemaining);
+  const sd = Math.sqrt(Math.max(projA.varianceRemaining + projB.varianceRemaining, 0.25));
+  const probA = Math.round(normalCdf(margin / sd) * 100);
+  return { winProbA: probA, winProbB: 100 - probA };
+}
+
 function gwScoreForRoster(roster, liveById) {
   let score = 0;
   let matched = 0;
@@ -400,13 +458,23 @@ async function main() {
     const live = await fetchJson(`${API_BASE}/event/${liveEvent.id}/live/`);
     const liveById = new Map(live.elements.map((e) => [e.id, e]));
     const gwFixture = state.fixtures.find((f) => f.gw === liveEvent.id);
+    const clubGwStatus = buildClubGwStatus(plFixtures, bootstrap.teams, liveEvent.id);
+    const expectedPointsByPlayerId = new Map(state.players.map((p) => [p.id, p.expectedPoints]));
     state.liveScores = {
       gw: liveEvent.id,
       finished: false,
       matches: (gwFixture?.matches || []).map(([a, b]) => {
-        const sa = gwScoreForRoster(rosterForGw(liveEvent.id, a), liveById);
-        const sb = gwScoreForRoster(rosterForGw(liveEvent.id, b), liveById);
-        return { a, b, scoreA: sa.score, scoreB: sb.score, breakdownA: sa.breakdown, breakdownB: sb.breakdown };
+        const rosterA = rosterForGw(liveEvent.id, a);
+        const rosterB = rosterForGw(liveEvent.id, b);
+        const sa = gwScoreForRoster(rosterA, liveById);
+        const sb = gwScoreForRoster(rosterB, liveById);
+        const projA = teamRemainingProjection(rosterA, liveById, clubGwStatus, expectedPointsByPlayerId);
+        const projB = teamRemainingProjection(rosterB, liveById, clubGwStatus, expectedPointsByPlayerId);
+        const { winProbA, winProbB } = winProbabilities(sa.score, sb.score, projA, projB);
+        return {
+          a, b, scoreA: sa.score, scoreB: sb.score, breakdownA: sa.breakdown, breakdownB: sb.breakdown,
+          remainingA: projA.remaining, remainingB: projB.remaining, winProbA, winProbB,
+        };
       }),
     };
 
