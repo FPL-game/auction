@@ -1,6 +1,6 @@
 import{initializeApp as e}from"https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";import{collection as t,doc as n,getFirestore as r,limit as i,onSnapshot as a,orderBy as o,query as s}from"https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";var c=e({apiKey:`AIzaSyApmHdW9Jj__ejTY6jKu2j-TG_KyTQYVN4`,authDomain:`fpl-auction.firebaseapp.com`,projectId:`fpl-auction`,storageBucket:`fpl-auction.firebasestorage.app`,messagingSenderId:`113884648410`,appId:`1:113884648410:web:ede97721bcf2c57aa3e6e3`}),l=r(c),u=JSON.parse(document.getElementById(`teamsSeed`).textContent),d=JSON.parse(document.getElementById(`playerPointsSeed`).textContent),f=new Map(d.map(e=>[String(e.id),e.eventPoints])),p=new Map(d.map(e=>[String(e.id),e.code])),m=`https://resources.premierleague.com/premierleague/photos/players/110x140/Photo-Missing.png`;function h(e){return e?`https://resources.premierleague.com/premierleague/photos/players/110x140/p${e}.png`:m}var g=`this.onerror=null;this.src='${m}';`,_=[`⚽`,`🔥`,`🎯`,`🏆`,`💬`,`📣`,`🐐`,`👑`,`🚀`,`💥`,`🎙️`,`🌟`,`🔍`,`🧠`,`🗣️`,`🚨`,`🥅`,`🎉`,`🍿`,`🧢`,`👀`,`😤`,`🙌`,`📈`];function v(){return _[Math.floor(Math.random()*_.length)]}var y=new Map(JSON.parse(document.getElementById(`playersNewsSeed`).textContent).map(e=>[String(e.id),e])),b=JSON.parse(document.getElementById(`liveScoresSeed`).textContent),x=b.liveScores,S=new Map(Object.entries(b.livePlayerPoints||{})),C=new Map((b.finalMatches||[]).map(e=>[`${e.a}-${e.b}`,e])),w={remainingBudget:100,waiverBudget:20,roster:[]},T={},E=!1;function D(e){let t=String(e);return S.has(t)?S.get(t):f.get(t)??0}function O(){let e=document.getElementById(`injuryWireFeed`);if(!e)return;let t=[];for(let e of u){let n=T[e.id]||w;for(let r of n.roster){let n=y.get(String(r.playerId));n&&t.push({team:e.name,...n})}}e.innerHTML=t.length?t.slice(0,5).map(e=>`
           <div class="tweet-card">
-            <div class="tweet-avatar" style="background:#FF5A36">${v()}</div>
+            <div class="tweet-avatar" style="background:#E15554">${v()}</div>
             <div class="tweet-body">
               <div class="tweet-meta"><span class="tweet-name">${e.name}</span><span class="tweet-handle">${e.club} &middot; owned by ${e.team}</span></div>
               <div class="tweet-text">${e.news}</div>
@@ -8,7 +8,7 @@ import{initializeApp as e}from"https://www.gstatic.com/firebasejs/10.13.0/fireba
           </div>
         `).join(``):`<p class="empty-note">No injury concerns for owned players right now.</p>`}function k(e){let t=Math.max(0,Math.floor((Date.now()-e.getTime())/1e3));return t<60?`just now`:t<3600?`${Math.floor(t/60)}m ago`:t<86400?`${Math.floor(t/3600)}h ago`:`${Math.floor(t/86400)}d ago`}function A(e){let t=document.getElementById(`squadMovesFeed`);if(t){if(!e.length){t.innerHTML=`<p class="empty-note">No moves logged yet — they'll appear here the moment the admin makes one.</p>`;return}t.innerHTML=e.map(e=>{if(e.type===`trade`){let t=(e.playersAToB||[]).map(e=>e.name).join(`, `)||`nothing`,n=(e.playersBToA||[]).map(e=>e.name).join(`, `)||`nothing`,r=[];e.budgetAToB&&r.push(`${e.budgetAToB}m to ${e.teamBName}`),e.budgetBToA&&r.push(`${e.budgetBToA}m to ${e.teamAName}`);let i=r.length?` Plus ${r.join(` and `)}.`:``,a=e.ts?k(e.ts.toDate()):`just now`;return`
           <div class="tweet-card">
-            <div class="tweet-avatar" style="background:#E90052">${v()}</div>
+            <div class="tweet-avatar" style="background:#C9A227">${v()}</div>
             <div class="tweet-body">
               <div class="tweet-meta">
                 <span class="tweet-name">Trade Confirmed</span>
@@ -19,7 +19,7 @@ import{initializeApp as e}from"https://www.gstatic.com/firebasejs/10.13.0/fireba
               <div class="tweet-text">${e.teamAName} send ${t} to ${e.teamBName} in exchange for ${n}.${i}</div>
             </div>
           </div>
-        `}let t=e.type===`remove`,n=t?`release`:`sign`,r=t?`#FF5A36`:`#00FF87`,i=e.ts?k(e.ts.toDate()):`just now`;return`
+        `}let t=e.type===`remove`,n=t?`release`:`sign`,r=t?`#E15554`:`#4A90D9`,i=e.ts?k(e.ts.toDate()):`just now`;return`
         <div class="tweet-card">
           <div class="tweet-avatar" style="background:${r}">${v()}</div>
           <div class="tweet-body">
