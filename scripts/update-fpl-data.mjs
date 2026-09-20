@@ -208,6 +208,22 @@ async function fillLastSeasonPoints(playerIds) {
   return results;
 }
 
+// FPL's own per-fixture `finished`/`started` flags can lag the real world by a long
+// while (the same problem the gameweek-level `liveEventEffectivelyFinished` override
+// elsewhere in this file exists for) — sometimes never flipping promptly at all. A real
+// match runs ~105-120 minutes including stoppage, so any fixture more than 2.5 hours past
+// its own kickoff is treated as finished/started regardless of what FPL's flags say.
+const FIXTURE_ASSUME_FINISHED_AFTER_MS = 2.5 * 60 * 60 * 1000;
+
+function fixtureEffectivelyStarted(f) {
+  return f.started || (!!f.kickoff_time && Date.now() >= new Date(f.kickoff_time).getTime());
+}
+
+function fixtureEffectivelyFinished(f) {
+  if (f.finished) return true;
+  return !!f.kickoff_time && Date.now() - new Date(f.kickoff_time).getTime() > FIXTURE_ASSUME_FINISHED_AFTER_MS;
+}
+
 // Per real-life club, whether every one of its fixtures in a given gameweek is finished
 // (no fixture that gameweek — a blank gameweek for that club — counts as finished, since
 // nobody on that club can add points regardless), and whether any of them has kicked off.
@@ -218,8 +234,8 @@ function buildClubGwStatus(plFixtures, teams, gwId) {
   for (const t of teams) {
     const clubFixtures = gwFixtures.filter((f) => f.team_h === t.id || f.team_a === t.id);
     status.set(t.name, {
-      finished: clubFixtures.length === 0 || clubFixtures.every((f) => f.finished),
-      started: clubFixtures.some((f) => f.started),
+      finished: clubFixtures.length === 0 || clubFixtures.every(fixtureEffectivelyFinished),
+      started: clubFixtures.some(fixtureEffectivelyStarted),
     });
   }
   return status;
@@ -230,7 +246,10 @@ function buildClubGwStatus(plFixtures, teams, gwId) {
 // projection (ep_next, already carried on every player as `expectedPoints`) for whichever
 // roster players' clubs haven't finished playing yet, and models each remaining player's
 // contribution as Poisson-ish (variance ≈ mean) — good enough for a rough live indicator,
-// not a real statistical model.
+// not a real statistical model. `remaining` (the "X to play" count) is strictly players
+// whose club hasn't kicked off yet — a player mid-match is no longer "yet to play", even
+// though they still count toward the expected/variance totals below since they still have
+// scoring upside left.
 function teamRemainingProjection(roster, liveById, clubGwStatus, expectedPointsByPlayerId) {
   let remaining = 0;
   let expectedRemaining = 0;
@@ -239,7 +258,7 @@ function teamRemainingProjection(roster, liveById, clubGwStatus, expectedPointsB
     if (p.playerId == null) continue;
     const status = clubGwStatus.get(p.club);
     if (!status || status.finished) continue;
-    remaining++;
+    if (!status.started) remaining++;
     const ep = Math.max(expectedPointsByPlayerId.get(p.playerId) ?? 2, 0);
     const livePts = liveById.get(p.playerId)?.stats.total_points ?? 0;
     const mean = status.started ? Math.max(ep - livePts, 0.5) : Math.max(ep, 0.5);
