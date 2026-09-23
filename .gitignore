@@ -9,3 +9,12 @@ dist/
 content-pipeline/.venv/
 content-pipeline/**/__pycache__/
 content-pipeline/**/*.pyc
+
+# content-pipeline: raw/processed data must live outside the repo
+# (FOOTBALL_DATA_ROOT, default ~/football-data-lake - see
+# content-pipeline/.env.example and acquisition/README.md). This is a
+# backstop in case something is ever generated locally under
+# content-pipeline/ by mistake - large data files must never be committed.
+content-pipeline/data/
+content-pipeline/football-data-lake/
+content-pipeline/*.duckdb
