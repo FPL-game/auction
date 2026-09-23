@@ -54,37 +54,49 @@ con.register("sb_events_df", sb_events)
 con.execute(f"COPY sb_events_df TO '{SILVER}/statsbomb_events/events.parquet' (FORMAT PARQUET)")
 print(f"statsbomb_events: {len(sb_events)} rows")
 
-# --- StatsBomb 360 freeze frames (event-anchored spatial_context, WC2022 final only) ---
-# NOTE ON A RECONCILIATION FINDING: StatsBomb carries freeze-frame positions
-# in TWO places for the same shot event - (a) embedded in the event's own
-# shot.freeze_frame (named players, used here), and (b) the separate
-# data/three-sixty/{match}.json file keyed by event_uuid (anonymised,
-# actor/keeper flags). For the one event checked by hand (Mbappe's 80th-min
-# shot, WC2022 Final), both describe the same 8 real Argentina outfield+GK
-# players but with slightly different coordinates for each (nearest-opponent
-# distance: 4.05m from the embedded field vs 3.41m from the standalone file -
-# a real, disclosed discrepancy, not a bug being hidden). This pipeline uses
-# the EMBEDDED shot.freeze_frame as the source of record because it carries
-# player identity (needed to say who the nearest opponent was), and notes the
-# standalone file's value in the claim-audit file rather than silently
-# picking one number. Neither field is proven to capture every player on the
-# pitch, so no claim built from either should say "nearest defender" as an
-# absolute - say "nearest CAPTURED opponent in the freeze-frame".
-events_raw = json.load(open(BRONZE / "statsbomb/2026-09-23/events_3869685_wc2022final.json"))
+# --- StatsBomb 360 freeze frames ---
+# CORRECTED (QA revision): StatsBomb's shot.freeze_frame (embedded in the
+# event JSON) and the standalone data/three-sixty/{match}.json file (keyed
+# by event_uuid) are DISTINCT source products, not two views of the same
+# product. Selecting one because it happens to carry player names was the
+# wrong basis for the choice made in an earlier pass. This candidate is
+# meant to demonstrate StatsBomb 360 specifically, so the STANDALONE
+# three-sixty file is canonical here - it IS the 360 product. The embedded
+# shot.freeze_frame is a separate, StatsBomb-documented field ("shot
+# freeze-frame data"), not "StatsBomb 360", and is kept in
+# statsbomb_360_freeze_frames_shot_embedded (below) purely as a disclosed,
+# NOT-published reconciliation reference - never the source for a claim.
+frames_raw = json.load(open(BRONZE / "statsbomb/2026-09-23/threesixty_3869685_wc2022final.json"))
 ff_rows = []
+for f in frames_raw:
+    for p in f["freeze_frame"]:
+        ff_rows.append({
+            "match_id": 3869685, "event_uuid": f["event_uuid"],
+            "x": p["location"][0], "y": p["location"][1],
+            "teammate": p["teammate"], "actor": p.get("actor"), "keeper": p.get("keeper"),
+        })
+ff = pd.DataFrame(ff_rows)
+con.register("ff_df", ff)
+con.execute(f"COPY ff_df TO '{SILVER}/statsbomb_360_freeze_frames/frames.parquet' (FORMAT PARQUET)")
+print(f"statsbomb_360_freeze_frames (canonical 360, standalone file): {len(ff)} rows, anonymous (no player names in this product)")
+
+# Reconciliation-only reference table (NOT a claim source) - the embedded
+# shot.freeze_frame for the same match, kept for audit transparency only.
+events_raw = json.load(open(BRONZE / "statsbomb/2026-09-23/events_3869685_wc2022final.json"))
+ff_shot_rows = []
 for e in events_raw:
     if e.get("type", {}).get("name") == "Shot" and "freeze_frame" in e.get("shot", {}):
         for p in e["shot"]["freeze_frame"]:
-            ff_rows.append({
+            ff_shot_rows.append({
                 "match_id": 3869685, "event_uuid": e["id"],
                 "x": p["location"][0], "y": p["location"][1],
                 "teammate": p["teammate"], "player_name": p["player"]["name"],
                 "player_position": p["position"]["name"],
             })
-ff = pd.DataFrame(ff_rows)
-con.register("ff_df", ff)
-con.execute(f"COPY ff_df TO '{SILVER}/statsbomb_360_freeze_frames/frames.parquet' (FORMAT PARQUET)")
-print(f"statsbomb_360_freeze_frames: {len(ff)} rows, from embedded shot.freeze_frame (event-anchored, NOT continuous tracking)")
+ff_shot = pd.DataFrame(ff_shot_rows)
+con.register("ff_shot_df", ff_shot)
+con.execute(f"COPY ff_shot_df TO '{SILVER}/statsbomb_360_freeze_frames_shot_embedded/frames.parquet' (FORMAT PARQUET)")
+print(f"statsbomb_360_freeze_frames_shot_embedded (reconciliation reference ONLY, not '360', not published): {len(ff_shot)} rows")
 
 # --- SkillCorner dynamic events + phases of play (match 1874553) ---
 de = pd.read_csv(BRONZE / "skillcorner/2026-09-23/match_1874553/1874553_dynamic_events.csv")

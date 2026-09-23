@@ -1,0 +1,8 @@
+competition,season,match_id,schema_ok,n_events,event_count_plausible,n_shots,coords_in_0_100,shots_cluster_attacking,periods,periods_ok,first_half_max_sec,timestamps_plausible,n_teams,n_players_referenced,all_event_team_ids_known,goals_by_team_from_events,expected_score,goal_count_matches_expected_total,kloppy_load_ok,kloppy_n_events
+Premier League,2017,2499743,True,1678,True,27,True,True,"['1H', '2H']",True,2825.248854,True,2,2,True,{1612: 4},"(4, 0)",True,True,1733
+Ligue 1,2017,2500688,True,1514,True,16,True,True,"['1H', '2H']",True,2822.509611,True,2,2,True,{3766: 4},"(4, 0)",True,True,1565
+Serie A,2017,2575961,True,1466,True,22,True,True,"['1H', '2H']",True,2932.901629,True,2,2,True,{3157: 3},"(0, 3)",True,True,1501
+La Liga,2017,2565549,True,1548,True,25,True,True,"['1H', '2H']",True,2821.100532,True,2,2,True,"{692: 2, 687: 3}","(2, 3)",True,True,1577
+Bundesliga,2017,2516739,True,1607,True,31,True,True,"['1H', '2H']",True,2734.335321,True,2,2,True,"{2444: 3, 2446: 1}","(3, 1)",True,True,1649
+World Cup,2018,2057954,True,1589,True,18,True,True,"['1H', '2H']",True,2819.15327,True,2,2,True,{14358: 5},"(5, 0)",True,True,1628
+UEFA Euro,2016,1694390,True,1641,True,22,True,True,"['1H', '2H']",True,2827.358826,True,2,2,True,"{4418: 2, 11944: 1}","(2, 1)",True,True,1705

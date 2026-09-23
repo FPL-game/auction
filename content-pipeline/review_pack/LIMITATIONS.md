@@ -4,7 +4,7 @@
 
 **SkillCorner's richest fields here are event/phase-derived, not raw tracking.** EPV, pressure, reception-difficulty, opponents-bypassed and team-width are all real, provider-computed outputs — genuinely stronger than an event-only heuristic — but this pipeline does not hold SkillCorner's raw per-frame positions (Git-LFS-gated, unreachable in this session), so nothing here claims continuous movement, live speed traces, or pitch control.
 
-**StatsBomb 360 has an internal reconciliation gap.** The same shot event carries two different freeze-frame representations in StatsBomb's own data (the event's embedded `shot.freeze_frame` vs. the separate `three-sixty` file), and they disagree by about half a metre to two metres for the same real players. This pipeline used the embedded field (it has player names) and discloses the other value in `claim_audit.csv` rather than picking one silently.
+**StatsBomb carries two distinct freeze-frame products for the same shot event** — the event's embedded `shot.freeze_frame` and the separate, standalone `three-sixty` file — and they disagree by roughly half a metre for the same real players. This pipeline now uses the standalone file as canonical (it IS the "StatsBomb 360" product; the embedded field is a different, unpublished field kept only as a disclosed reconciliation reference in `claim_audit.csv`).
 
 **DFL/IDSSE (German tracking data) is not included.** Every host for it (Hugging Face, Figshare, Nature, the DOI resolver) is blocked by this sandboxed session's network policy — a session/environment limitation, not a licensing one. Manual-import instructions are in `docs/DFL_MANUAL_IMPORT.md` if it's needed later.
 

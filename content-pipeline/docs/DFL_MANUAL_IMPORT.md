@@ -41,14 +41,14 @@ https://huggingface.co/datasets/pysport/idsse-data/resolve/main/{filename}
 
 ## Checksums
 
-**Not published by the source.** Neither the Figshare record's metadata, the Hugging Face repo, nor the companion `spoho-datascience/idsse-data` GitHub repo publish per-file checksums (confirmed by inspecting the GitHub companion repo directly — it ships analysis code only, no manifest with hashes). Once files are supplied, generate and commit a `sha256sum` manifest as the durable checksum record for this project going forward:
+**Not published by the source.** Neither the Figshare record's metadata, the Hugging Face repo, nor the companion `spoho-datascience/idsse-data` GitHub repo publish per-file checksums (confirmed by inspecting the GitHub companion repo directly — it ships analysis code only, no manifest with hashes). Once files are supplied, generate and commit a `sha256sum` manifest:
 
 ```bash
 cd content-pipeline/bronze/dfl
 find . -type f -name "*.xml" -exec sha256sum {} \; > retrieval_checksums.sha256
 ```
 
-Treat that self-generated manifest as the baseline for detecting future corruption or accidental modification — not as independent verification against the publisher (which isn't available).
+**What this manifest does and does not do — read this before relying on it.** This is a *self-generated integrity* checksum, computed by this project at the moment of import, not one issued by DFL, Figshare, or Hugging Face. It is useful for exactly one thing: detecting whether a file *changes* after this point — accidental truncation, silent re-encoding, disk corruption, or someone editing a file later. It does **not** authenticate the files against the publisher, because the publisher has not issued a checksum to compare against. Concretely: this manifest cannot tell you whether the file you downloaded is a byte-for-byte match of what DFL/Figshare actually published, only whether your local copy is still the same as it was the day you generated the manifest. If upstream authentication ever matters (e.g. disputing a data-quality issue with the publisher), it needs to happen against the source directly, not via this file.
 
 ## Validation steps to run once files are supplied
 

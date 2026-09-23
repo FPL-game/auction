@@ -16,9 +16,9 @@ Each caption below is ready to post as-is. Full provenance for every claim is in
 ### 2. Mbappé's 2022 Final goal — StatsBomb 360
 **Chart:** `charts/02_wc2022_final_mbappe_360.png`
 
-> 0.10 xG. The nearest opponent captured in StatsBomb's freeze-frame was 4m away. The keeper was 15m off his line. Mbappé's World Cup Final volley, reconstructed from real tracked positions (8 of 11 Argentina players captured in this frame).
+> 0.10 xG. Per StatsBomb 360, the nearest opponent captured in the freeze-frame was 3.41m away. Mbappé's World Cup Final volley, reconstructed from real tracked positions (8 of 11 Argentina players captured in this frame).
 
-*Source: StatsBomb Open Data, 360 — credit "StatsBomb" as data source.*
+*Source: StatsBomb Open Data, 360 (standalone three-sixty file, the canonical 360 product) — credit "StatsBomb" as data source. A different StatsBomb field (the event's embedded shot freeze-frame, not "360") gives a different value for the same instant — see `claim_audit.csv` row 2 for the full reconciliation; that value is not published.*
 
 ---
 
@@ -63,4 +63,4 @@ Each caption below is ready to post as-is. Full provenance for every claim is in
 
 > Brisbane Roar's average team width in possession went from 39.2m in the first half to 45.4m in the second (width data only — not a formation claim). Still lost 2-3.
 
-*Source: SkillCorner Open Data (MIT licence — credited voluntarily).*
+*Source: SkillCorner Open Data (MIT licence — credited voluntarily). Figures are the DuckDB SQL-canonical values (404 of 423 phases with a complete width reading; 19 phases missing either a start or end value are excluded, not repaired — see `pipeline/tests/test_team_width_null_handling.py`).*

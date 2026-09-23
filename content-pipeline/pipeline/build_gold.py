@@ -29,6 +29,8 @@ results["field_tilt_wc2018_final"] = df
 print("=== 1. Field tilt WC2018 Final ===\n", df, "\n")
 
 # 2. Mbappe 360 nearest-CAPTURED-opponent, WC2022 Final ---------------------
+# CANONICAL SOURCE: the standalone data/three-sixty file - this IS the
+# StatsBomb 360 product. Anonymous by design (no player names in this file).
 q = f"""
 WITH shot AS (
     SELECT event_id, x AS shot_x, y AS shot_y
@@ -39,18 +41,39 @@ frame AS (
     SELECT f.* FROM read_parquet('{SILVER}/statsbomb_360_freeze_frames/frames.parquet') f, shot
     WHERE f.event_uuid = shot.event_id
 )
+SELECT row_number() OVER (ORDER BY dist_m) AS opponent_rank, keeper, dist_m FROM (
+    SELECT frame.keeper,
+           round(sqrt(power(frame.x - shot.shot_x,2) + power(frame.y - shot.shot_y,2)), 2) AS dist_m
+    FROM frame, shot WHERE frame.teammate = false
+) ORDER BY dist_m
+"""
+df = con.execute(q).df()
+results["mbappe_360_wc2022_final"] = df
+print("=== 2. Mbappe 360 (CANONICAL, standalone three-sixty file), WC2022 Final ===\n", df, "\n")
+
+# Reconciliation-only comparison - NOT published, audit reference only.
+q_recon = f"""
+WITH shot AS (
+    SELECT event_id, x AS shot_x, y AS shot_y
+    FROM read_parquet('{SILVER}/statsbomb_events/events.parquet')
+    WHERE match_id = 3869685 AND event_type = 'Shot' AND minute = 80 AND second = 59
+),
+frame AS (
+    SELECT f.* FROM read_parquet('{SILVER}/statsbomb_360_freeze_frames_shot_embedded/frames.parquet') f, shot
+    WHERE f.event_uuid = shot.event_id
+)
 SELECT frame.player_name, frame.player_position,
        round(sqrt(power(frame.x - shot.shot_x,2) + power(frame.y - shot.shot_y,2)), 2) AS dist_m
 FROM frame, shot WHERE frame.teammate = false ORDER BY dist_m
 """
-df = con.execute(q).df()
-results["mbappe_360_wc2022_final"] = df
-print("=== 2. Mbappe 360 nearest captured opponents, WC2022 Final (from embedded shot.freeze_frame) ===\n", df, "\n")
-print("NOTE:", len(df), "captured opposition players (8 outfield+GK) out of 11 Argentina players on the pitch",
-      "- PARTIAL freeze frame, so claims must say 'nearest CAPTURED opponent', never 'nearest defender' as",
-      "if completeness were proven. A second, separate StatsBomb 360 field (the standalone three-sixty file)",
-      "gives a slightly different value (3.41m vs this table's 4.05m) for the same event - both are real",
-      "StatsBomb fields: see docs/CAPABILITY_MATRIX.md and the claim-audit file for the reconciliation note.\n")
+df_recon = con.execute(q_recon).df()
+results["mbappe_shot_freeze_frame_RECONCILIATION_ONLY"] = df_recon
+print("=== 2b. RECONCILIATION REFERENCE ONLY (shot.freeze_frame, NOT '360', NOT published as a claim) ===\n", df_recon, "\n")
+print(f"Canonical 360 nearest opponent: {df['dist_m'].iloc[0]}m (anonymous). "
+      f"Reconciliation-only shot.freeze_frame nearest: {df_recon['dist_m'].iloc[0]}m ({df_recon['player_name'].iloc[0]}). "
+      "Both real StatsBomb fields, different source products - only the canonical 360 value is published.\n")
+print(f"NOTE: canonical 360 frame has {len(df)} captured opposition players out of 11 Argentina players on the pitch",
+      "- PARTIAL freeze frame, so the claim says 'nearest CAPTURED opponent', never 'nearest defender'.\n")
 
 # 3. SkillCorner season physical comparison ----------------------------------
 q = f"""
@@ -104,16 +127,25 @@ results["skillcorner_bypass_top3"] = df
 print("=== 6. SkillCorner bypass top events ===\n", df, "\n")
 
 # 7. SkillCorner team-shape story ---------------------------------------------
+# CANONICAL NULL-HANDLING RULE (see pipeline/tests/test_team_width_null_handling.py):
+# a phase contributes to the average only if BOTH width_start and width_end
+# are present; a phase missing either is excluded entirely, not repaired
+# from the single present value (that was the earlier pandas prototype's
+# behaviour, and is why its numbers differed by <0.3m from this SQL version -
+# this SQL version is now the one of record). n_phases_used counts only the
+# complete-pair phases that actually fed the average; n_phases_total is the
+# full phase count for context.
 q = f"""
 SELECT team_in_possession_shortname, period,
        round(avg((team_in_possession_width_start + team_in_possession_width_end)/2.0), 2) AS avg_width,
-       count(*) AS n_phases
+       count((team_in_possession_width_start + team_in_possession_width_end)/2.0) AS n_phases_used,
+       count(*) AS n_phases_total
 FROM read_parquet('{SILVER}/skillcorner_phases_of_play/phases.parquet')
 GROUP BY 1, 2 ORDER BY 1, 2
 """
 df = con.execute(q).df()
 results["skillcorner_team_shape"] = df
-print("=== 7. SkillCorner team shape by half ===\n", df, "\n")
+print("=== 7. SkillCorner team shape by half (canonical, NULL-pair phases excluded) ===\n", df, "\n")
 
 # 8. Wyscout: Liverpool 4-0 Arsenal shot map sanity (validates 3rd source is queryable) --
 q = f"""
