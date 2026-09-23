@@ -30,6 +30,9 @@ free/open data.
 
 ---
 
+## Environment note (2026-09-23): this session's network is GitHub-only in practice
+This sandboxed coding session's egress proxy allowlists GitHub (git-clone, `raw.githubusercontent.com`) and package registries, and denies almost everything else at the policy level — confirmed for `fantasy.premierleague.com`, `api.clubelo.com`, `thesportsdb.com`, `api.football-data.org`, `understat.com`, `football-data.co.uk`, `huggingface.co`, `figshare.com`, `doi.org`, and `nature.com`. This is a session-level restriction, not a per-source licensing finding, and it is why DFL/IDSSE is undownloadable here (see below) despite being genuinely free. One useful consequence: prefer GitHub-hosted mirrors of a dataset when one exists — e.g. `koenvo/wyscout-soccer-match-event-dataset` is a legitimate, CC-BY-4.0, kloppy-loadable repackage of the Pappalardo/Wyscout dataset (whose original Figshare home is blocked here), found via `withqwerty/open-football`'s curated index. Full detail in `docs/SOURCE_INVENTORY.md`.
+
 ## StatsBomb Open Data
 - **Competitions/seasons**: selective — men's and women's World Cups, UEFA Euro 2020/2024, recent La Liga seasons, Ligue 1 2021/22–2022/23, Bundesliga 2023/24, Women's World Cup 2023, Women's Euro 2022, MLS 2023, plus the classic 2015/16 open set. Not a running "current season" feed — GitHub-hosted, added to irregularly.
 - **Data type**: full event stream (v8 fields); 360 freeze-frame data for the competitions listed above (`competitions.json.match_available_360` marks which).
@@ -40,6 +43,7 @@ free/open data.
 - **Fields for our metrics**: shot location/body-part/technique/freeze-frame → `statsbomb_xg` (chance-quality xG, supplied); raw x/y event+carry stream → sufficient to *calculate* xT, VAEP, PPDA, field tilt, progressive passes/carries, passing networks, build-up/directness locally (see metric registry).
 - **Supplied vs calculated**: `statsbomb_xg` is supplied. xGChain/xGBuildup, OBV, PSxG, GSAA, and the full IQ-metrics catalogue are **commercial-only** — open data cannot produce these; do not fabricate them from open-data fields.
 - **Confidence/limitations**: high confidence in what's documented; the open xG model version isn't explicitly stamped per-match (StatsBomb reprocesses historical `statsbomb_xg` as the model improves, so re-pulling the same match later can change its value — timestamp every pull). 360 minutes must be divided by `player_season_360_minutes`, not total minutes, for any 360-derived rate stat.
+- **Session note (2026-09-23): don't `git clone` the whole repo.** A full shallow clone of `statsbomb/open-data` stalled indefinitely (~20 minutes, zero bytes transferred past the initial handshake) and was abandoned. Targeted fetches of individual files via `raw.githubusercontent.com/statsbomb/open-data/master/<path>` (e.g. `data/competitions.json`, `data/events/{match_id}.json`) worked immediately and reliably — use that pattern going forward.
 
 ## StatsBomb product model (corrected)
 StatsBomb is not one commercial product — it's (at least) four, and this project
@@ -160,9 +164,10 @@ confirmed by directly cloning it and reading every file, not by assumption.
 - **Confidence/limitations**: coverage depends entirely on which games Driblab has chosen to process; no public list of processed games was found.
 
 ## SkillCorner Open Data
-- **Competitions/seasons**: 10 matches, 2024/25 Australian A-League, released jointly by SkillCorner and PySport.
-- **Data type**: broadcast (optical) continuous tracking + derived Dynamic Events for those 10 matches, plus season-level aggregated physical data.
+- **Competitions/seasons**: **corrected from an earlier draft of this matrix** — the repo's own `data/matches.json` currently lists **20** matches (the README text still says 10; the manifest is the source of truth), 2024/25 Australian A-League, released jointly by SkillCorner and PySport. One match (`1953632`) is mislabeled `status: "not_started"` despite having a complete file set and a real final score — verified by direct inspection; see `docs/SOURCE_INVENTORY.md`.
+- **Data type**: broadcast (optical) continuous tracking + derived Dynamic Events for those 20 matches, plus season-level aggregated physical/passing/off-ball-run data. **The season aggregates cover the full 2024/25 season** (up to 29 matches per player) — broader than the 20-match tracking/event sample; don't conflate the two.
 - **Historical/live**: static historical sample, not updated on a schedule.
+- **Session note**: the raw per-frame tracking files (`*_tracking_extrapolated.jsonl`) are Git-LFS-tracked and could not be downloaded in this particular sandboxed session — LFS objects are only reachable for repos attached under this project's own GitHub organisation, and a cross-owner attach was explicitly refused. The per-match `dynamic_events.csv`/`phases_of_play.csv` and the season aggregates are NOT LFS-tracked and downloaded without issue.
 - **Auth**: none — public GitHub repo ([`SkillCorner/opendata`](https://github.com/SkillCorner/opendata)).
 - **Licence**: **MIT** — the most permissive licence in this matrix; commercial use is allowed, attribution is good practice but not a contractual MIT requirement (credit SkillCorner + PySport anyway, since we're building publishable content from it).
 - **Fields for our metrics**: real player/ball tracking → genuinely supports team width/length/compactness, defensive-line height, space between lines, nearest-defender distance, pitch/space control, and (for the 10 covered matches) SkillCorner's own Dynamic Events for off-ball runs and on-ball engagements. Season-level physical aggregates cover total distance, HSR/sprint distance, and accel/decel counts for that A-League sample — **only that sample, not arbitrary players/teams.**
@@ -184,6 +189,7 @@ confirmed by directly cloning it and reading every file, not by assumption.
 - **Auth**: none.
 - **Licence**: **CC-BY 4.0**, published with DFL's authorization (via figshare) — permits commercial use with attribution, which is unusually permissive for tracking data.
 - **Confidence/limitations**: only 7 matches, Bundesliga only — same "great for methodology demos, not for broad current-season claims" caveat as SkillCorner Open Data.
+- **Session note (2026-09-23): confirmed blocked, not a licence problem.** Every host tried — `huggingface.co` (where kloppy actually downloads from), `figshare.com`/`springernature.figshare.com` (original host), `doi.org`, `www.nature.com` — returned a policy-denial 403 from this sandboxed session's network proxy. The dataset's GitHub companion repo (`spoho-datascience/idsse-data`) was cloned successfully but contains only analysis code, not the data itself. No workaround was attempted. Exact filenames needed to supply this manually are in `docs/SOURCE_INVENTORY.md`.
 
 ## ClubElo
 - **Data type**: Elo rating per club per day, no events.
@@ -209,7 +215,7 @@ small, fixed samples, not an ongoing feed:
 
 | Source | Matches | Frame rate | Status |
 |---|---|---|---|
-| SkillCorner Open Data | 10, A-League 2024/25 | not stated per-frame in the OpenAPI spec (broadcast tracking) | usable now (MIT) |
+| SkillCorner Open Data | 20, A-League 2024/25 (manifest count; README is stale at "10") | not stated per-frame in the OpenAPI spec (broadcast tracking); raw frames not retrievable in this session (LFS-gated), event/phase-level derived data is | usable now (MIT) for event/phase-level data; raw frames blocked this session |
 | DFL/Sportec Open Data | 7, Bundesliga/2 | 25 fps | usable now (CC-BY 4.0) |
 | Driblab Open Data | 10, 2025 (PL/La Liga/Serie A/Bundesliga/Ligue 1/UCL) | 10 fps | **disabled — no licence** |
 

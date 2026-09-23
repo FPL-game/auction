@@ -1,0 +1,1 @@
+The full DuckDB/Parquet metric warehouse (xG, xT, VAEP, PPDA, field tilt, etc. as reproducible tables) goes here. Not yet built. The 7 metrics computed for `posts/post_candidates.csv` were computed ad hoc from `bronze/` and are auditable via `scratch/*_audit.csv`, but aren't yet in this durable, queryable form. Next phase, pending review.

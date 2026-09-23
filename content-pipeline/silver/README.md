@@ -1,0 +1,1 @@
+Cleaned/standardised tables (competitions, matches, teams, players, events, tracking frames, etc.) go here. Not yet built — the milestone-2 proof-of-concept computed directly from `bronze/` with pandas scripts (see `scratch/`) rather than materialising this layer. Next phase, pending review.
