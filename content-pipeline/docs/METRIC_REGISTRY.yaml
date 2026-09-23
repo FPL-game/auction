@@ -351,56 +351,60 @@ metrics:
     plain_english_definition: >
       A pass that plays the ball past a defensive line of opponents, judged
       against where the opponents actually were standing.
-    source: StatsBomb Commercial API (360 data, `lbp` suite) — requires 360 or full tracking
-    availability_tier: licensed_live
+    source: "StatsBomb Commercial stats endpoints (`lbp` suite, full coverage); StatsBomb 360 (open or commercial) for event-level, UNVERIFIED"
+    availability_tier: "licensed_live (full lbp/lbp_completed/lbp_ratio suite via stats endpoints); spatial_context — UNVERIFIED (a per-event `line_breaking_pass` boolean was referenced in StatsBomb's 360 docs, but whether it is present in the free statsbomb_open 360 JSON files, versus only the commercial stats endpoints, has not been confirmed against an actual open-data 360 file — do not implement until checked)"
     required_fields: [360 freeze-frame or continuous tracking positions of all opponents at pass moment, pass.start_location, pass.end_location]
-    formula_or_provider_field: "provider: lbp / lbp_completed / lbp_ratio (StatsBomb 360, commercial). Requires the 360 per-event line_breaking_pass boolean or an equivalent opponent-position computation."
+    formula_or_provider_field: "provider: lbp / lbp_completed / lbp_ratio (StatsBomb stats endpoints, commercial). Possible alternative: a per-event line_breaking_pass boolean inside 360 freeze-frame data — existence in statsbomb_open unverified."
     model_version: StatsBomb 360 LBP definition, as documented
     freshness: Matches underlying 360/commercial feed
-    confidence: high, once licensed
+    confidence: high for the licensed_live path once licensed; low/unverified for the spatial_context path until checked against real open-data files
     sample_size: per-match; only populated for matches with 360 coverage — use player_season_360_minutes for rates
     caveats: >
       Per the brief's own methodology rule: do not describe an event-only
       proxy (e.g. "pass crossed the halfway line into a gap") as a true
-      line-breaking pass. Without opponent positions this metric must be
-      reported as not_computable, not approximated.
+      line-breaking pass. Without real opponent positions this metric must be
+      reported as not_computable, not approximated. The spatial_context path
+      is event-level only even if it works — it can never produce a
+      full-match or season rate the way continuous tracking could.
     recommended_visual: pass map with defensive-line overlay at the pass moment
-    social_post_angles: ["broke the opposition's line X times — the pass that ends a press before it starts"]
+    social_post_angles: ["broke the opposition's line on this specific pass — the moment a press got cut in half (single event, 360-covered match only)"]
 
   - metric_id: defenders_bypassed
     display_name: Defenders bypassed
     plain_english_definition: >
       How many of the opponent's defenders are taken out of the game by a
       pass or carry — they're now behind the ball and can't affect the play.
-    source: Impect (documented concept, commercial, no open tier) or StatsBomb 360 (commercial)
-    availability_tier: licensed_live
+    source: Impect (documented concept, commercial, no open tier); a project-defined equivalent computed from StatsBomb 360 freeze-frame positions is possible in principle, UNVERIFIED
+    availability_tier: "licensed_live (Impect's own BYPASSED_DEFENDERS, if ever licensed); spatial_context — UNVERIFIED (would be a project-defined formula using real 360 opponent positions at the event moment, NOT Impect's proprietary formula, and has not been built or checked yet)"
     required_fields: [full opponent tracking or 360 positions at the action moment, ball position]
-    formula_or_provider_field: "Impect BYPASSED_DEFENDERS: opponent's radial distance to their own goal becomes greater than the ball's, restricted to the 5 outfield players closest to their own goal at that moment"
-    model_version: Impect packing definition, as documented (no version number published)
+    formula_or_provider_field: "Impect BYPASSED_DEFENDERS (commercial, exact formula documented): opponent's radial distance to their own goal becomes greater than the ball's, restricted to the 5 outfield players closest to their own goal at that moment. A statsbomb_360-based version would replicate this logic using StatsBomb's freeze-frame opponent positions instead — a project formula, not Impect's, and must be labelled as such if built."
+    model_version: Impect packing definition, as documented (no version number published); any statsbomb_360-based equivalent would need its own project version number
     freshness: n/a (not licensed)
-    confidence: medium (formula is clearly documented by Impect; not independently reproducible without their data or full opponent tracking)
+    confidence: medium for the Impect-licensed path; low/unverified for any project-built 360 equivalent, since it doesn't exist yet
     sample_size: per-action
     caveats: >
       Same methodology rule as line_breaking_passes — never compute this from
-      event data alone. It requires knowing where every opponent actually
-      was, not just where the ball went.
+      plain event data. Real opponent positions (360 freeze-frame or full
+      tracking) are the minimum bar, and even then any project-built version
+      is a different, unofficial metric from Impect's — do not call it
+      "packing" or present it as equivalent to Impect's number.
     recommended_visual: pitch diagram showing bypassed defenders' positions at the pass moment
-    social_post_angles: ["bypassed X defenders with one pass — turned a back four into a back one"]
+    social_post_angles: ["bypassed several defenders with one pass — turned a back four into a back one (single event, 360-covered match only)"]
 
   - metric_id: receptions_in_space
     display_name: Receptions in space
     plain_english_definition: >
       How much room a player had around them the moment they received the
       ball.
-    source: StatsBomb Commercial API (360, `ball_receipts_in_space_{2,5,10}`) or SkillCorner tracking (space-to-nearest-defender)
-    availability_tier: licensed_live (StatsBomb 360); open_demo, sample-only (SkillCorner Open Data / DFL Open Data, for their covered matches)
+    source: "StatsBomb Commercial stats endpoints (`ball_receipts_in_space_{2,5,10}`); a project-computed equivalent from raw statsbomb_360 freeze-frame arrays (open, for 360-covered matches); or SkillCorner/DFL continuous tracking (open, sample-only)"
+    availability_tier: "licensed_live (provider's own derived field); spatial_context (project-computed nearest-opponent-distance from raw statsbomb_open 360 freeze frames — the freeze-frame array itself is confirmed present in open data, unlike the derived stats-endpoint field); open_demo, sample-only (SkillCorner/DFL continuous tracking, for their covered matches)"
     required_fields: [continuous tracking or 360 freeze-frame of all players at reception moment]
-    formula_or_provider_field: "provider: ball_receipts_in_space_{2,5,10} (StatsBomb 360, commercial). Open sample: distance from receiving player to nearest opponent at reception frame, computed from SkillCorner/DFL tracking."
-    model_version: "open-sample version v1 — nearest-opponent-distance at reception frame, computed via kloppy/floodlight helper functions"
-    freshness: n/a for commercial; static for the two open tracking samples
-    confidence: high methodology, but the open_demo version only covers the SkillCorner A-League 10-match sample or the DFL 7-match sample — not current top-5-league players
-    sample_size: state which of the two open samples and how many receptions
-    caveats: Do not present the open-sample version as covering any player/team outside those specific 10 (or 7) matches.
+    formula_or_provider_field: "provider: ball_receipts_in_space_{2,5,10} (commercial stats endpoint). spatial_context: distance from receiver to nearest opponent, computed directly from the statsbomb_open event's own freeze_frame array. open_demo sample: same computation from SkillCorner/DFL continuous tracking."
+    model_version: "project version v1 — nearest-opponent-distance at reception frame, computed via kloppy/floodlight helper functions"
+    freshness: n/a for commercial; static for statsbomb_open 360 matches and the two open tracking samples
+    confidence: high methodology; the spatial_context path is event-level only (one reception, not a rate), and the open_demo tracking path only covers its small sample — neither implies current top-5-league coverage generally
+    sample_size: state which source (statsbomb_open 360 match, or which of the two tracking samples) and how many receptions
+    caveats: Do not present the spatial_context or open_demo-sample versions as covering any player/team outside the specific match(es) they came from.
     recommended_visual: reception scatter with space-radius circles
     social_post_angles: ["received the ball with more space than anyone else on the pitch that day — [sample match]"]
 
@@ -408,15 +412,15 @@ metrics:
     display_name: Nearest-defender distance
     plain_english_definition: >
       How far away the closest opponent was at a given moment.
-    source: SkillCorner Open Data / DFL Open Data (open, sample only) or SkillCorner/StatsBomb 360 commercial
-    availability_tier: open_demo (sample only); licensed_live (full coverage)
-    required_fields: [continuous tracking positions of all players at the moment in question]
-    formula_or_provider_field: euclidean distance between ball-carrier and nearest opponent tracking point, per frame
+    source: SkillCorner Open Data / DFL Open Data (open, sample only) or statsbomb_360 freeze frames (open for 360-covered statsbomb_open matches; commercial for the rest)
+    availability_tier: "open_demo (SkillCorner/DFL sample only); spatial_context (statsbomb_open 360-covered matches, event moment only); licensed_live (full coverage)"
+    required_fields: [continuous tracking positions of all players at the moment in question, OR a single 360 freeze frame for one event]
+    formula_or_provider_field: euclidean distance between ball-carrier and nearest opponent position, per frame (tracking) or per freeze frame (360)
     model_version: "nearest-defender-distance v1"
     freshness: static for open samples
-    confidence: high methodology; sample-coverage caveat as above
-    sample_size: state frame/event count and which open sample
-    caveats: Same sample-only scope caveat as receptions_in_space.
+    confidence: high methodology; sample-coverage / event-only-coverage caveat as above
+    sample_size: state frame/event count and which open source
+    caveats: Same sample-only / event-only scope caveat as receptions_in_space — a 360 freeze frame gives one moment, not a trend.
     recommended_visual: distance-over-time line chart for a key sequence
     social_post_angles: ["closed down to under a metre before the tackle — the pressing sequence, frame by frame"]
 

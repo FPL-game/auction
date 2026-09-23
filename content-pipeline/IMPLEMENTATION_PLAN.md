@@ -37,9 +37,27 @@ for provider X") rather than silently falling back to demo data or pretending
 to work.
 
 **Explicitly not usable for v1, and why:**
-- Driblab Open Data — could not confirm this product exists (see capability matrix). Not built against.
-- Driblab PRO/API, Driblab Capture, SkillCorner Commercial API, StatsBomb Commercial API — all commercial; interfaces only, gated behind credentials that don't exist yet.
+- **Driblab Open Data** — corrected finding: this repository does exist
+  (`github.com/driblab/open-data`, 10 tracking matches, 2025 season). It was
+  cloned and fully inspected: there is no LICENSE file and no licence
+  statement anywhere in it. A repo with no licence defaults to "all rights
+  reserved" under copyright law regardless of being publicly readable on
+  GitHub. Per the brief's own instruction, **the adapter stays disabled and
+  this is reported as an open uncertainty**, not treated as permission.
+- Driblab PRO/API, Driblab Capture, SkillCorner Commercial API,
+  `statsbomb_postmatch`, `statsbomb_live` — all commercial; interfaces only,
+  gated behind credentials that don't exist yet.
 - Understat, FBref (advanced stats) — gated behind the brief's own scraping-review rule; FBref's advanced stats no longer exist to scrape as of 20 Jan 2026 regardless.
+
+**`statsbomb_360` is a partial exception**, not fully in either bucket: it's
+free for the same selected matches `statsbomb_open` already covers, but it
+only gives positions around specific events, not continuous tracking. It
+unlocks a few *event-level* spatial metrics (see `spatial_context` in the
+capability matrix) that plain event data can't support — but it can never
+produce a full-match shape, movement, or physical metric. Two registry
+entries (line-breaking passes, defenders bypassed) are marked "unverified"
+under this path pending a direct check against a real open-data 360 file —
+they are not enabled until that check happens.
 
 ## Two operating modes
 
@@ -81,11 +99,14 @@ content-pipeline/
     metrics.yaml -> generated from docs/METRIC_REGISTRY.yaml at load time, not hand-duplicated
   ingest/
     statsbomb_open.py            # open_demo
+    statsbomb_360.py              # spatial_context — event-anchored, not continuous; see caveats in metric registry
     skillcorner_open.py          # open_demo
     dfl_open.py                  # open_demo
+    driblab_open.py                # DISABLED — repo exists but has no licence; raises on import until that changes
     clubelo.py                   # open_demo, context only
     football_data_co_uk.py       # open_demo, context only
-    statsbomb_commercial.py      # licensed_live interface, no working impl
+    statsbomb_postmatch.py        # licensed_live interface, no working impl
+    statsbomb_live.py             # licensed_live interface, no working impl — distinct product from statsbomb_postmatch, not just "faster"
     driblab_pro.py                # licensed_live interface, no working impl
     skillcorner_commercial.py    # licensed_live interface, no working impl
   clean/

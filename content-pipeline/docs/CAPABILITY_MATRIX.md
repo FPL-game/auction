@@ -13,14 +13,16 @@ free/open data.
 
 | Source | Tier | Data shape | Historical / Live |
 |---|---|---|---|
-| StatsBomb Open Data | open | Event + selective 360 | Historical, irregular updates |
-| StatsBomb Commercial API | commercial | Event + 360 + pre-computed IQ stats | Near-live (hours after full time) for licensed comps |
-| Driblab Open Data | **not_found** | — | — |
+| `statsbomb_open` | open | Event data, selected historical competitions | Historical, irregular GitHub updates |
+| `statsbomb_360` | open (selected matches) / commercial (rest) | Freeze-frame positions **around specific events**, not continuous tracking | Same cadence as whichever of `statsbomb_open`/`statsbomb_postmatch` it's attached to |
+| `statsbomb_postmatch` | commercial | Event + pre-computed IQ stats (paid Football Data/Analysis Platform) | Post-match; exact delivery SLA is **contract-dependent, not publicly documented** — do not assume a figure |
+| `statsbomb_live` | commercial | Live event/stat feed (paid Live Data/Live Analysis Platform) | Near-real-time, updating as the match happens — this is a genuinely different product from `statsbomb_postmatch`, not the same thing with a delay |
+| Driblab Open Data | **exists, licence unresolved — adapter disabled** | Continuous broadcast tracking (10 fps): player/ball position, velocity, acceleration | 10 static matches (2025 season) |
 | Driblab PRO / API | commercial | Aggregated technical + physical + "Arrigo" metrics (no events, no coordinates) | Per-`ts` field; not documented as real-time |
 | Driblab Capture | commercial (same PRO token) | Continuous tracking, delivered as a presigned link to a `.jsonl` file per processed game | Post-match file delivery, not a live stream |
-| SkillCorner Open Data | open | Continuous broadcast tracking + Dynamic Events + season physical aggregates | Historical, static (10 matches) |
+| SkillCorner Open Data | open (MIT) | Continuous broadcast tracking + Dynamic Events + season physical aggregates | Historical, static (10 matches) |
 | SkillCorner Commercial API | commercial | Continuous tracking + physical + Game Intelligence | Per-competition delivery SLA (not publicly quantified) |
-| DFL/Sportec Open Bundesliga Data | open | Continuous tracking (25 fps) + full event stream | Historical, static (7 matches) |
+| DFL/Sportec Open Bundesliga Data | open (CC-BY 4.0) | Continuous tracking (25 fps) + full event stream | Historical, static (7 matches) |
 | ClubElo | open | Team strength rating only (no events) | Historical (1946–present) + daily update |
 | football-data.co.uk | open | Match results + basic box-score + odds | Historical (Premier League since 1993/94) + weekly in-season |
 | Understat | open access, **scraping caveat** | Shot-level xG (own model) | Historical + in-season, unofficial |
@@ -39,16 +41,108 @@ free/open data.
 - **Supplied vs calculated**: `statsbomb_xg` is supplied. xGChain/xGBuildup, OBV, PSxG, GSAA, and the full IQ-metrics catalogue are **commercial-only** — open data cannot produce these; do not fabricate them from open-data fields.
 - **Confidence/limitations**: high confidence in what's documented; the open xG model version isn't explicitly stamped per-match (StatsBomb reprocesses historical `statsbomb_xg` as the model improves, so re-pulling the same match later can change its value — timestamp every pull). 360 minutes must be divided by `player_season_360_minutes`, not total minutes, for any 360-derived rate stat.
 
-## StatsBomb Commercial API ("commercial and Live")
-- **Competitions/seasons**: whatever is in your licensed scope — not fixed, and not documented publicly.
-- **Data type**: same event/360 shape as open data, plus four stats endpoints (player/team, match/season) carrying the full IQ-metrics catalogue (OBV, xGChain, xGBuildup, PPDA, PSxG, GSAA, LBP suite, pressures/counterpressures/regains, aggression) and a player-mapping endpoint reconciling StatsBomb's two internal ID systems.
-- **Historical/live**: "near-live... events typically available within hours of match completion" for licensed competitions — this is StatsBomb's own documented freshness claim, not a guaranteed SLA; there is no evidence of a separately-branded "Live" product distinct from this.
-- **Auth**: HTTP Basic (StatsBomb-issued credentials). **No credentials exist for this project yet — `licensed_live` mode must refuse to run against this until they do.**
+## StatsBomb product model (corrected)
+StatsBomb is not one commercial product — it's (at least) four, and this project
+must not blur them together:
+
+- **`statsbomb_open`** — the free, selected-competition historical event data
+  covered above.
+- **`statsbomb_360`** — freeze-frame positions captured **around specific
+  events** (shots, key passes, etc.), not a continuous frame-by-frame tracking
+  stream. Free for the selected open-data matches that have it; commercial for
+  everything else. Because it's event-anchored rather than continuous, it can
+  support **event-level** spatial metrics (e.g. "how much space did this
+  specific pass find") but never full-match shape/movement metrics like
+  team compactness over 90 minutes, defensive-line height as a trend, or any
+  physical/speed number — those need continuous tracking, which 360 is not.
+  See "The `spatial_context` capability" below.
+- **`statsbomb_postmatch`** — the paid Football Data/Analysis Platform: event
+  data + the full IQ-metrics catalogue (OBV, xGChain, xGBuildup, PPDA, PSxG,
+  GSAA, LBP suite, pressures/regains, aggression) delivered after the match.
+  **Its exact delivery delay is contract-dependent and not documented
+  publicly — this project does not assert a number for it.**
+- **`statsbomb_live`** — the paid Live Data/Live Analysis Platform: a
+  genuinely different, near-real-time product that updates as the match
+  happens, not a delayed version of `statsbomb_postmatch`. (Earlier drafts of
+  this matrix wrongly described commercial StatsBomb data as arriving "hours
+  after full time" — that claim is retracted; it conflated `statsbomb_live`
+  with `statsbomb_postmatch`.)
+
+All three non-`statsbomb_open` tiers require StatsBomb credentials this
+project does not have. **`licensed_live` mode must refuse to run against any
+of them until real credentials and a confirmed usage licence exist.**
+
+- **Auth**: HTTP Basic (StatsBomb-issued credentials) across all three commercial tiers.
 - **Licence**: contractual, negotiated with StatsBomb sales — not publicly stated.
 - **Confidence/limitations**: rate limits vary by licence tier (undocumented specifics); StatsBomb's own guidance is to poll `*_updated`/`last_updated` timestamps and cache rather than re-pull everything.
 
-## Driblab Open Data — not found
-No public, free Driblab product was found anywhere in football-docs' crawled guide or in a web search. Driblab's own guide (crawled 2026-09-09) states its API is "commercial and token-gated; a token comes with a Driblab PRO subscription" with no mention of a separate open tier. **Do not build against a "Driblab Open Data" source — treat this row as unconfirmed/likely non-existent** unless the user can point to a specific URL.
+### The `spatial_context` capability
+A separate availability tier from `open_demo`'s continuous-tracking sources.
+It applies only to matches that have StatsBomb 360 data (open or commercial),
+and it means:
+- 360 gives real player/GK positions **at the moment of specific events** —
+  genuinely better than plain event coordinates, and good enough for
+  event-level questions ("how much space did the receiver have on this
+  pass?").
+- It is **not** continuous frame-by-frame tracking. There is no "the team's
+  shape stayed compact for the first 20 minutes" claim available from 360 —
+  that requires tracking data sampled many times a second, which 360 doesn't
+  provide.
+- Line-breaking passes and defenders-bypassed **may** be computable at the
+  event level for 360-covered matches, using the real freeze-frame opponent
+  positions — but this needs verifying directly against an actual open-data
+  360 match file before any code relies on it; the metric registry flags this
+  as unverified rather than assuming it works.
+- Continuous movement, speed, distance, and full-match team-shape metrics
+  remain unavailable from 360 under any circumstance — only the three
+  continuous-tracking sources below can support those, and only for their
+  small samples.
+
+## Driblab Open Data — exists, but with no licence at all (adapter disabled)
+Correction from the previous version of this matrix: this repository does
+exist — [`github.com/driblab/open-data`](https://github.com/driblab/open-data),
+confirmed by directly cloning it and reading every file, not by assumption.
+
+- **Competitions/seasons**: 10 matches, 2025 season, one each from the
+  Premier League, La Liga, Serie A, Bundesliga, Ligue 1, and the Champions
+  League (per the README's own description — exact fixtures are inside the
+  Git-LFS-tracked `.jsonl` files, not yet pulled since the licence question
+  below comes first).
+- **Data type**: continuous tracking "extracted from broadcast video," 10 fps,
+  one `.jsonl` file per match. Per-player: position (x, y), velocity (km/h),
+  acceleration (m/s²), a visibility flag. Ball: position (x, y, z), velocity,
+  acceleration. Plus a camera-projection polygon per frame. This is a
+  genuinely richer, more current sample than SkillCorner's or DFL's open sets
+  if it turns out to be usable.
+- **Licence: none found, anywhere.** The repository has no `LICENSE` file, no
+  `LICENSE.md`, no licence section in the README, no citation requirement, and
+  no terms-of-use or permitted/prohibited-use statement of any kind — verified
+  by reading the full README (quoted below) and the repository's complete file
+  listing (`.gitattributes`, `README.md`, `images/` — nothing else).
+
+  > "Driblab is a football intelligence company specialized in data
+  > collection, analytics, scouting, and decision-making tools... This
+  > repository is part of that effort, providing access to match data from
+  > competitions that often receive limited public coverage." — the README's
+  > only statement about intent; it describes what the data is, not what
+  > reuse is permitted.
+
+  **A public GitHub repository with no licence file is not the same as an
+  open licence.** GitHub's own terms are explicit that the absence of a
+  licence means default copyright applies — "all rights reserved" — and
+  visitors have no right to copy, modify, distribute, or build derived
+  content from it beyond viewing it on GitHub, regardless of the word "open"
+  in the repo's name.
+- **Decision**: per the brief's own instruction, **the adapter for this
+  source stays disabled and this is reported as an open uncertainty, not
+  assumed permission.** Nothing in `open_demo` v1 ingests or publishes
+  anything derived from this repository. If Driblab confirms a licence
+  (e.g. by email, or by adding a LICENSE file), this can be revisited.
+- **Confidence/limitations**: high confidence in the licence finding itself
+  (a full, direct read of the repo, not a search-result summary); zero
+  confidence in what the data actually contains beyond the README's
+  description, since the tracking files are Git LFS pointers not yet
+  resolved and won't be pulled while the licence question is open.
 
 ## Driblab PRO / API
 - **Coverage**: driven by your PRO subscription's entitlement (per-competition, checked via `GET /competition/available` / `GET /season/available`); not a fixed public list.
@@ -108,6 +202,23 @@ No public, free Driblab product was found anywhere in football-docs' crawled gui
 The brief says not to scrape FBref, WhoScored, SofaScore, "or another website" without reviewing and approving its terms. Understat falls under "another website" — no official API, access is via scraping (`soccerdata`/`understat` wrapper). **Neither is enabled in `open_demo` v1** pending that explicit review. Two things worth flagging regardless of that decision:
 - **FBref's advanced stats (xG, xAG, progressive passes/carries, SCA/GCA, defensive actions) were removed site-wide on 20 January 2026** when Stats Perform cut FBref's Opta feed. FBref is no longer a viable xG source at all, contrary to older write-ups.
 - Understat still appears to expose shot-level `xG`/`xGA` under its own model, but it is undocumented/unofficial and, per `soccerdata`'s own README, "fragile — any change to the scraped site breaks the package," with anti-bot protections on some sibling sites in the same package.
+
+## Continuous-tracking samples — never generalise beyond them
+Three sources give continuous (not event-anchored) tracking, and all three are
+small, fixed samples, not an ongoing feed:
+
+| Source | Matches | Frame rate | Status |
+|---|---|---|---|
+| SkillCorner Open Data | 10, A-League 2024/25 | not stated per-frame in the OpenAPI spec (broadcast tracking) | usable now (MIT) |
+| DFL/Sportec Open Data | 7, Bundesliga/2 | 25 fps | usable now (CC-BY 4.0) |
+| Driblab Open Data | 10, 2025 (PL/La Liga/Serie A/Bundesliga/Ligue 1/UCL) | 10 fps | **disabled — no licence** |
+
+Every post built from any of these three must name the exact match,
+competition, and season it came from, and must say plainly that the finding
+is about that one match/sample — never phrased as if it describes an entire
+league, a current squad, or "how [team] plays" in general. A single Bundesliga
+match's pressing shape is not a Bundesliga-wide claim, and a 10-match A-League
+sample from 2024/25 is not a current-season Premier League claim.
 
 ## Not used, and why
 - **Impect**: has a genuinely well-defined "bypassed opponents/defenders" (packing) metric family that maps closely to the brief's "defenders bypassed" ask — but it is fully commercial with no open tier found; listed here only as the methodology reference for how a *rigorous* bypass metric should be defined (requires opponent tracking positions, not just event coordinates).
