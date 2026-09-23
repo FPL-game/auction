@@ -28,6 +28,7 @@ import hashlib
 import json
 import os
 import random
+import shutil
 import sqlite3
 import subprocess
 import time
@@ -95,7 +96,7 @@ CREATE TABLE IF NOT EXISTS downloads (
     url TEXT NOT NULL,
     local_path TEXT NOT NULL,
     snapshot TEXT NOT NULL,
-    status TEXT NOT NULL,              -- queued|downloading|done|failed|quarantined
+    status TEXT NOT NULL,              -- queued|downloading|done|failed|quarantined|optional_not_published
     http_status INTEGER,
     file_size_bytes INTEGER,
     sha256 TEXT,
@@ -129,9 +130,52 @@ def sha256_of(path: Path) -> str:
     return h.hexdigest()
 
 
+def to_relative(path) -> str:
+    """Store paths relative to DATA everywhere in the DB/manifests, so the
+    whole lake can be moved (a new FOOTBALL_DATA_ROOT) without rewriting a
+    single record - only resolve to absolute at the point of actually
+    touching the filesystem (to_absolute, below)."""
+    p = Path(path)
+    try:
+        return str(p.resolve().relative_to(DATA.resolve()))
+    except ValueError:
+        # already relative, or genuinely outside DATA (shouldn't normally
+        # happen) - store as given rather than raising, so a bad call site
+        # is visible in the data instead of crashing the whole run.
+        return str(p)
+
+
+def to_absolute(relpath: str) -> Path:
+    p = Path(relpath)
+    return p if p.is_absolute() else DATA / p
+
+
+MIN_FREE_BYTES = 8 * 1024 ** 3  # 8GB safety floor, per instruction
+
+
+class DiskFloorReached(RuntimeError):
+    """Raised when free space at FOOTBALL_DATA_ROOT drops below MIN_FREE_BYTES.
+    Adapters catch this and stop cleanly between files - nothing mid-write,
+    nothing that breaks resumability. Re-running later (after freeing space,
+    or against a larger volume) picks back up exactly where this left off."""
+
+
+def free_bytes_at(path: Path) -> int:
+    return shutil.disk_usage(path).free
+
+
+def check_disk_floor():
+    free = free_bytes_at(DATA)
+    if free < MIN_FREE_BYTES:
+        raise DiskFloorReached(
+            f"Only {free/1e9:.2f}GB free at {DATA} - below the {MIN_FREE_BYTES/1e9:.0f}GB safety floor. "
+            "Stopping cleanly; already-downloaded files and the state DB are untouched and resumable."
+        )
+
+
 @dataclass
 class FetchResult:
-    status: str  # done|failed|quarantined|skipped_already_done
+    status: str  # done|failed|quarantined|skipped_already_done|optional_not_published
     local_path: Optional[str] = None
     sha256: Optional[str] = None
     http_status: Optional[int] = None
@@ -149,18 +193,26 @@ class Acquirer:
         self.con.commit()
         self.session = requests.Session()
         self.session.headers.update({"User-Agent": user_agent})
-        self.counters = {"done": 0, "skipped": 0, "failed": 0, "quarantined": 0}
+        self.counters = {"done": 0, "skipped": 0, "failed": 0, "quarantined": 0, "optional_not_published": 0}
 
     def close(self):
         self.con.close()
 
     def _get_existing(self, source, resource_type, resource_key):
+        """Returns (id, status, ABSOLUTE local path, sha256) - local_path is
+        stored relative in the DB and resolved here, the only place reads
+        happen, so every caller gets a usable Path without needing to know
+        about the relative/absolute distinction."""
         cur = self.con.execute(
             "SELECT id, status, local_path, sha256 FROM downloads "
             "WHERE source=? AND resource_type=? AND resource_key=? AND snapshot=?",
             (source, resource_type, resource_key, self.snapshot),
         )
-        return cur.fetchone()
+        row = cur.fetchone()
+        if row is None:
+            return None
+        _id, status, relpath, sha = row
+        return (_id, status, to_absolute(relpath), sha)
 
     def _record(self, source, resource_type, resource_key, url, local_path, status,
                 http_status=None, size=None, sha=None, error=None, licence_tag=None, attempt=1):
@@ -174,7 +226,7 @@ class Acquirer:
                  file_size_bytes=excluded.file_size_bytes, sha256=excluded.sha256,
                  retrieved_at=excluded.retrieved_at, attempt_count=downloads.attempt_count+1,
                  last_error=excluded.last_error""",
-            (source, resource_type, resource_key, url, str(local_path), self.snapshot, status,
+            (source, resource_type, resource_key, url, to_relative(local_path), self.snapshot, status,
              http_status, size, sha, utcnow(), attempt, error, licence_tag),
         )
         self.con.commit()
@@ -197,19 +249,31 @@ class Acquirer:
     def fetch(self, source: str, resource_type: str, resource_key: str, url: str,
               dest_relpath: str, licence_tag: str, rate_limit_sec: float = 0.15,
               max_retries: int = 4, backoff_base: float = 1.5, min_size_bytes: int = 1,
-              expect_json: bool = False) -> FetchResult:
-        """Fetch one file. dest_relpath is relative to data/bronze/, and the
+              expect_json: bool = False, on_404: str = "failed") -> FetchResult:
+        """Fetch one file. dest_relpath is relative to bronze/<source>/, and the
         snapshot folder is inserted automatically: bronze/<source>/<snapshot>/<dest_relpath>.
+
+        on_404: what status to record for a 404 response. Default "failed" -
+        a 404 is normally a real problem. Pass "optional_not_published" for a
+        resource that's legitimately absent for some keys by design (e.g. a
+        StatsBomb match with no 360 file even though its competition-season
+        has some 360 coverage) - it's recorded distinctly, never retried, and
+        excluded from failure reporting/counters.
         """
+        check_disk_floor()
         local_path = DATA / "bronze" / source / self.snapshot / dest_relpath
 
         existing = self._get_existing(source, resource_type, resource_key)
         if existing:
-            _id, status, existing_path, existing_sha = existing
-            p = Path(existing_path)
-            if status == "done" and p.exists() and sha256_of(p) == existing_sha:
+            _id, status, p, existing_sha = existing
+            if status in ("done",) and p.exists() and sha256_of(p) == existing_sha:
                 self.counters["skipped"] += 1
                 return FetchResult(status="skipped_already_done", local_path=str(p), sha256=existing_sha)
+            if status == "optional_not_published":
+                # never retried - a prior run already established this key
+                # legitimately has no published file.
+                self.counters["optional_not_published"] += 1
+                return FetchResult(status="optional_not_published")
 
         local_path.parent.mkdir(parents=True, exist_ok=True)
         last_exc = None
@@ -217,6 +281,12 @@ class Acquirer:
             try:
                 time.sleep(rate_limit_sec + random.uniform(0, rate_limit_sec * 0.3))
                 resp = self.session.get(url, timeout=30)
+                if resp.status_code == 404 and on_404 == "optional_not_published":
+                    self._record(source, resource_type, resource_key, url, local_path,
+                                 "optional_not_published", http_status=404, licence_tag=licence_tag,
+                                 attempt=attempt)
+                    self.counters["optional_not_published"] += 1
+                    return FetchResult(status="optional_not_published", http_status=404)
                 if resp.status_code == 200:
                     content = resp.content
                     if len(content) < min_size_bytes:
@@ -280,11 +350,11 @@ class Acquirer:
         same state DB, same hashing, same snapshot-partitioned bronze layout,
         same never-overwrite rule, just no network retry/backoff needed since
         the bytes are already local."""
+        check_disk_floor()
         existing = self._get_existing(source, resource_type, resource_key)
         local_path = DATA / "bronze" / source / self.snapshot / dest_relpath
         if existing:
-            _id, status, existing_path, existing_sha = existing
-            p = Path(existing_path)
+            _id, status, p, existing_sha = existing
             if status == "done" and p.exists() and sha256_of(p) == existing_sha:
                 self.counters["skipped"] += 1
                 return FetchResult(status="skipped_already_done", local_path=str(p), sha256=existing_sha)

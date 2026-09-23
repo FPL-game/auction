@@ -10,7 +10,7 @@ Resumable, provenance-tracked, rate-limited bulk downloader for every legitimate
 | Resume/continue the GitHub-hosted bulk downloads (StatsBomb, Wyscout) | `python3 acquisition/run_statsbomb.py` and `python3 acquisition/run_wyscout.py` |
 | Re-ingest OpenFootball or SkillCorner from their local clones | `python3 acquisition/adapters/openfootball.py` / `python3 acquisition/adapters/skillcorner.py` |
 | Collect the network-blocked sources (must run outside this sandbox) | `python3 acquisition/run_blocked_sources.py --all` — see `docs/BLOCKED_SOURCE_COLLECTION.md` |
-| Rebuild the identity-resolution tables from whatever's in bronze | `python3 acquisition/build_identity_tables.py` |
+| Rebuild the entity inventory from whatever's in bronze (NOT identity resolution - see note below) | `python3 acquisition/build_entity_inventory.py` |
 | Validate every downloaded match and refresh quarantine | `python3 acquisition/validate.py` |
 
 ## How resuming works
@@ -44,7 +44,9 @@ acquisition/
     wikidata.py                NOT runnable here
   run_statsbomb.py, run_wyscout.py     entry points for the two big GitHub bulk downloads
   run_blocked_sources.py               single entry point for the 5 blocked-source adapters
-  build_identity_tables.py             players/teams/competitions, never auto-merged across providers
+  build_entity_inventory.py             players/teams/competitions PER PROVIDER - an inventory, not
+                                         identity resolution; alias_group_id stays NULL until a real
+                                         matching pass exists
   validate.py                          per-match validation, writes to quarantine
   build_reports.py                     coverage_matrix.csv, download_manifest.parquet, failed_downloads.csv, disk usage
 

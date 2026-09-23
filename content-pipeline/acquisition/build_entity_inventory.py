@@ -1,13 +1,23 @@
-"""Identity-resolution tables: players, teams, competitions.
+"""Entity inventory: players, teams, competitions, one row per provider per
+entity.
 
-STRICT RULE: this script NEVER merges an identity across providers
+NAMING NOTE: this was called an "identity-resolution table" in an earlier
+pass. That name overstates what this is - resolution implies entities have
+actually been matched across providers, and none have. This is an
+**inventory** of each provider's own entities, nothing more, until a real
+matching pass (manual or reviewed) populates alias_group_id. Renamed to
+build_entity_inventory.py / entity_inventory_* accordingly; treat any
+lingering reference to "identity_teams" etc. elsewhere as stale.
+
+STRICT RULE: this script NEVER merges an entity across providers
 automatically, no matter how confident a name match looks. Every row here is
 one provider's own record of one entity, tagged with that provider's own ID
 and name, verbatim. Cross-provider linking is a SEPARATE, manual step: the
 `alias_group_id` column exists on every table and is left NULL by this
 script for every row - a human (or a future, explicitly-reviewed matching
 pass) fills it in, and `confidence`/`manual_review_needed` describe that
-review state, not an automated guess.
+review state, not an automated guess. Until that pass exists, do not query
+these tables as if `alias_group_id` means anything - it doesn't yet.
 
 Re-runnable: safe to run again as more bronze data arrives (e.g. once the
 StatsBomb/Wyscout bulk downloads finish) - it reads whatever bronze files
@@ -170,8 +180,8 @@ def main():
     comp_rows = build_competitions()
 
     con = duckdb.connect()
-    for name, rows in [("identity_teams", teams_rows), ("identity_players", players_rows),
-                        ("identity_competitions", comp_rows)]:
+    for name, rows in [("entity_inventory_teams", teams_rows), ("entity_inventory_players", players_rows),
+                        ("entity_inventory_competitions", comp_rows)]:
         if not rows:
             print(f"{name}: 0 rows (no source data yet)")
             continue

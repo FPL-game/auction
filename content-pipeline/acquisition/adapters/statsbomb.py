@@ -90,10 +90,14 @@ def run(acq: Acquirer, match_lists: dict, competitions: list, limit: int = None)
                 licence_tag=LICENCE, expect_json=True,
             )
             if has_360:
+                # A competition-season being 360-flagged doesn't guarantee
+                # every one of its matches has a published 360 file (found
+                # during the first bulk-download pass: ~51 such 404s). That's
+                # expected, not a failure - see docs/CAPABILITY_MATRIX.md.
                 acq.fetch(
                     source="statsbomb", resource_type="three_sixty", resource_key=str(mid),
                     url=f"{BASE}/data/three-sixty/{mid}.json", dest_relpath=f"three-sixty/{mid}.json",
-                    licence_tag=LICENCE, expect_json=True,
+                    licence_tag=LICENCE, expect_json=True, on_404="optional_not_published",
                 )
             n += 1
 
