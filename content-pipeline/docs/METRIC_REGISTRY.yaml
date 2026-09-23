@@ -1,0 +1,762 @@
+# Metric registry — content-pipeline
+#
+# Every metric this pipeline can produce, whether provider-supplied or locally
+# calculated. Compiled from football-docs (StatsBomb, socceraction, kloppy,
+# Impect, Wyscout, SkillCorner, Driblab) plus the capability matrix in this
+# same directory. Nothing here is generated from memory of "how xG usually
+# works" — each formula_or_provider_field cites the documented field or the
+# documented open-source implementation.
+#
+# availability_tier:
+#   open_demo        - computable today from an open/permitted source
+#   licensed_live     - requires a commercial licence we do not hold yet
+#   not_computable    - conceptually defined by the brief, but no permitted
+#                       source supplies the required fields (most often:
+#                       true opponent tracking positions). Listed so the
+#                       pipeline can refuse cleanly instead of faking it.
+#
+# confidence is about METHODOLOGY certainty (do we know exactly how this
+# number is produced), not about the specific value's statistical power —
+# sample_size / caveats carry that instead.
+
+metrics:
+
+  # ---------------- Event-data metrics ----------------
+
+  - metric_id: xg_shot_quality
+    display_name: Expected Goals (xG) — shot quality
+    plain_english_definition: >
+      The probability a given shot would result in a goal, based on where it
+      was taken from and the situation around it (angle, distance, body part,
+      defensive pressure).
+    source: StatsBomb Open Data (event `shot.statsbomb_xg`)
+    availability_tier: open_demo
+    required_fields: [shot.location, shot.body_part, shot.type, shot.freeze_frame, shot.under_pressure]
+    formula_or_provider_field: statsbomb_xg (provider-supplied; incorporates freeze-frame GK/defender positions)
+    model_version: "StatsBomb xG model, version not stamped per-event; historical values are reprocessed as the model improves — record the pull date, not just the match date"
+    freshness: Irregular GitHub updates (open data)
+    confidence: high
+    sample_size: per-shot; season aggregates need shot-count stated
+    caveats: >
+      Do not compare statsbomb_xg values pulled on different dates as if from
+      the same model version — re-pull and diff before claiming a change is
+      real form, not a model update.
+    recommended_visual: shot map (xG-sized markers) or xG timeline
+    social_post_angles: ["scored X goals from Y xG — most in the league", "shot that broke the xG model: 0.0X xG, scored anyway"]
+
+  - metric_id: xt_expected_threat
+    display_name: Expected Threat (xT)
+    plain_english_definition: >
+      How much a pass or carry increased the team's chance of scoring soon
+      after, based on where the ball moved on the pitch.
+    source: Calculated locally via socceraction (open-source)
+    availability_tier: open_demo
+    required_fields: [action.start_location, action.end_location, action.type, action.result]
+    formula_or_provider_field: "socceraction.xthreat.ExpectedThreat, grid l=16 w=12 (or project-chosen grid), fit on SPADL actions from StatsBomb open-data events converted via socceraction's StatsBomb loader"
+    model_version: "project-trained xT grid v1 — must be versioned (grid size + training competition/season) at first fit and re-stated if retrained"
+    freshness: Matches StatsBomb Open Data update cadence
+    confidence: medium
+    sample_size: "xT needs ~50,000+ possessions for stable zone values (socceraction's own guidance) — state training possession count alongside any xT-based post"
+    caveats: >
+      Only meaningful for ball-progressing actions (passes, carries) that keep
+      possession — not shots, tackles, or interceptions. A grid trained on one
+      competition should not be applied to rate actions in a very different
+      style of competition without re-validation.
+    recommended_visual: pitch heatmap of xT-added by zone, or a player's cumulative xT line
+    social_post_angles: ["quietly the league's biggest threat-creator with X total xT", "one pass, +0.XX xT — the move that started it all"]
+
+  - metric_id: vaep_action_value
+    display_name: VAEP action value
+    plain_english_definition: >
+      A value for every on-the-ball action (not just shots) based on how much
+      it changed the team's chance of scoring minus the chance of conceding
+      soon after.
+    source: Calculated locally via socceraction (open-source)
+    availability_tier: open_demo
+    required_fields: [SPADL action sequence per game: type, result, location, time, player, team]
+    formula_or_provider_field: "socceraction.vaep — Decroos et al. 2019, 'Actions Speak Louder than Goals', KDD 2019; trained scikit-learn/xgboost model over engineered features from action windows"
+    model_version: "project-trained VAEP model v1 — must record feature set + training data scope"
+    freshness: Matches StatsBomb Open Data update cadence
+    confidence: medium
+    sample_size: state number of matches/actions the model was trained and rated on
+    caveats: >
+      A locally-trained VAEP model is not the same model as any commercial
+      provider's — never present it as "StatsBomb's VAEP" or similar; label it
+      as a project-computed estimate. Atomic-VAEP (pass/receival split) is a
+      different variant — do not mix the two without saying which was used.
+    recommended_visual: ranked bar chart of top VAEP contributors, or a per-90 leaderboard
+    social_post_angles: ["highest-value 90 minutes of anyone in the dataset, by our action-value model"]
+
+  - metric_id: xgchain
+    display_name: xG Chain
+    plain_english_definition: >
+      Credits every player involved in a possession that ends in a shot with
+      that shot's xG value, rewarding buildup play as well as the shot itself.
+    source: StatsBomb Commercial API (`player_match_xgchain`) — no open-data equivalent
+    availability_tier: licensed_live
+    required_fields: [possession-linked event chain, shot.statsbomb_xg]
+    formula_or_provider_field: player_match_xgchain / player_match_op_xgchain (commercial stats endpoint)
+    model_version: tied to the same StatsBomb xG model version as xg_shot_quality
+    freshness: Near-live for licensed competitions
+    confidence: high (once licensed)
+    sample_size: per-match or per-90 (state minutes basis)
+    caveats: >
+      Cannot be reproduced from StatsBomb Open Data — the field does not exist
+      there. A locally-computed "chain xG" from open event data is a different,
+      unofficial metric and must be labelled as such, not called xGChain.
+    recommended_visual: stacked bar (xGBuildup vs shot xG) per player
+    social_post_angles: ["involved in X xG worth of buildup this season — not just the finish"]
+
+  - metric_id: xgbuildup
+    display_name: xG Buildup
+    plain_english_definition: >
+      Like xGChain, but strips out the shot itself and the pass that led
+      directly to it — pure buildup contribution.
+    source: StatsBomb Commercial API (`player_match_xgbuildup`) — no open-data equivalent
+    availability_tier: licensed_live
+    required_fields: [possession-linked event chain, shot.statsbomb_xg, key_pass flag]
+    formula_or_provider_field: player_match_xgbuildup / player_match_op_xgbuildup (commercial stats endpoint)
+    model_version: tied to the StatsBomb xG model version
+    freshness: Near-live for licensed competitions
+    confidence: high (once licensed)
+    sample_size: per-match or per-90
+    caveats: "Same open-data gap as xgchain — do not approximate and relabel."
+    recommended_visual: same chart family as xgchain, buildup-only series
+    social_post_angles: ["the deep-lying playmaker nobody's crediting: X xGBuildup with zero goals"]
+
+  - metric_id: pressure_regains
+    display_name: Pressure regains
+    plain_english_definition: >
+      How often a team wins the ball back within 5 seconds of applying
+      pressure to an opponent.
+    source: StatsBomb Commercial API (`team_match_pressure_regains`) or calculated from StatsBomb Open Data pressure events
+    availability_tier: open_demo (event-derived version); licensed_live (provider-exact version)
+    required_fields: [pressure event timestamp, subsequent possession-change timestamp/team]
+    formula_or_provider_field: "provider: team_match_pressure_regains (commercial). event-derived: possession changes to the pressing team within 5s of a `Pressure` event"
+    model_version: "event-derived version v1 — 5s window, StatsBomb `Pressure` event type"
+    freshness: Matches underlying event feed
+    confidence: medium (event-derived version is a standard replication of a documented window, not a guess)
+    sample_size: per-match or per-90; state number of pressure events observed
+    caveats: >
+      Label the event-derived version distinctly from the commercial field —
+      they should converge but have not been cross-validated against each
+      other in this project.
+    recommended_visual: bar chart, regains per game with league average line
+    social_post_angles: ["wins the ball back within 5 seconds of pressing more than anyone in the league"]
+
+  - metric_id: counterpressing_success
+    display_name: Counterpressing success rate
+    plain_english_definition: >
+      Of the times a team presses immediately after losing the ball
+      (counterpressing), how often it wins the ball back within 5 seconds.
+    source: StatsBomb Commercial API (`team_match_counterpressure_regains` / `team_match_counterpressures`) or event-derived
+    availability_tier: open_demo (event-derived version); licensed_live (provider-exact version)
+    required_fields: [turnover event, subsequent pressure event within 5s, subsequent possession-change]
+    formula_or_provider_field: "provider: counterpressure_regains / counterpressures. event-derived: same ratio computed from open-data `Pressure` events flagged within 5s of a turnover"
+    model_version: "event-derived version v1 — 5s counterpress window, 5s regain window"
+    freshness: Matches underlying event feed
+    confidence: medium
+    sample_size: state counterpressure event count per team/period
+    caveats: Small counterpressure counts (early season, low-press teams) make the ratio noisy — state the denominator with the stat.
+    recommended_visual: scatter — counterpressures per 90 vs success rate
+    social_post_angles: ["counterpresses at the highest rate in the league and wins it back X% of the time"]
+
+  - metric_id: ppda
+    display_name: PPDA (Passes Per Defensive Action)
+    plain_english_definition: >
+      How many passes a team lets its opponent complete, on average, before
+      making a tackle, interception, or foul — a proxy for pressing intensity.
+      Lower means more intense pressing.
+    source: StatsBomb Commercial API (`team_match_ppda`), or calculated locally from any event feed with locations
+    availability_tier: open_demo (event-derived version, StatsBomb Open Data or any event feed with x/y); licensed_live (provider field)
+    required_fields: [opponent pass events with start x, pressing-team defensive-action events with location]
+    formula_or_provider_field: "opponent completed passes with start x < 60% pitch length / pressing-team (tackles + interceptions + won defensive duels + fouls) with x > 40% pitch length. Matches Wyscout's/Trainor's original 60%-zone definition — see kloppy + Wyscout docs."
+    model_version: "event-derived PPDA v1 — 60/40 zone split, must state pitch-length convention (0-100 vs metres) used"
+    freshness: Matches underlying event feed
+    confidence: high (definition is well-established and cross-confirmed across three provider docs)
+    sample_size: per-match or per-90
+    caveats: >
+      If the defensive-action denominator is zero, serialise as null, not 0 —
+      a "0 PPDA" reads as infinitely intense pressing, which is backwards.
+    recommended_visual: line chart of PPDA trend over the season, inverted axis (lower = more press)
+    social_post_angles: ["pressing at a PPDA of X.X — most intense in the league this season"]
+
+  - metric_id: field_tilt
+    display_name: Field tilt
+    plain_english_definition: >
+      What share of the match's final-third passing (from both teams
+      combined) belonged to one team — a proxy for territorial dominance.
+    source: Calculated locally from any event feed with pitch coordinates
+    availability_tier: open_demo
+    required_fields: [pass events with start location, team]
+    formula_or_provider_field: "team's final-third passes / (team's final-third passes + opponent's final-third passes)"
+    model_version: "event-derived field tilt v1 — final third defined as x > 66.7% pitch length under the acting-team 0-100 convention"
+    freshness: Matches underlying event feed
+    confidence: high
+    sample_size: per-match
+    caveats: A team can lose a match while dominating field tilt — pair with the actual result when posting, not as a replacement for it.
+    recommended_visual: horizontal 100%-stacked bar per match
+    social_post_angles: ["X% field tilt but lost the match — dominance without a scoreline to show for it"]
+
+  - metric_id: progressive_passes
+    display_name: Progressive passes
+    plain_english_definition: >
+      Completed passes that move the ball meaningfully closer to the
+      opponent's goal, by a defined distance threshold.
+    source: Calculated locally from any event feed with start/end coordinates
+    availability_tier: open_demo
+    required_fields: [pass.start_location, pass.end_location, pass.outcome]
+    formula_or_provider_field: "completed pass where distance-to-opponent-goal decreases by >= 25% of the remaining distance (or a fixed 10m threshold in the defensive/middle third, 5m in the attacking third) — state which convention is used per post"
+    model_version: "event-derived progressive-pass v1 — must state the exact threshold used (percentage-of-remaining-distance vs fixed metres) since multiple public conventions exist and they are not interchangeable"
+    freshness: Matches underlying event feed
+    confidence: medium (formula is a documented convention, but multiple conventions exist publicly and this project must commit to one and disclose it)
+    sample_size: per-match or per-90
+    caveats: Never publish a progressive-pass count without stating the threshold definition used — the same match can produce very different counts under different conventions.
+    recommended_visual: pass-map filtered to progressive passes only
+    social_post_angles: ["most progressive passes in the league — quietly doing the unglamorous work"]
+
+  - metric_id: progressive_carries
+    display_name: Progressive carries
+    plain_english_definition: >
+      Ball carries (dribbles/runs with the ball) that move it meaningfully
+      closer to the opponent's goal.
+    source: Calculated locally from any event feed with carry start/end coordinates
+    availability_tier: open_demo
+    required_fields: [carry.start_location, carry.end_location] (StatsBomb open data only carries these from `data_version 1.1.0` onward)
+    formula_or_provider_field: "same distance-to-goal threshold convention as progressive_passes, applied to Carry events"
+    model_version: "event-derived progressive-carry v1 — same threshold convention as progressive_passes; state it explicitly"
+    freshness: Matches underlying event feed
+    confidence: medium
+    sample_size: per-match or per-90
+    caveats: "StatsBomb matches with data_version 1.0.0 have no Carry events at all — check data_version before computing this metric, or it will silently read as zero."
+    recommended_visual: pass-map style overlay of carry vectors
+    social_post_angles: ["carries the ball forward more than anyone in the squad — the numbers most highlight reels miss"]
+
+  - metric_id: passing_network_centrality
+    display_name: Passing network / player centrality
+    plain_english_definition: >
+      How central a player is to the team's passing structure — who the ball
+      actually flows through.
+    source: Calculated locally from any completed-pass event feed
+    availability_tier: open_demo
+    required_fields: [pass.passer, pass.recipient, pass.outcome, minute (for sub-aware windows)]
+    formula_or_provider_field: "graph built from completed pass pairs (nodes = players, edge weight = pass count); betweenness and degree centrality via networkx, visualised with mplsoccer"
+    model_version: "event-derived passing-network v1 — must state whether substitutions split the graph into per-lineup sub-networks or are pooled across the full match"
+    freshness: Matches underlying event feed
+    confidence: high (standard, widely-published technique)
+    sample_size: per-match; state total completed-pass count feeding the graph
+    caveats: Average position (used for node placement) is sensitive to a player's positional discipline — a box-to-box midfielder's average position can visually mislead if not paired with a real heatmap.
+    recommended_visual: pass network diagram (mplsoccer)
+    social_post_angles: ["the passing hub everything runs through — highest centrality on the pitch"]
+
+  - metric_id: buildup_success
+    display_name: Build-up success rate
+    plain_english_definition: >
+      How often a team's possessions that start in its own defensive third
+      progress into a shot, versus breaking down.
+    source: Calculated locally from any event feed with possession chains and locations
+    availability_tier: open_demo
+    required_fields: [possession id, possession start location, possession outcome/shot flag]
+    formula_or_provider_field: "possessions starting with x < 33% pitch length that reach a shot / total such possessions"
+    model_version: "event-derived build-up-success v1 — defensive third defined as x < 33.3% under the acting-team 0-100 convention"
+    freshness: Matches underlying event feed
+    confidence: medium
+    sample_size: per-match or per-season; state possession count
+    caveats: A low sample of deep-build-up possessions (a team that rarely builds from the back) makes this ratio unstable — state the denominator.
+    recommended_visual: funnel chart (possessions started -> reached final third -> reached shot)
+    social_post_angles: ["one in every X build-ups from the back ends in a shot — the model behind the patient style"]
+
+  - metric_id: directness
+    display_name: Directness
+    plain_english_definition: >
+      How much vertical (goal-ward) progress a team makes per pass, on
+      average — high directness means quick, vertical play; low means patient
+      possession.
+    source: Calculated locally from any event feed with pass vectors
+    availability_tier: open_demo
+    required_fields: [pass.start_location, pass.end_location]
+    formula_or_provider_field: "average (vertical distance gained toward opponent goal) / (total pass distance) across a team's completed passes"
+    model_version: "event-derived directness v1"
+    freshness: Matches underlying event feed
+    confidence: medium
+    sample_size: per-match or per-90; state pass count
+    caveats: A high-directness team is not necessarily a more effective one — pair with buildup_success or actual chance creation before implying "better," not just "different style."
+    recommended_visual: scatter — directness vs possession share, teams as points
+    social_post_angles: ["the most direct team in the league by a distance — every pass earns ground"]
+
+  - metric_id: rest_defence_vulnerability
+    display_name: Rest-defence vulnerability
+    plain_english_definition: >
+      How exposed a team is to a counterattack at the moment it commits
+      players forward — based on how many defenders it keeps behind the ball.
+    source: Not computable from event data alone
+    availability_tier: not_computable
+    required_fields: [opponent + own off-ball player positions at the moment of a forward pass/carry — tracking data, not event data]
+    formula_or_provider_field: "no documented open formula found; conceptually requires counting defenders behind the ball at possession-loss moments, which needs tracking positions (SkillCorner/DFL open tracking, in principle, but neither open tracking set here has current-competition coverage)"
+    model_version: n/a — not implemented
+    freshness: n/a
+    confidence: low — explicitly listed as not computable in v1
+    sample_size: n/a
+    caveats: >
+      Do not approximate this from event data alone (e.g. counting nearby
+      defenders by event proximity) and call it rest-defence vulnerability —
+      that would misrepresent an event-only heuristic as a tracking-derived
+      metric, which the brief explicitly prohibits.
+    recommended_visual: n/a until a tracking source with current coverage is available
+    social_post_angles: []
+
+  - metric_id: shot_creating_actions
+    display_name: Shot-creating actions (SCA)
+    plain_english_definition: >
+      The two actions (passes, carries, dribbles, etc.) immediately before a
+      shot, crediting the players involved in creating the chance, not just
+      the assist.
+    source: Calculated locally from any possession-chain event feed
+    availability_tier: open_demo
+    required_fields: [event sequence per possession, shot flag]
+    formula_or_provider_field: "the two live-ball offensive actions preceding a shot (or a goal, for goal-creating actions), following the FBref SCA/GCA definition as documented before its 20 Jan 2026 data change — the definition survives even though FBref's own numbers no longer do"
+    model_version: "event-derived SCA v1 — window = 2 preceding actions; state whether dead-ball actions (free kicks, corners) are included or excluded"
+    freshness: Matches underlying event feed
+    confidence: medium
+    sample_size: per-match or per-90
+    caveats: This is a locally-computed replication of a public definition, not a pull from FBref — FBref no longer serves this stat as of 20 Jan 2026.
+    recommended_visual: ranked bar chart, SCA per-90 leaderboard
+    social_post_angles: ["involved in the buildup to more shots than anyone else in the squad"]
+
+  - metric_id: player_percentile_profile
+    display_name: Player percentile profile
+    plain_english_definition: >
+      Where a player ranks, as a percentile, against a clearly defined peer
+      group (same league, season, position, minimum minutes) on a set of
+      metrics.
+    source: Calculated locally from the project's own metric table
+    availability_tier: open_demo
+    required_fields: [player metric values for the full cohort, position, minutes played]
+    formula_or_provider_field: "percentile rank of a player's per-90 value within {league, season, position group, min_minutes} cohort"
+    model_version: "percentile-profile v1"
+    freshness: Recomputed whenever the underlying metric table refreshes
+    confidence: high (method is simple and auditable) — but only as strong as the cohort definition
+    sample_size: "must state: league, season, position group, minimum-minutes threshold, and resulting cohort size (n) — a percentile against n=8 is not the same claim as against n=80"
+    caveats: >
+      Never publish a percentile without its cohort definition in the same
+      sentence or caveat field — "90th percentile" is meaningless without
+      knowing the peer group and n.
+    recommended_visual: radar/percentile chart (e.g. mplsoccer PyPizza-style)
+    social_post_angles: ["top 5% of [position]s in [league] for [metric] this season (n=XX)"]
+
+  # ---------------- 360 / continuous-tracking metrics ----------------
+
+  - metric_id: line_breaking_passes
+    display_name: Line-breaking passes
+    plain_english_definition: >
+      A pass that plays the ball past a defensive line of opponents, judged
+      against where the opponents actually were standing.
+    source: StatsBomb Commercial API (360 data, `lbp` suite) — requires 360 or full tracking
+    availability_tier: licensed_live
+    required_fields: [360 freeze-frame or continuous tracking positions of all opponents at pass moment, pass.start_location, pass.end_location]
+    formula_or_provider_field: "provider: lbp / lbp_completed / lbp_ratio (StatsBomb 360, commercial). Requires the 360 per-event line_breaking_pass boolean or an equivalent opponent-position computation."
+    model_version: StatsBomb 360 LBP definition, as documented
+    freshness: Matches underlying 360/commercial feed
+    confidence: high, once licensed
+    sample_size: per-match; only populated for matches with 360 coverage — use player_season_360_minutes for rates
+    caveats: >
+      Per the brief's own methodology rule: do not describe an event-only
+      proxy (e.g. "pass crossed the halfway line into a gap") as a true
+      line-breaking pass. Without opponent positions this metric must be
+      reported as not_computable, not approximated.
+    recommended_visual: pass map with defensive-line overlay at the pass moment
+    social_post_angles: ["broke the opposition's line X times — the pass that ends a press before it starts"]
+
+  - metric_id: defenders_bypassed
+    display_name: Defenders bypassed
+    plain_english_definition: >
+      How many of the opponent's defenders are taken out of the game by a
+      pass or carry — they're now behind the ball and can't affect the play.
+    source: Impect (documented concept, commercial, no open tier) or StatsBomb 360 (commercial)
+    availability_tier: licensed_live
+    required_fields: [full opponent tracking or 360 positions at the action moment, ball position]
+    formula_or_provider_field: "Impect BYPASSED_DEFENDERS: opponent's radial distance to their own goal becomes greater than the ball's, restricted to the 5 outfield players closest to their own goal at that moment"
+    model_version: Impect packing definition, as documented (no version number published)
+    freshness: n/a (not licensed)
+    confidence: medium (formula is clearly documented by Impect; not independently reproducible without their data or full opponent tracking)
+    sample_size: per-action
+    caveats: >
+      Same methodology rule as line_breaking_passes — never compute this from
+      event data alone. It requires knowing where every opponent actually
+      was, not just where the ball went.
+    recommended_visual: pitch diagram showing bypassed defenders' positions at the pass moment
+    social_post_angles: ["bypassed X defenders with one pass — turned a back four into a back one"]
+
+  - metric_id: receptions_in_space
+    display_name: Receptions in space
+    plain_english_definition: >
+      How much room a player had around them the moment they received the
+      ball.
+    source: StatsBomb Commercial API (360, `ball_receipts_in_space_{2,5,10}`) or SkillCorner tracking (space-to-nearest-defender)
+    availability_tier: licensed_live (StatsBomb 360); open_demo, sample-only (SkillCorner Open Data / DFL Open Data, for their covered matches)
+    required_fields: [continuous tracking or 360 freeze-frame of all players at reception moment]
+    formula_or_provider_field: "provider: ball_receipts_in_space_{2,5,10} (StatsBomb 360, commercial). Open sample: distance from receiving player to nearest opponent at reception frame, computed from SkillCorner/DFL tracking."
+    model_version: "open-sample version v1 — nearest-opponent-distance at reception frame, computed via kloppy/floodlight helper functions"
+    freshness: n/a for commercial; static for the two open tracking samples
+    confidence: high methodology, but the open_demo version only covers the SkillCorner A-League 10-match sample or the DFL 7-match sample — not current top-5-league players
+    sample_size: state which of the two open samples and how many receptions
+    caveats: Do not present the open-sample version as covering any player/team outside those specific 10 (or 7) matches.
+    recommended_visual: reception scatter with space-radius circles
+    social_post_angles: ["received the ball with more space than anyone else on the pitch that day — [sample match]"]
+
+  - metric_id: nearest_defender_distance
+    display_name: Nearest-defender distance
+    plain_english_definition: >
+      How far away the closest opponent was at a given moment.
+    source: SkillCorner Open Data / DFL Open Data (open, sample only) or SkillCorner/StatsBomb 360 commercial
+    availability_tier: open_demo (sample only); licensed_live (full coverage)
+    required_fields: [continuous tracking positions of all players at the moment in question]
+    formula_or_provider_field: euclidean distance between ball-carrier and nearest opponent tracking point, per frame
+    model_version: "nearest-defender-distance v1"
+    freshness: static for open samples
+    confidence: high methodology; sample-coverage caveat as above
+    sample_size: state frame/event count and which open sample
+    caveats: Same sample-only scope caveat as receptions_in_space.
+    recommended_visual: distance-over-time line chart for a key sequence
+    social_post_angles: ["closed down to under a metre before the tackle — the pressing sequence, frame by frame"]
+
+  - metric_id: pitch_space_control
+    display_name: Pitch and space control
+    plain_english_definition: >
+      Which team "controls" each area of the pitch at a given moment, based
+      on which side could reach that space first.
+    source: SkillCorner Open Data / DFL Open Data (open, sample only) — computed via a pitch-control model
+    availability_tier: open_demo (sample only)
+    required_fields: [continuous tracking positions and velocities of all 22 players + ball, per frame]
+    formula_or_provider_field: "Voronoi-based or physics-based pitch control model (e.g. floodlight/databallpy's `get_pitch_control` — noted as removed in databallpy 0.8.0's Match-class deprecation; use the Game-class equivalent, or a from-scratch Voronoi as a fallback)"
+    model_version: "pitch-control v1 — must state which model (simple Voronoi vs Spearman-style physical model) since they give different-looking control maps from the same frame"
+    freshness: static for open samples
+    confidence: medium (well-published technique, but computationally heavy and easy to render misleadingly if the model choice isn't disclosed)
+    sample_size: per-frame; state which match/moment
+    caveats: A pitch-control snapshot is only as good as the single frame chosen — do not present one frame as representative of a whole phase of play without saying so.
+    recommended_visual: Voronoi/heatmap pitch-control overlay
+    social_post_angles: ["controlled X% of the pitch in the buildup to the goal — the space that made the chance"]
+
+  - metric_id: team_width
+    display_name: Team width
+    plain_english_definition: How spread out a team is side-to-side at a given moment.
+    source: SkillCorner Open Data / DFL Open Data (open, sample only)
+    availability_tier: open_demo (sample only)
+    required_fields: [continuous tracking y-coordinates of all outfield players on one team, per frame]
+    formula_or_provider_field: "max(y) - min(y) across a team's outfield players, per frame, averaged over a phase or match"
+    model_version: "team-shape v1"
+    freshness: static for open samples
+    confidence: high
+    sample_size: state frame count / phase definition
+    caveats: Include/exclude the goalkeeper consistently — state which convention was used.
+    recommended_visual: team-shape overlay with a width bracket
+    social_post_angles: ["stretched the pitch to X metres wide in possession — the widest shape in the sample"]
+
+  - metric_id: team_length
+    display_name: Team length
+    plain_english_definition: How spread out a team is from its deepest to its highest player at a given moment.
+    source: SkillCorner Open Data / DFL Open Data (open, sample only)
+    availability_tier: open_demo (sample only)
+    required_fields: [continuous tracking x-coordinates of all outfield players on one team, per frame]
+    formula_or_provider_field: "max(x) - min(x) across a team's outfield players, per frame, averaged over a phase or match"
+    model_version: "team-shape v1"
+    freshness: static for open samples
+    confidence: high
+    sample_size: state frame count / phase definition
+    caveats: Same goalkeeper-inclusion caveat as team_width.
+    recommended_visual: team-shape overlay with a length bracket
+    social_post_angles: ["compressed to just X metres from box to box — the most compact shape in the sample"]
+
+  - metric_id: team_compactness
+    display_name: Team compactness
+    plain_english_definition: How close together a team's players are, on average, at a given moment.
+    source: SkillCorner Open Data / DFL Open Data (open, sample only)
+    availability_tier: open_demo (sample only)
+    required_fields: [continuous tracking positions of all outfield players on one team, per frame]
+    formula_or_provider_field: "average pairwise distance between a team's outfield players, per frame (or team_width * team_length as a simpler area proxy — state which is used)"
+    model_version: "team-shape v1"
+    freshness: static for open samples
+    confidence: medium (two common conventions exist — average pairwise distance vs bounding-box area — must disclose which)
+    sample_size: state frame count / phase definition
+    caveats: Do not switch conventions between posts without noting it — the two are not comparable numbers.
+    recommended_visual: team-shape overlay, compactness as a shaded polygon
+    social_post_angles: ["the tightest defensive block in the sample — average of just X metres between teammates"]
+
+  - metric_id: defensive_line_height
+    display_name: Defensive-line height
+    plain_english_definition: How far up the pitch a team's back line is holding, on average.
+    source: SkillCorner Open Data / DFL Open Data (open, sample only)
+    availability_tier: open_demo (sample only)
+    required_fields: [continuous tracking x-coordinates of the team's deepest outfield players, per frame]
+    formula_or_provider_field: "average x-position of the team's back-line players (commonly the 4 deepest outfield players, or those tagged as defenders) per frame, out-of-possession phases only"
+    model_version: "team-shape v1"
+    freshness: static for open samples
+    confidence: medium (back-line player selection method must be disclosed — by position tag vs by deepest-N players)
+    sample_size: state frame count / phase definition
+    caveats: Mixing in-possession and out-of-possession frames will misstate defensive intent — restrict to out-of-possession phases and say so.
+    recommended_visual: line-height trend chart over the match
+    social_post_angles: ["holding the highest defensive line in the sample — living dangerously in behind"]
+
+  - metric_id: space_between_lines
+    display_name: Space between team lines
+    plain_english_definition: How much room there is between a team's defensive, midfield, and attacking lines.
+    source: SkillCorner Open Data / DFL Open Data (open, sample only)
+    availability_tier: open_demo (sample only)
+    required_fields: [continuous tracking positions of all outfield players on one team, per frame, with a line-assignment method]
+    formula_or_provider_field: "x-distance between the average position of the back line and the average position of the midfield line (and midfield-to-attack), per frame — line assignment via position tag or a clustering method, state which"
+    model_version: "team-shape v1"
+    freshness: static for open samples
+    confidence: low-medium (line assignment is a modelling choice with no single public standard)
+    sample_size: state frame count / phase definition
+    caveats: This is the least standardised of the team-shape metrics — always disclose the line-assignment method used.
+    recommended_visual: pitch overlay with lines and gaps marked
+    social_post_angles: ["X metres of daylight between the midfield and defence — the gap the goal came through"]
+
+  - metric_id: numerical_overloads
+    display_name: Numerical overloads
+    plain_english_definition: A moment where one team has more players than the opponent in a specific area of the pitch.
+    source: SkillCorner Open Data / DFL Open Data (open, sample only)
+    availability_tier: open_demo (sample only)
+    required_fields: [continuous tracking positions of all 22 players, per frame, plus a zone definition]
+    formula_or_provider_field: "count of each team's players inside a defined zone (e.g. a specific pitch third x flank), per frame; overload = positive difference"
+    model_version: "team-shape v1"
+    freshness: static for open samples
+    confidence: medium
+    sample_size: state frame count / zone definition
+    caveats: The zone definition drives the result entirely — always state it (e.g. "right half-space, final third").
+    recommended_visual: pitch snapshot with player counts per zone
+    social_post_angles: ["created a 3v2 out wide before the cross went in — the overload that broke them down"]
+
+  - metric_id: off_ball_runs
+    display_name: Off-ball runs
+    plain_english_definition: >
+      Runs a player makes without the ball that create or threaten space —
+      overlaps, runs in behind, coming short, etc.
+    source: SkillCorner Open Data (Dynamic Events, sample only) or Driblab PRO (`offBallRuns*` Arrigo metrics, commercial, formula unpublished)
+    availability_tier: open_demo (SkillCorner sample only, event-classified not self-defined); licensed_live (Driblab)
+    required_fields: [continuous tracking positions/velocities of the runner and surrounding players]
+    formula_or_provider_field: "SkillCorner Dynamic Events (proprietary classifier, not independently reproducible — treat run type labels as provider-supplied, not locally verified)"
+    model_version: SkillCorner Dynamic Events v2/v3 (per data-versions doc)
+    freshness: static for the open sample
+    confidence: medium (labels are provider-supplied and not independently checked against raw tracking by this project)
+    sample_size: state which of the 10 SkillCorner sample matches
+    caveats: Do not claim to independently verify SkillCorner's run classification — cite it as their labelling, not a project-computed value, when used from the open sample.
+    recommended_visual: run-trace overlay on a tracking frame sequence
+    social_post_angles: ["the run that wasn't rewarded with an assist but created the whole chance"]
+
+  - metric_id: pressing_synchronisation
+    display_name: Pressing synchronisation
+    plain_english_definition: How coordinated a team's press is — do multiple players close down together, or does one player press alone.
+    source: Calculated locally from SkillCorner/DFL open tracking (sample only), following the published "Pressing Intensity" method
+    availability_tier: open_demo (sample only)
+    required_fields: [continuous tracking positions/velocities of the pressing team, per frame, around a turnover]
+    formula_or_provider_field: "Bekkers (2024), 'Pressing Intensity: An Intuitive Measure for Pressing in Soccer' (arXiv:2501.04712), implemented via the open-source unravelsports library's pressing-intensity tutorial"
+    model_version: "unravelsports pressing-intensity v1.2.1 (per the citation in football-docs)"
+    freshness: static for open samples
+    confidence: high methodology (published, peer-reviewable method with a reference open-source implementation)
+    sample_size: state which sample match(es) and event count
+    caveats: Same open-sample-only scope caveat as the other tracking metrics above.
+    recommended_visual: pressing-intensity heatmap/animation (per the unravelsports tutorial)
+    social_post_angles: ["the most synchronised press in the sample — everyone arrives at once"]
+
+  - metric_id: total_distance
+    display_name: Total distance covered
+    plain_english_definition: Total ground covered by a player during a match or period.
+    source: SkillCorner (Open Data sample or commercial), or Driblab PRO physical stats (commercial)
+    availability_tier: open_demo (sample only); licensed_live (full coverage)
+    required_fields: [continuous tracking positions, per frame, for the player]
+    formula_or_provider_field: "SkillCorner: total_distance_full_all (or split variant). Driblab: physical-stats distance fields (exact field name not published in the guide beyond the family name)."
+    model_version: SkillCorner physical v3 (per data-versions doc)
+    freshness: static for the open sample; per-game for commercial
+    confidence: high (provider-supplied, standard measure) — but only from tracking, never estimated from event data
+    sample_size: state minutes played and whether physical_check_passed is true
+    caveats: Convert metres to kilometres for display but keep raw metres in any exported data; filter to physical_check_passed=true before ranking players.
+    recommended_visual: bar chart, distance per-90 with QC flag noted
+    social_post_angles: ["covered more ground than anyone on the pitch that day"]
+
+  - metric_id: max_speed
+    display_name: Maximum speed
+    plain_english_definition: The fastest a player moved during a match, or the peak of their sustained top speeds.
+    source: SkillCorner (Open Data sample or commercial)
+    availability_tier: open_demo (sample only); licensed_live (full coverage)
+    required_fields: [continuous tracking positions/velocities, per frame]
+    formula_or_provider_field: "SkillCorner psv99 (99th-percentile sustained speed value) or psv99_top5 — a bare field, not split by period/possession; do not construct a *_full_all variant of it"
+    model_version: SkillCorner physical v3
+    freshness: static for the open sample; per-game for commercial
+    confidence: high (provider-supplied)
+    sample_size: state minutes played and QC flag
+    caveats: psv99 is a smoothed/robust top-speed estimate, not the single fastest instantaneous frame — do not describe it as "hit a top speed of exactly X" without noting the smoothing.
+    recommended_visual: leaderboard bar chart
+    social_post_angles: ["clocked the fastest sprint speed in the sample — [X] km/h"]
+
+  - metric_id: sprint_hsr_distance
+    display_name: Sprint and high-speed-running (HSR) distance
+    plain_english_definition: How far a player ran at high speed or sprinting pace.
+    source: SkillCorner (Open Data sample or commercial)
+    availability_tier: open_demo (sample only); licensed_live (full coverage)
+    required_fields: [continuous tracking positions/velocities, per frame]
+    formula_or_provider_field: "SkillCorner hsr_distance_* / sprint_distance_* and hsr_count_* / sprint_count_* (counts are efforts, not metres — keep separate)"
+    model_version: SkillCorner physical v3
+    freshness: static for the open sample; per-game for commercial
+    confidence: high (provider-supplied)
+    sample_size: state minutes played and QC flag
+    caveats: >
+      SkillCorner's HSR/sprint speed-band thresholds are provider-specific and
+      not the same as Wyscout's km/h bands or a custom pipeline's m/s
+      cut-offs — never mix speed-band numbers across providers in one chart
+      or claim.
+    recommended_visual: stacked bar (HSR vs sprint distance) per-90
+    social_post_angles: ["led the sample in high-speed running distance — the engine behind the press"]
+
+  - metric_id: accel_decel_counts
+    display_name: Acceleration and deceleration counts
+    plain_english_definition: How many times a player sharply sped up or slowed down during a match.
+    source: SkillCorner (Open Data sample or commercial)
+    availability_tier: open_demo (sample only); licensed_live (full coverage)
+    required_fields: [continuous tracking velocities, per frame]
+    formula_or_provider_field: "SkillCorner medaccel_count_* / highaccel_count_* / meddecel_count_* / highdecel_count_* — treat as a separate load family from distance metrics, do not combine into one 'workload' number without disclosing the combination rule"
+    model_version: SkillCorner physical v3
+    freshness: static for the open sample; per-game for commercial
+    confidence: high (provider-supplied)
+    sample_size: state minutes played and QC flag
+    caveats: Acceleration/deceleration counts and distance metrics measure different things — a low-distance, high-accel-count player is a real, meaningful profile, not a data error.
+    recommended_visual: grouped bar chart (accel vs decel counts, by intensity band)
+    social_post_angles: ["X high-intensity accelerations in 90 minutes — a different kind of workload than the distance stat shows"]
+
+  # ---------------- Commercial-only metrics (licensed_live only) ----------------
+
+  - metric_id: post_shot_xg
+    display_name: Post-shot xG (PSxG / xGOT)
+    plain_english_definition: >
+      How likely a shot was to be a goal after it was struck (based on
+      placement and velocity), rather than before — used to judge goalkeeping.
+    source: StatsBomb Commercial API (Events v8 shot decomposition + stats endpoints)
+    availability_tier: licensed_live
+    required_fields: [on-target unblocked shots: placement, velocity, and the pre-strike statsbomb_xg]
+    formula_or_provider_field: "shot_execution_xg / gk_save_difficulty_xg (event-level); np_psxg / npot_psxg_faced (stats endpoints). Only defined for on-target, unblocked shots."
+    model_version: StatsBomb xG/PSxG model, not separately versioned in the data
+    freshness: Near-live for licensed competitions
+    confidence: high (once licensed)
+    sample_size: per-shot / per-90; state shots-faced count for keeper stats
+    caveats: Not defined for blocked or off-target shots — do not average PSxG across all shots faced, only on-target ones.
+    recommended_visual: shot-map with pre- vs post-shot xG comparison
+    social_post_angles: ["saved a shot with X post-shot xG — one of the toughest stops of the season"]
+
+  - metric_id: goals_saved_above_average
+    display_name: Goals Saved Above Average (GSAA)
+    plain_english_definition: >
+      How many more (or fewer) goals a goalkeeper prevented than an average
+      keeper would have, given the shots they faced.
+    source: StatsBomb Commercial API (`gsaa`, `gsaa_ratio`)
+    availability_tier: licensed_live
+    required_fields: [np_psxg_faced, actual goals conceded (excl. penalties/own goals)]
+    formula_or_provider_field: gsaa = np_psxg_faced - goals_conceded (non-penalty); gsaa_ratio expresses it per shot faced
+    model_version: tied to the StatsBomb PSxG model
+    freshness: Near-live for licensed competitions
+    confidence: high (once licensed)
+    sample_size: state shots-faced count — GSAA on a handful of shots is not stable
+    caveats: A small-sample GSAA swings heavily on one or two saves/errors — always state shots faced alongside the number.
+    recommended_visual: leaderboard bar chart with shots-faced annotated
+    social_post_angles: ["X goals saved above average this season — quietly the league's best shot-stopper"]
+
+  - metric_id: gk_positioning_error
+    display_name: Goalkeeper positioning error
+    plain_english_definition: How far a keeper was from where a model says they should have stood to face a given shot.
+    source: StatsBomb Commercial API (`gk_positioning_error`, `np_optimal_gk_dlength`)
+    availability_tier: licensed_live
+    required_fields: [keeper position at shot moment (360/freeze-frame), modelled optimal position]
+    formula_or_provider_field: average distance of the keeper from the model's optimal position for facing that shot
+    model_version: StatsBomb's optimal-positioning model, not separately versioned in the data
+    freshness: Near-live for licensed competitions
+    confidence: medium (depends on a modelled "optimal position," which is itself an estimate — treat as directional, not exact)
+    sample_size: state shots-faced count
+    caveats: This is a model output, not a ground-truth measurement — present it as an estimate ("modelled positioning error"), not an objective fact.
+    recommended_visual: shot-map with actual vs modelled-optimal keeper position marked
+    social_post_angles: ["X metres out of position on average when facing a shot — where the goals are coming from"]
+
+  - metric_id: defensive_action_distance
+    display_name: Defensive-action distance (goalkeeper)
+    plain_english_definition: How far from goal a keeper typically makes defensive actions — a proxy for how much they sweep up behind the defence.
+    source: StatsBomb Commercial API (`da_aggressive_distance`)
+    availability_tier: licensed_live
+    required_fields: [goalkeeper defensive-action events with location]
+    formula_or_provider_field: average distance from goal at which the keeper performs defensive actions
+    model_version: n/a (direct aggregate, not a trained model)
+    freshness: Near-live for licensed competitions
+    confidence: high (once licensed)
+    sample_size: state number of defensive actions
+    caveats: A keeper with few defensive actions overall makes this average noisy — state the action count.
+    recommended_visual: distance leaderboard, keepers ranked
+    social_post_angles: ["sweeps up X metres from goal on average — the most aggressive keeper in the league"]
+
+  - metric_id: claim_probability
+    display_name: Claim probability
+    plain_english_definition: How likely a keeper was to attempt to claim a claimable cross or pass into the box, compared to an average keeper.
+    source: StatsBomb Commercial API (`ccaa` / `clcaa` — Claimable Collection Attempts over Average)
+    availability_tier: licensed_live
+    required_fields: [claimable pass/cross events, keeper claim-attempt flag]
+    formula_or_provider_field: ccaa / clcaa — claim-attempt rate versus the average keeper on claimable balls
+    model_version: n/a (direct aggregate)
+    freshness: Near-live for licensed competitions
+    confidence: high (once licensed)
+    sample_size: state number of claimable-ball events
+    caveats: "'Claimable' is StatsBomb's own judgement call on each cross/pass — treat as their classification, not an objective physical fact."
+    recommended_visual: leaderboard bar chart
+    social_post_angles: ["comes for everything claimable — attempts claims well above the average keeper"]
+
+  - metric_id: claim_success
+    display_name: Claim success rate
+    plain_english_definition: Of the crosses/passes a keeper attempted to claim, how many they actually secured.
+    source: StatsBomb Commercial API (`claim_success`)
+    availability_tier: licensed_live
+    required_fields: [claim-attempt events, claim-outcome flag]
+    formula_or_provider_field: successful claims / claim attempts
+    model_version: n/a (direct aggregate)
+    freshness: Near-live for licensed competitions
+    confidence: high (once licensed)
+    sample_size: state number of claim attempts — small samples swing wildly
+    caveats: Pair with claim_probability — a high success rate on very few attempts is a different story than on many.
+    recommended_visual: paired bar chart (attempts vs successes)
+    social_post_angles: ["X% claim success rate — command of the box, backed by the numbers"]
+
+  - metric_id: sweeping_effectiveness
+    display_name: Sweeping effectiveness
+    plain_english_definition: How effectively a keeper acts as an extra defender outside the box, cutting out through-balls and long passes behind the defence.
+    source: StatsBomb Commercial API — no single named field; composite of `da_aggressive_distance`, defensive-action success rate, and out-of-box defensive actions
+    availability_tier: licensed_live
+    required_fields: [goalkeeper defensive actions outside the penalty box, with location and outcome]
+    formula_or_provider_field: >
+      no single documented StatsBomb field for this exact concept — this
+      project would combine da_aggressive_distance with the keeper's
+      out-of-box defensive-action success rate; the combination rule must be
+      fixed and versioned before any post uses it, since it is a project
+      composite, not a provider metric
+    model_version: "project composite v1 — not yet defined; do not publish this metric until the combination rule is written down and reviewed"
+    freshness: Near-live for licensed competitions (once defined)
+    confidence: low — flagged as a composite that needs its own definition before use
+    sample_size: n/a until defined
+    caveats: Do not present a project-composite metric as if it were a StatsBomb-native stat — label it clearly as this project's own construction.
+    recommended_visual: n/a until defined
+    social_post_angles: []
+
+  - metric_id: obv_on_ball_value
+    display_name: On-Ball Value (OBV)
+    plain_english_definition: >
+      How much a single on-the-ball action changed the team's chance of
+      scoring minus conceding — StatsBomb's own action-value model (their
+      analogue to VAEP).
+    source: StatsBomb Commercial API (`obv_*` fields across event and stats endpoints, e.g. `obv_lbp`)
+    availability_tier: licensed_live
+    required_fields: [full event stream with StatsBomb's internal features per action]
+    formula_or_provider_field: "obv (provider-trained model, proprietary; surfaces per-action and aggregated, e.g. obv_lbp for line-breaking-pass OBV)"
+    model_version: StatsBomb OBV model version not published
+    freshness: Near-live for licensed competitions
+    confidence: high (once licensed) for the number itself; low transparency into the model internals since it's proprietary
+    sample_size: per-action, per-match, or per-90
+    caveats: >
+      Do not confuse this with the project's locally-computed VAEP
+      (metric_id vaep_action_value) — they are different models from
+      different organisations and will not produce identical numbers even
+      for the same action. Label each with its own source.
+    recommended_visual: ranked bar chart, OBV per-90 leaderboard
+    social_post_angles: ["highest On-Ball Value in the squad this season — the numbers StatsBomb itself tracks"]
