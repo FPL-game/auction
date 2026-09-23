@@ -12,6 +12,8 @@ Resumable, provenance-tracked, rate-limited bulk downloader for every legitimate
 | Collect the network-blocked sources (must run outside this sandbox) | `python3 acquisition/run_blocked_sources.py --all` — see `docs/BLOCKED_SOURCE_COLLECTION.md` |
 | Rebuild the entity inventory from whatever's in bronze (NOT identity resolution - see note below) | `python3 acquisition/build_entity_inventory.py` |
 | Validate every downloaded match and refresh quarantine | `python3 acquisition/validate.py` |
+| Run the post-acquisition validation triage (breakdown/classification/coverage report) | `python3 acquisition/validation_triage.py` — see `docs/VALIDATION_TRIAGE.md` |
+| Freeze the current bronze snapshot with an integrity-verified checksum manifest | `python3 acquisition/freeze_snapshot.py` |
 
 ## How resuming works
 
@@ -47,7 +49,13 @@ acquisition/
   build_entity_inventory.py             players/teams/competitions PER PROVIDER - an inventory, not
                                          identity resolution; alias_group_id stays NULL until a real
                                          matching pass exists
-  validate.py                          per-match validation, writes to quarantine
+  validate.py                          per-match validation; checks_failed=fatal (quarantined),
+                                         checks_flagged=informational only (not quarantined) - see
+                                         docs/VALIDATION_TRIAGE.md for the fatal/flagged rule classification
+  validation_triage.py                 post-acquisition review pass: flags by provider/competition/season/
+                                         rule, 4-way classification, 5-category league/season coverage report
+  freeze_snapshot.py                   re-hashes every 'done' file against its recorded checksum and writes
+                                         a dated manifest with a whole-snapshot integrity fingerprint
   build_reports.py                     coverage_matrix.csv, download_manifest.parquet, failed_downloads.csv, disk usage
 
 data/

@@ -49,15 +49,31 @@ MANIFESTS = DATA / "manifests"
 QUARANTINE = DATA / "quarantine"
 
 RESULT_FIELDS = ["source", "match_id", "n_checks_passed", "n_checks_failed",
-                  "checks_passed", "checks_failed", "status", "n_events"]
+                  "checks_passed", "checks_failed", "checks_flagged", "status", "n_events"]
+
+# Checks that indicate the file/match is not trustworthy as a whole - these,
+# and only these, cause status=quarantined. Everything else is recorded as
+# "checks_flagged": informational for downstream triage, never blocking use
+# of the match. See docs/VALIDATION_TRIAGE.md for the full rationale - this
+# split exists because a single StatsBomb-documented data convention (small
+# out-of-bounds location values on boundary-adjacent events) and a validator
+# bug (own goals / penalty-shootout goals not handled in score reconciliation)
+# were previously causing 177 matches to be quarantined despite the
+# underlying event data being entirely usable.
+FATAL_CHECKS = {"parse_error", "event_count_implausible", "bad_team_refs", "invalid_periods",
+                 "coords_out_of_range_major"}
 
 
-def _row(source, match_id, checks_passed, checks_failed, n_events=None):
+def _row(source, match_id, checks_passed, checks_failed, checks_flagged=None, n_events=None):
+    checks_flagged = checks_flagged or []
+    fatal = [c for c in checks_failed if any(c.startswith(f) for f in FATAL_CHECKS)]
+    non_fatal = [c for c in checks_failed if c not in fatal]
     return {
         "source": source, "match_id": match_id,
-        "n_checks_passed": len(checks_passed), "n_checks_failed": len(checks_failed),
-        "checks_passed": ";".join(checks_passed), "checks_failed": ";".join(checks_failed),
-        "status": "quarantined" if checks_failed else "valid",
+        "n_checks_passed": len(checks_passed), "n_checks_failed": len(fatal),
+        "checks_passed": ";".join(checks_passed), "checks_failed": ";".join(fatal),
+        "checks_flagged": ";".join(non_fatal + checks_flagged),
+        "status": "quarantined" if fatal else "valid",
         "n_events": n_events,
     }
 
@@ -111,38 +127,81 @@ def iter_validate_statsbomb():
             checks_failed.append("lineup_file_missing")
             known_team_ids = set()
 
-        bad_team_refs = bad_coords = 0
+        bad_team_refs = 0
+        # Coordinate overshoot severity is magnitude-based, not just in/out of
+        # range: StatsBomb documents that boundary-adjacent events (a pass,
+        # carry, or ball receipt as the ball goes out of play) can carry a
+        # location a small distance past the 120x80 pitch edge. Confirmed
+        # empirically across all 130 previously-quarantined matches: max
+        # overshoot was 0.9 units (0.076% of events in those matches),
+        # concentrated in Ball Receipt/Pass/Carry/Miscontrol/Dribble/
+        # Dispossessed/Pressure/Duel/Ball Recovery - exactly the boundary
+        # event types. A large overshoot would instead indicate genuine
+        # corruption (e.g. a stray coordinate system or decode error).
+        COORD_FATAL_OVERSHOOT = 5.0
+        minor_coord_events = major_coord_events = 0
         periods_seen = set()
         goals_by_team = Counter()
+        own_goals_by_team = Counter()
         for e in events:
             tid = e.get("team", {}).get("id")
             if tid is not None and known_team_ids and tid not in known_team_ids:
                 bad_team_refs += 1
             loc = e.get("location")
-            if loc and not (0 <= loc[0] <= 120 and 0 <= loc[1] <= 80):
-                bad_coords += 1
+            if loc:
+                overshoot = max(0.0, loc[0] - 120, -loc[0], loc[1] - 80, -loc[1])
+                if overshoot > 0:
+                    if overshoot > COORD_FATAL_OVERSHOOT:
+                        major_coord_events += 1
+                    else:
+                        minor_coord_events += 1
             periods_seen.add(e.get("period"))
-            if e.get("type", {}).get("name") == "Shot" and e.get("shot", {}).get("outcome", {}).get("name") == "Goal":
+            etype = e.get("type", {}).get("name")
+            # Penalty-shootout goals (period 5) don't add to the recorded
+            # match score by football convention, so they're excluded from
+            # reconciliation. Own goals are a distinct event type
+            # ("Own Goal For"/"Own Goal Against" - a pair recorded for both
+            # teams), not a Shot event, so the original Shot-only tally
+            # silently missed every own goal.
+            if etype == "Shot" and e.get("shot", {}).get("outcome", {}).get("name") == "Goal" and e.get("period") != 5:
                 goals_by_team[tid] += 1
+            elif etype == "Own Goal For":
+                own_goals_by_team[tid] += 1
 
         (checks_passed if bad_team_refs == 0 else checks_failed).append(
             "team_refs_resolve" if bad_team_refs == 0 else f"bad_team_refs ({bad_team_refs})")
-        (checks_passed if bad_coords == 0 else checks_failed).append(
-            "coords_in_range" if bad_coords == 0 else f"coords_out_of_range ({bad_coords})")
+
+        checks_flagged = []
+        if major_coord_events:
+            checks_failed.append(f"coords_out_of_range_major ({major_coord_events} events, overshoot>{COORD_FATAL_OVERSHOOT})")
+        elif minor_coord_events:
+            checks_flagged.append(f"coords_out_of_range_minor_expected_provider_convention ({minor_coord_events} events)")
+            checks_passed.append("coords_in_range_within_provider_tolerance")
+        else:
+            checks_passed.append("coords_in_range")
+
         (checks_passed if periods_seen.issubset({1, 2, 3, 4, 5}) else checks_failed).append(
             "periods_valid" if periods_seen.issubset({1, 2, 3, 4, 5}) else f"invalid_periods ({periods_seen})")
 
         if match_id in recorded:
             home_score, away_score = recorded[match_id]
-            total_events = sum(goals_by_team.values())
+            total_events = sum(goals_by_team.values()) + sum(own_goals_by_team.values())
             total_recorded = (home_score or 0) + (away_score or 0)
-            (checks_passed if abs(total_events - total_recorded) <= 1 else checks_failed).append(
-                "score_reconciliation_within_tolerance" if abs(total_events - total_recorded) <= 1
-                else f"score_mismatch (events={total_events}, recorded={total_recorded})")
+            if abs(total_events - total_recorded) <= 1:
+                checks_passed.append("score_reconciliation_within_tolerance")
+            else:
+                # Not treated as fatal: the event stream itself is intact
+                # (this only fires after own-goal/shootout correction), so a
+                # residual mismatch most likely means an awarded/annulled
+                # result or a genuinely unusual scoreline - usable with the
+                # caveat that the recorded score field shouldn't be trusted
+                # without a manual look, not proof the match is corrupt.
+                checks_flagged.append(
+                    f"score_mismatch_after_owngoal_shootout_correction (events={total_events}, recorded={total_recorded})")
         else:
-            checks_failed.append("no_recorded_score_to_check_against")
+            checks_flagged.append("no_recorded_score_to_check_against")
 
-        yield _row("statsbomb", match_id, checks_passed, checks_failed, n_events=n), None
+        yield _row("statsbomb", match_id, checks_passed, checks_failed, checks_flagged, n_events=n), None
 
     dup_ids = {k: v for k, v in seen_ids.items() if v > 1}
     dup_content = {k: v for k, v in content_hashes.items() if len(v) > 1}
@@ -272,10 +331,11 @@ def main():
     MANIFESTS.mkdir(parents=True, exist_ok=True)
     QUARANTINE.mkdir(parents=True, exist_ok=True)
 
-    n_total = n_quarantined = 0
+    n_total = n_quarantined = n_flagged = 0
     all_dup_ids = {}
     all_dup_content = {}
     fail_reasons = Counter()
+    flag_reasons = Counter()
 
     results_path = MANIFESTS / "validation_results.csv"
     quarantine_path = QUARANTINE / "quarantined_matches.csv"
@@ -300,6 +360,11 @@ def main():
                         for c in row["checks_failed"].split(";"):
                             if c:
                                 fail_reasons[c.split(" (")[0]] += 1
+                    if row["checks_flagged"]:
+                        n_flagged += 1
+                        for c in row["checks_flagged"].split(";"):
+                            if c:
+                                flag_reasons[c.split(" (")[0]] += 1
                 if dup_info is not None:
                     name, dup_ids, dup_content = dup_info
                     if dup_ids:
@@ -309,7 +374,12 @@ def main():
             print(f"{source_name}: validated {source_total} matches")
 
     print(f"\nTotal: {n_total} matches validated, {n_quarantined} quarantined "
-          f"({n_quarantined/max(n_total,1)*100:.1f}%)")
+          f"({n_quarantined/max(n_total,1)*100:.1f}%), {n_flagged} valid-but-flagged "
+          f"({n_flagged/max(n_total,1)*100:.1f}%) - see checks_flagged column, not quarantine")
+    if flag_reasons:
+        print("\nFlag reason breakdown (informational, not quarantined):")
+        for reason, n in flag_reasons.most_common():
+            print(f"  {reason}: {n}")
     if all_dup_ids:
         print("Duplicate IDs within a source:", all_dup_ids)
     if all_dup_content:

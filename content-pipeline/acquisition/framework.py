@@ -222,7 +222,8 @@ class Acquirer:
                 http_status, file_size_bytes, sha256, retrieved_at, attempt_count, last_error, licence_tag)
                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                ON CONFLICT(source, resource_type, resource_key, snapshot) DO UPDATE SET
-                 status=excluded.status, http_status=excluded.http_status,
+                 status=excluded.status, local_path=excluded.local_path,
+                 http_status=excluded.http_status,
                  file_size_bytes=excluded.file_size_bytes, sha256=excluded.sha256,
                  retrieved_at=excluded.retrieved_at, attempt_count=downloads.attempt_count+1,
                  last_error=excluded.last_error""",
@@ -231,9 +232,22 @@ class Acquirer:
         )
         self.con.commit()
 
-    def _quarantine(self, source, resource_type, resource_key, url, local_path, reason, http_status=None):
+    def _preserve_quarantine_bytes(self, source: str, dest_relpath: str, content: bytes) -> Path:
+        """Writes a rejected response's exact bytes under quarantine/ (never
+        bronze/ - a file that failed validation must never sit where
+        adapters/validate.py trust everything to be structurally sound).
+        Preserved as-received, `.corrupt` suffixed so it's never mistaken for
+        a usable file, so a later fix or manual inspection can diff the
+        original bad response against a fresh re-fetch."""
+        path = QUARANTINE / source / self.snapshot / f"{dest_relpath}.corrupt"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(content)
+        return path
+
+    def _quarantine(self, source, resource_type, resource_key, url, local_path, reason,
+                     http_status=None, size=None, sha=None):
         self._record(source, resource_type, resource_key, url, local_path, "quarantined",
-                      http_status=http_status, error=reason)
+                      http_status=http_status, error=reason, size=size, sha=sha)
         cur = self.con.execute(
             "SELECT id FROM downloads WHERE source=? AND resource_type=? AND resource_key=? AND snapshot=?",
             (source, resource_type, resource_key, self.snapshot),
@@ -290,17 +304,21 @@ class Acquirer:
                 if resp.status_code == 200:
                     content = resp.content
                     if len(content) < min_size_bytes:
-                        self._quarantine(source, resource_type, resource_key, url, local_path,
+                        preserved = self._preserve_quarantine_bytes(source, dest_relpath, content)
+                        self._quarantine(source, resource_type, resource_key, url, preserved,
                                           f"response smaller than min_size_bytes ({len(content)} < {min_size_bytes})",
-                                          http_status=resp.status_code)
+                                          http_status=resp.status_code, size=len(content),
+                                          sha=hashlib.sha256(content).hexdigest())
                         return FetchResult(status="quarantined", http_status=resp.status_code,
                                             error="too small")
                     if expect_json:
                         try:
                             json.loads(content)
                         except json.JSONDecodeError as je:
-                            self._quarantine(source, resource_type, resource_key, url, local_path,
-                                              f"invalid JSON: {je}", http_status=resp.status_code)
+                            preserved = self._preserve_quarantine_bytes(source, dest_relpath, content)
+                            self._quarantine(source, resource_type, resource_key, url, preserved,
+                                              f"invalid JSON: {je}", http_status=resp.status_code,
+                                              size=len(content), sha=hashlib.sha256(content).hexdigest())
                             return FetchResult(status="quarantined", http_status=resp.status_code,
                                                 error=f"invalid JSON: {je}")
                     # write, but never silently clobber a different existing file on disk
