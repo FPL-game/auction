@@ -29,6 +29,21 @@ Generated from data actually fetched and inspected this session (see `bronze/RET
 | Download status | Manifest, season aggregates, and one full representative match (1874553, all non-LFS files) downloaded successfully. Raw per-frame tracking for any match is **not retrievable in this session**: it's Git-LFS-tracked, and this session can only fetch LFS objects from repositories under this project's own GitHub organisation (`fpl-game`) — a cross-owner `add_repo(access="push")` call for `SkillCorner/opendata` was explicitly refused with "cross-tier adds are not supported." This is a session/environment limitation, not a licence one. |
 | Known limitations | EPV, pressure, reception-difficulty, and line-break/bypass fields are SkillCorner's own proprietary models — their internal formulas aren't published, only the field names and what they represent. Treat all of them as modelled estimates. |
 
+## Wyscout / Pappalardo (via GitHub mirror)
+
+| Field | Value |
+|---|---|
+| Original dataset | Pappalardo, L., Cintia, P., Rossi, A. et al. "A public data set of spatio-temporal match events in soccer competitions." *Scientific Data* 6, 236 (2019). https://doi.org/10.1038/s41597-019-0247-7. Hosted at figshare.com/collections/Soccer_match_event_dataset/4415000 (blocked in this session — see environment note). **Licence: CC BY 4.0.** |
+| Retrieval/transformation source | `github.com/koenvo/wyscout-soccer-match-event-dataset` — a third-party repackaging of the same figshare data into per-match JSON files loadable by `kloppy`. This is a GitHub-hosted mirror, reachable in this session; it inherits the original CC BY 4.0 licence (it is a transformation of the same data, not a new work) and additionally names the original paper/collection in its own README. |
+| Competition/season coverage | **Validated against the mirror's own index (`processed-v2/README.md`, 1,941 rows) rather than assumed**: French Ligue 1 (380 games, 2017/18), Premier League (380, 2017/18), Serie A (380, 2017/18), La Liga (380, 2017/18), Bundesliga (306, 2017/18), Men's World Cup (64, 2018), Men's UEFA Euro (51, 2016). Total 1,941 — matches the README's own claimed total exactly. |
+| Match downloaded/validated this session | 1: Liverpool 4-0 Arsenal, Premier League 2017/18, match_id 2499743 |
+| Coordinate system | Validated by inspection: 0-100 normalised on both axes, attacking-direction-relative (both teams' shots cluster near x≈88-94, same convention family as StatsBomb's but on a 0-100 scale rather than 0-120/0-80) |
+| Schema | Classic Wyscout form: `events`/`teams`/`players` top-level keys; each event has `eventId`, `eventName`, `subEventName`, `tags` (qualifier IDs), `positions` (`[{x,y}, {x,y}]` for start/end), `playerId`, `teamId`, `matchPeriod`, `eventSec`. 1,678 events in the validated match — a plausible volume for a top-flight match. |
+| Metric families available | Full historical event stream (passes, shots, duels, fouls, etc.) via `tags` qualifier IDs. No xG, no tracking, no derived metrics — same category as StatsBomb Open Data's raw event layer, would need local calculation for anything beyond raw counts. |
+| Raw vs derived | Everything is provider-supplied (Wyscout's original event capture, repackaged not recomputed by the mirror). |
+| Download status | Manifest + 1 validated match downloaded via targeted `raw.githubusercontent.com` fetches (same pattern as StatsBomb — a full clone was not attempted after the StatsBomb clone-stall lesson). |
+| Known limitations | Historical only (2016-2018 seasons), not current/live. The mirror repackages the data faithfully but is still a third party, not Wyscout/Pappalardo themselves — cite both the original paper and the mirror repo when using it. |
+
 ## DFL / IDSSE (German Bundesliga tracking + event data)
 
 | Field | Value |

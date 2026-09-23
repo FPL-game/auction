@@ -4,12 +4,14 @@ An evidence-backed football-data pipeline for generating social-post candidates 
 
 ## Status
 
-Milestone 1 (manifests/inventory) and milestone 2 (proof-of-concept with real numbers) are done for two sources: **StatsBomb Open Data** and **SkillCorner Open Data**. DFL/IDSSE is documented but blocked in this sandboxed environment (network policy, not licensing — see below). Driblab Open Data is deliberately disabled (no licence found in its repo). Everything is stopped here for human review before scaling up, per instruction.
+Three sources are live: **StatsBomb Open Data**, **SkillCorner Open Data**, and **Wyscout/Pappalardo** (via a GitHub-hosted mirror). A bronze → silver → gold pipeline (DuckDB/Parquet) runs across all three. DFL/IDSSE is documented but blocked in this sandboxed environment (network policy, not licensing — see below). Driblab Open Data is deliberately disabled (no licence found in its repo). A **review pack** (`review_pack/`) with 7 finished, wording-reviewed post captions, 7 charts, a claim-audit CSV, and a metric-definition sheet is ready for human review — stopped here before scaling up, per instruction.
 
 Read first:
+- [`review_pack/`](review_pack/) — **start here**: finished captions, charts, claim audit, metric definitions, limitations note
 - [`docs/CAPABILITY_MATRIX.md`](docs/CAPABILITY_MATRIX.md) — per-source licence/access audit
 - [`docs/METRIC_REGISTRY.yaml`](docs/METRIC_REGISTRY.yaml) — every metric this pipeline can or can't produce, and why
 - [`docs/SOURCE_INVENTORY.md`](docs/SOURCE_INVENTORY.md) — exact coverage of what was actually downloaded this session
+- [`docs/DFL_MANUAL_IMPORT.md`](docs/DFL_MANUAL_IMPORT.md) — exact files/checksums/validation steps to supply DFL data manually
 - [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) — architecture and the open_demo/licensed_live mode split
 
 ## Setup
