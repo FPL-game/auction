@@ -456,9 +456,7 @@ async function main() {
   // before that, and self-correct (see the results-finalization loop below) once
   // FPL's own data catches up.
   const manualFinalizedGws = new Set(await fetchManualFinalizedGws());
-  // TEMP: one-off manual force-recompute for GW9 (requested directly, no admin-panel
-  // Firestore write available) — remove this hardcoded 9 once GW9 has been re-synced.
-  const forceRecomputeGws = new Set([...(await fetchForceRecomputeGws()), 9]);
+  const forceRecomputeGws = new Set(await fetchForceRecomputeGws());
   let liveEventEffectivelyFinished = liveEvent ? liveEvent.finished : false;
   if (liveEvent && !liveEventEffectivelyFinished) {
     if (manualFinalizedGws.has(liveEvent.id)) {
