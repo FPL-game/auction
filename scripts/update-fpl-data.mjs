@@ -102,6 +102,24 @@ async function fetchManualFinalizedGws() {
   }
 }
 
+// Gameweeks the admin wants re-fetched fresh from FPL even though they're already locked
+// `final` — the counterpart to fetchManualFinalizedGws above. A gameweek normally locks
+// forever the instant it's final so transfers can't rewrite history, but that also means
+// a late correction to FPL's own bonus points (data_checked flipping provisional bonus to
+// confirmed, or a genuine FPL fix after the fact) never reaches us on its own. This stays
+// in effect every sync until the admin un-forces it from the panel.
+async function fetchForceRecomputeGws() {
+  try {
+    const res = await fetch(`${FIRESTORE_BASE}/overrides/forceRecomputeGws`);
+    if (!res.ok) return [];
+    const body = await res.json();
+    const decoded = decodeFirestoreMap(body);
+    return Array.isArray(decoded.gws) ? decoded.gws.map(Number) : [];
+  } catch {
+    return [];
+  }
+}
+
 // Latest real-world kickoff time across a gameweek's fixtures, in ms — for the
 // 2-hour auto-finalize fallback below (a single match rarely runs past kickoff+2h
 // once stoppage time is included).
@@ -438,6 +456,9 @@ async function main() {
   // before that, and self-correct (see the results-finalization loop below) once
   // FPL's own data catches up.
   const manualFinalizedGws = new Set(await fetchManualFinalizedGws());
+  // TEMP: one-off manual force-recompute for GW9 (requested directly, no admin-panel
+  // Firestore write available) — remove this hardcoded 9 once GW9 has been re-synced.
+  const forceRecomputeGws = new Set([...(await fetchForceRecomputeGws()), 9]);
   let liveEventEffectivelyFinished = liveEvent ? liveEvent.finished : false;
   if (liveEvent && !liveEventEffectivelyFinished) {
     if (manualFinalizedGws.has(liveEvent.id)) {
@@ -568,23 +589,26 @@ async function main() {
     (e) =>
       e.finished ||
       manualFinalizedGws.has(e.id) ||
+      forceRecomputeGws.has(e.id) ||
       (liveEvent && e.id === liveEvent.id && liveEventEffectivelyFinished),
   );
   for (const ev of finishedEvents) {
     const gwFixture = state.fixtures.find((f) => f.gw === ev.id);
     if (!gwFixture) continue;
     // Absolute rule: once a result is `final`, it is never recomputed again, for any
-    // reason — not to backfill a new field, not because a transfer changed a roster.
-    // That's what makes `final` actually mean final. (An older result missing
-    // topScorerA/B just stays without that detail forever — recapParagraph() already
-    // renders fine without it.)
-    const alreadyFinal = gwFixture.matches.every(
+    // reason — not to backfill a new field, not because a transfer changed a roster —
+    // UNLESS an admin has explicitly force-recomputed this specific gameweek via the
+    // admin panel (forceRecomputeGws), e.g. because FPL corrected bonus points after we
+    // already locked it in. That's the one deliberate, admin-only escape hatch; nothing
+    // else bypasses this check.
+    const alreadyFinal = !forceRecomputeGws.has(ev.id) && gwFixture.matches.every(
       ([a, b]) => state.results[`${ev.id}-${a}-${b}`]?.final,
     );
     if (alreadyFinal) continue;
 
     const forced =
       manualFinalizedGws.has(ev.id) ||
+      forceRecomputeGws.has(ev.id) ||
       (liveEvent && ev.id === liveEvent.id && liveEventEffectivelyFinished && !ev.finished);
     const live = await fetchJson(`${API_BASE}/event/${ev.id}/live/`);
     const liveById = new Map(live.elements.map((e) => [e.id, e]));
