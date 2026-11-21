@@ -127,7 +127,8 @@ const playerOptions = players.map((p: any) => ({
     padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
     font-size: 14px;
   }
-  .budget-list .amt{ font-family:'JetBrains Mono', monospace; color: var(--turf); }
+  .budget-list .amt{ font-family:'JetBrains Mono', monospace; color: var(--turf); text-align:right; }
+  .budget-list .amt .breakdown{ display:block; font-size:11px; color: var(--grey); font-weight:400; }
   .pick-list{ list-style:none; }
   .pick-list li{
     display:flex; justify-content:space-between; align-items:center;
@@ -351,11 +352,12 @@ const playerOptions = players.map((p: any) => ({
     const list = document.getElementById('budgetList');
     list.innerHTML = seedTeams.map((t) => {
       const live = liveTeams[t.id] || DEFAULTS;
-      return `<li><span>${t.name}</span><span class="amt">${live.remainingBudget}M</span></li>`;
+      const total = live.remainingBudget + live.waiverBudget;
+      return `<li><span>${t.name}</span><span class="amt">${total}M<span class="breakdown">${live.remainingBudget}m squad / ${live.waiverBudget}m waiver</span></span></li>`;
     }).join('');
     seedTeams.forEach((t) => {
       const live = liveTeams[t.id] || DEFAULTS;
-      const label = `${t.name} (${live.remainingBudget}M left)`;
+      const label = `${t.name} (${live.remainingBudget}M squad left)`;
       const opt1 = teamSelect.querySelector(`option[value="${t.id}"]`);
       if (opt1) opt1.textContent = label;
       const opt2 = removeTeamSelect.querySelector(`option[value="${t.id}"]`);
