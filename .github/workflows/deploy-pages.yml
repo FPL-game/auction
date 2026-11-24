@@ -34,7 +34,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.ref }}
+          # Always checks out main's current tip, not workflow_run.head_sha — for a
+          # workflow_run event, head_sha is the commit the sync workflow STARTED from,
+          # not the auto-sync commit it just pushed. Using it here silently deployed the
+          # previous sync's data every time, one cycle behind (results/budgets/squads
+          # all stale by exactly one run). By the time this job starts, the sync run has
+          # already finished and pushed, so main's tip is always the commit we want.
+          ref: main
 
       - name: Set up Node
         uses: actions/setup-node@v4
